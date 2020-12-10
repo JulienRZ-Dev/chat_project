@@ -4,7 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="bc36b956-7b2f-4f2c-bb11-bbe5912cf8d3" name="Default Changelist" comment="Création projet Maven" />
+    <list default="true" id="bc36b956-7b2f-4f2c-bb11-bbe5912cf8d3" name="Default Changelist" comment="Création projet Maven">
+      <change beforePath="$PROJECT_DIR$/src/main/java/Controllers/UserManagement.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Controllers/UserManagement.java" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -67,6 +69,7 @@
         </entry>
       </map>
     </option>
+    <option name="oldMeFiltersMigrated" value="true" />
   </component>
   <component name="VcsManagerConfiguration">
     <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />

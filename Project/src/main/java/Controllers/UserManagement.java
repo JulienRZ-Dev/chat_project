@@ -89,35 +89,20 @@ public class UserManagement {
 
 
     /*
-    *   Vérifie si le pseudonyme est disponible
-    *
-    *   @param nickname
-    *          pseudonyme
-    *
-    *   @return faux si le pseudonyme est déjà pris, vrai sinon
+     *   Envoie un signal aux clients pour notifier un changement de pseudonyme
+     *   ( sauf pour le client concerné )
+     *
+     *   @param oldNickname
+     *          ancien pseudonyme
+     *
+     *   @param newNickname
+     *          nouveau pseudonyme
      */
-    private boolean isNicknameAvailable(String nickname) {
+    private boolean notifyNicknameChanged(String oldNickname, String newNickname) {
 
         // TODO
 
         return false;
-    }
-
-
-    /*
-    *   Envoie un signal aux clients pour notifier un changement de pseudonyme
-    *   ( sauf pour le client concerné )
-    *
-    *   @param oldNickname
-    *          ancien pseudonyme
-    *
-    *   @param newNickname
-    *          nouveau pseudonyme
-     */
-    private void notifyNickname(String oldNickname, String newNickname) {
-
-        // TODO
-
     }
 
 
@@ -130,24 +115,6 @@ public class UserManagement {
         // TODO
 
         return activeUsersList;
-    }
-
-    /*
-    *   Permet de mettre a jour le pseudonyme d'un utilisateur.
-    *   Il faut appeller isNicknameAvailable pour vérifier si le nouveau
-    *   peudonyme est disponible.
-    *
-    *   @param oldNickname
-    *          pseudonyme actuel de l'utilisateur
-    *
-    *   @param newNickname
-    *          nouveau pseudonyme de l'utilisateur
-     */
-    public boolean changeNickname(String oldNickname, String newNickname) {
-
-        // TODO
-
-        return false;
     }
 
 }
