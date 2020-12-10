@@ -1,14 +1,13 @@
-package Controllers;
+package controllers;
 
-import Exceptions.NicknameAlreadyUsed;
-import Models.Message;
-import Models.User;
+import exceptions.NicknameAlreadyUsed;
+import models.Message;
+import models.User;
 
 import java.io.IOException;
 import java.net.*;
 import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.Iterator;
 
 public class MessageManagement {
 
@@ -50,7 +49,7 @@ public class MessageManagement {
     }
 
 
-    private InetAddress getBroadcastAddress() throws SocketException {
+    private static InetAddress getBroadcastAddress() throws SocketException {
         InetAddress broadcastAddress = null;
         Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
         while (interfaces.hasMoreElements())
@@ -108,5 +107,9 @@ public class MessageManagement {
 
     public boolean SignOutUser(User user) {
         return false;
+    }
+
+    public static void main(String[] args) throws SocketException {
+        System.out.println(getBroadcastAddress().toString());
     }
 }
