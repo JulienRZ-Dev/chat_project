@@ -1,6 +1,6 @@
-package Controllers;
+package controllers;
 
-import Models.Message;
+import models.Message;
 
 import java.util.ArrayList;
 
