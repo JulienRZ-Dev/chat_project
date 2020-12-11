@@ -23,10 +23,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="bc36b956-7b2f-4f2c-bb11-bbe5912cf8d3" name="Default Changelist" comment="Création projet Maven">
+      <change afterPath="$PROJECT_DIR$/src/main/java/views/ConnectionWindow.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/views/ConnectionWindowFrame.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/controllers/MessageManagement.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/controllers/MessageManagement.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/Controllers/MessageManagement.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/Controllers/MessageManagement.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/Controllers/UserManagement.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/Controllers/UserManagement.class" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -42,6 +41,13 @@
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
+  </component>
+  <component name="MavenImportPreferences">
+    <option name="generalSettings">
+      <MavenGeneralSettings>
+        <option name="mavenHome" value="C:\Program Files\JetBrains\IntelliJ IDEA Community Edition 2020.2.2\plugins\maven\lib\maven3" />
+      </MavenGeneralSettings>
+    </option>
   </component>
   <component name="ProjectId" id="1lPq9CM4QwbBTWY7KuhIdQRdfGQ" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true">
@@ -70,7 +76,33 @@
       <recent name="C:\Users\celes\Desktop\INSA\POO\chat_project\Project\src\main\java" />
     </key>
   </component>
-  <component name="RunManager" selected="Application.MessageManagement">
+  <component name="RunManager" selected="Application.ConnectionWindow">
+    <configuration name="ConnectionWindow" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="views.ConnectionWindow" />
+      <module name="Project" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="views.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="ConnectionWindowFrame" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="views.ConnectionWindowFrame" />
+      <module name="Project" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="views.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
     <configuration name="Main" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="main.Main" />
       <module name="Project" />
@@ -99,6 +131,8 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Application.ConnectionWindow" />
+        <item itemvalue="Application.ConnectionWindowFrame" />
         <item itemvalue="Application.MessageManagement" />
         <item itemvalue="Application.Main" />
       </list>
@@ -139,5 +173,31 @@
     <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
     <MESSAGE value="Création projet Maven" />
     <option name="LAST_COMMIT_MESSAGE" value="Création projet Maven" />
+  </component>
+  <component name="WindowStateProjectService">
+    <state x="574" y="119" key="#com.intellij.ide.util.MemberChooser" timestamp="1607695245428">
+      <screen x="0" y="0" width="1536" height="824" />
+    </state>
+    <state x="574" y="119" key="#com.intellij.ide.util.MemberChooser/0.0.1536.824@0.0.1536.824" timestamp="1607695245428" />
+    <state x="499" y="159" key="#com.intellij.refactoring.typeMigration.ui.FailedConversionsDialog" timestamp="1607699870221">
+      <screen x="0" y="0" width="1536" height="824" />
+    </state>
+    <state x="499" y="159" key="#com.intellij.refactoring.typeMigration.ui.FailedConversionsDialog/0.0.1536.824@0.0.1536.824" timestamp="1607699870221" />
+    <state width="1493" height="210" key="GridCell.Tab.0.bottom" timestamp="1607702812480">
+      <screen x="0" y="0" width="1536" height="824" />
+    </state>
+    <state width="1493" height="210" key="GridCell.Tab.0.bottom/0.0.1536.824@0.0.1536.824" timestamp="1607702812480" />
+    <state width="1493" height="210" key="GridCell.Tab.0.center" timestamp="1607702812480">
+      <screen x="0" y="0" width="1536" height="824" />
+    </state>
+    <state width="1493" height="210" key="GridCell.Tab.0.center/0.0.1536.824@0.0.1536.824" timestamp="1607702812480" />
+    <state width="1493" height="210" key="GridCell.Tab.0.left" timestamp="1607702812479">
+      <screen x="0" y="0" width="1536" height="824" />
+    </state>
+    <state width="1493" height="210" key="GridCell.Tab.0.left/0.0.1536.824@0.0.1536.824" timestamp="1607702812479" />
+    <state width="1493" height="210" key="GridCell.Tab.0.right" timestamp="1607702812480">
+      <screen x="0" y="0" width="1536" height="824" />
+    </state>
+    <state width="1493" height="210" key="GridCell.Tab.0.right/0.0.1536.824@0.0.1536.824" timestamp="1607702812480" />
   </component>
 </project>
