@@ -11,19 +11,13 @@ public class User {
     private int id;
     private InetAddress ipAddress;
     private String nickname;
-    private String password;
 
 
     // Constructor
-    public User(int id, String nickname, String password) {
+    public User(int id, String nickname, InetAddress ipAddress) {
         this.id = id;
-        try {
-            this.ipAddress = getLocalHost();
-        } catch (UnknownHostException e) {
-            e.printStackTrace();
-        }
         this.nickname = nickname;
-        this.password = password;
+        this.ipAddress = ipAddress;
     }
 
 
@@ -37,11 +31,6 @@ public class User {
     public String getNickname() {
         return this.nickname;
     }
-
-    public String getPassword() {
-        return this.password;
-    }
-
 
     // Setters
     public void setNickname(String nickname) {

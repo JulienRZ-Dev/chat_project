@@ -1,8 +1,11 @@
 package controllers;
 
+import communication.ConnectionsListener;
+import exceptions.UdpConnectionFailure;
 import exceptions.NicknameAlreadyUsed;
 import models.Message;
 import models.User;
+import communication.UdpCommunication;
 
 import java.io.IOException;
 import java.net.*;
@@ -11,7 +14,14 @@ import java.util.Enumeration;
 
 public class MessageManagement {
 
-    private final int TIMEOUT_RECEPTION_REPONSE = 2000;
+    private final int TIMEOUT_RECEPTION_REPONSE = 500;
+
+    private User currentUser;
+    private ArrayList<User> activeUsers = new ArrayList<User>();
+
+    public MessageManagement(User currentUser) {
+        this.currentUser = currentUser;
+    }
 
     /*
      *   Récupère une liste de messages entre l'utilisateur 1 et l'utilisateur 2
@@ -49,56 +59,49 @@ public class MessageManagement {
     }
 
 
-    private static InetAddress getBroadcastAddress() throws SocketException {
-        InetAddress broadcastAddress = null;
-        Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
-        while (interfaces.hasMoreElements())
-        {
-            NetworkInterface networkInterface = interfaces.nextElement();
-            if (networkInterface.isLoopback())
-                continue;    // Do not want to use the loopback interface.
-            for (InterfaceAddress interfaceAddress : networkInterface.getInterfaceAddresses())
-            {
-                InetAddress broadcast = interfaceAddress.getBroadcast();
-                if (broadcast == null)
-                    continue;
-
-                broadcastAddress = broadcast;
-            }
-        }
-        return broadcastAddress;
-    }
-
-    public ArrayList<User> isNicknameAvailable(String nickname, int id) throws NicknameAlreadyUsed {
+    /*
+     *
+     *
+     *
+     */
+    public ArrayList<User> isNicknameAvailable(String nickname, int id) throws NicknameAlreadyUsed, UdpConnectionFailure {
         ArrayList<User> activeUsers = new ArrayList();
-        int port = 1025 + (int)(Math.random() * ((65535 - 1025) + 1));
+        int port = 1025;
         String message = nickname + ":" + Integer.toString(id);
 
+        UdpCommunication communication = new UdpCommunication();
+        if (!communication.openSocket(port))
+            throw (new UdpConnectionFailure("ouverture du socket"));
+        if (!communication.broadcastMessage(message, 1024))
+            throw (new UdpConnectionFailure("autorisation du broadcast"));
+
         try {
-            DatagramSocket socket = new DatagramSocket(port);
-            socket.setBroadcast(true);
-            InetAddress broadcastAdress = getBroadcastAddress();
-            DatagramPacket packet = new DatagramPacket(message.getBytes(), message.length(), broadcastAdress, port);
-            socket.send(packet);
-
-            byte[] buf = new byte[1024];
-            packet = new DatagramPacket(buf, buf.length);
-            socket.setSoTimeout(TIMEOUT_RECEPTION_REPONSE);
-
+            ArrayList<String> messagesRetour = communication.receiveMessages(TIMEOUT_RECEPTION_REPONSE);
             InetAddress myAddress = InetAddress.getLocalHost();
-            socket.receive(packet);
-            while (packet.getAddress().getHostAddress().contains(myAddress.toString())) {
-                socket.receive(packet);
-                //Traitement des packet
+            for (int i = 0; i < messagesRetour.size(); i++) {
+                String[] infos = messagesRetour.get(i).split(":");
+                if (infos[0].compareTo(myAddress.toString()) == 0) {
+                    continue;
+                }
+                else if (Integer.parseInt(infos[1]) == 0) {
+                    throw (new NicknameAlreadyUsed(nickname));
+                }
+                //                            0                                 1                               2      3
+                //Messages format : <Sender's IP Address>:<0 if the sender uses the nickname, 1 otherwise>:<nickname>:<id>
+                activeUsers.add(new User(Integer.parseInt(infos[3]), infos[2], InetAddress.getByName(infos[0])));
             }
-
-            socket.close();
         }
         catch (IOException e) {
             e.printStackTrace();
         }
 
+        communication.closeSocket();
+
         return activeUsers;
+    }
+
+    public void listenForConnections() {
+        ConnectionsListener listener = new ConnectionsListener(this);
     }
 
     private boolean notifyNicknameChanged(String oldNickname, String newNickname) {
@@ -109,7 +112,11 @@ public class MessageManagement {
         return false;
     }
 
-    public static void main(String[] args) throws SocketException {
-        System.out.println(getBroadcastAddress().toString());
+    public User getCurrentUser() {
+        return currentUser;
+    }
+
+    public void addUser(User user) {
+        activeUsers.add(user);
     }
 }
