@@ -5,4 +5,16 @@
   <version>0.0.1-SNAPSHOT</version>
   <name>Chat Project R-M</name>
   <description>Test</description>
+  
+      <dependencies>
+
+        <!-- mysql connector -->
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>5.1.49</version>
+            <scope>compile</scope>
+        </dependency>
+
+    </dependencies>
 </project>

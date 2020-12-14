@@ -1,0 +1,490 @@
+Index: src/main/java/controllers/MessageManagement.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package controllers;\r\n\r\nimport exceptions.NicknameAlreadyUsed;\r\nimport models.Message;\r\nimport models.User;\r\n\r\nimport java.io.IOException;\r\nimport java.net.*;\r\nimport java.util.ArrayList;\r\nimport java.util.Enumeration;\r\n\r\npublic class MessageManagement {\r\n\r\n    private final int TIMEOUT_RECEPTION_REPONSE = 2000;\r\n\r\n    /*\r\n     *   Récupère une liste de messages entre l'utilisateur 1 et l'utilisateur 2\r\n     *   depuis la base de données centralisée\r\n     *\r\n     *   @param user1\r\n     *\r\n     *   @param user2\r\n     *\r\n     *   @return L'historique des messsages de ces deux utilisateurs\r\n     */\r\n    public ArrayList<Message> getHistory(int user1, int user2) {\r\n        ArrayList<Message> messageList = new ArrayList<Message>();\r\n\r\n        // TODO\r\n\r\n        return messageList;\r\n    }\r\n\r\n\r\n    /*\r\n     *   Ajoute un message à la base de données\r\n     *\r\n     *   @param recipient\r\n     *          Le destinataire du message\r\n     *\r\n     *   @param transmitter\r\n     *          L'emetteur du message\r\n     *\r\n     */\r\n    public void AddMessage(int recipient, int transmitter, String content) {\r\n\r\n        // TODO\r\n\r\n    }\r\n\r\n\r\n    private static InetAddress getBroadcastAddress() throws SocketException {\r\n        InetAddress broadcastAddress = null;\r\n        Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();\r\n        while (interfaces.hasMoreElements())\r\n        {\r\n            NetworkInterface networkInterface = interfaces.nextElement();\r\n            if (networkInterface.isLoopback())\r\n                continue;    // Do not want to use the loopback interface.\r\n            for (InterfaceAddress interfaceAddress : networkInterface.getInterfaceAddresses())\r\n            {\r\n                InetAddress broadcast = interfaceAddress.getBroadcast();\r\n                if (broadcast == null)\r\n                    continue;\r\n\r\n                broadcastAddress = broadcast;\r\n            }\r\n        }\r\n        return broadcastAddress;\r\n    }\r\n\r\n    public ArrayList<User> isNicknameAvailable(String nickname, int id) throws NicknameAlreadyUsed {\r\n        ArrayList<User> activeUsers = new ArrayList();\r\n        int port = 1025 + (int)(Math.random() * ((65535 - 1025) + 1));\r\n        String message = nickname + \":\" + Integer.toString(id);\r\n\r\n        try {\r\n            DatagramSocket socket = new DatagramSocket(port);\r\n            socket.setBroadcast(true);\r\n            InetAddress broadcastAdress = getBroadcastAddress();\r\n            DatagramPacket packet = new DatagramPacket(message.getBytes(), message.length(), broadcastAdress, port);\r\n            socket.send(packet);\r\n\r\n            byte[] buf = new byte[1024];\r\n            packet = new DatagramPacket(buf, buf.length);\r\n            socket.setSoTimeout(TIMEOUT_RECEPTION_REPONSE);\r\n\r\n            InetAddress myAddress = InetAddress.getLocalHost();\r\n            socket.receive(packet);\r\n            while (packet.getAddress().getHostAddress().contains(myAddress.toString())) {\r\n                socket.receive(packet);\r\n                //Traitement des packet\r\n            }\r\n\r\n            socket.close();\r\n        }\r\n        catch (IOException e) {\r\n            e.printStackTrace();\r\n        }\r\n\r\n        return activeUsers;\r\n    }\r\n\r\n    private boolean notifyNicknameChanged(String oldNickname, String newNickname) {\r\n        return false;\r\n    }\r\n\r\n    public boolean SignOutUser(User user) {\r\n        return false;\r\n    }\r\n\r\n    public static void main(String[] args) throws SocketException {\r\n        System.out.println(getBroadcastAddress().toString());\r\n    }\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/controllers/MessageManagement.java b/src/main/java/controllers/MessageManagement.java
+--- a/src/main/java/controllers/MessageManagement.java	(revision def9f50272f429e03147c1cd667703cee84cbfa4)
++++ b/src/main/java/controllers/MessageManagement.java	(date 1607706563422)
+@@ -1,8 +1,11 @@
+ package controllers;
+ 
++import communication.ConnectionsListener;
++import exceptions.UdpConnectionFailure;
+ import exceptions.NicknameAlreadyUsed;
+ import models.Message;
+ import models.User;
++import communication.UdpCommunication;
+ 
+ import java.io.IOException;
+ import java.net.*;
+@@ -11,7 +14,14 @@
+ 
+ public class MessageManagement {
+ 
+-    private final int TIMEOUT_RECEPTION_REPONSE = 2000;
++    private final int TIMEOUT_RECEPTION_REPONSE = 500;
++
++    private User currentUser;
++    private ArrayList<User> activeUsers = new ArrayList<User>();
++
++    public MessageManagement(User currentUser) {
++        this.currentUser = currentUser;
++    }
+ 
+     /*
+      *   Récupère une liste de messages entre l'utilisateur 1 et l'utilisateur 2
+@@ -49,58 +59,51 @@
+     }
+ 
+ 
+-    private static InetAddress getBroadcastAddress() throws SocketException {
+-        InetAddress broadcastAddress = null;
+-        Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
+-        while (interfaces.hasMoreElements())
+-        {
+-            NetworkInterface networkInterface = interfaces.nextElement();
+-            if (networkInterface.isLoopback())
+-                continue;    // Do not want to use the loopback interface.
+-            for (InterfaceAddress interfaceAddress : networkInterface.getInterfaceAddresses())
+-            {
+-                InetAddress broadcast = interfaceAddress.getBroadcast();
+-                if (broadcast == null)
+-                    continue;
+-
+-                broadcastAddress = broadcast;
+-            }
+-        }
+-        return broadcastAddress;
+-    }
+-
+-    public ArrayList<User> isNicknameAvailable(String nickname, int id) throws NicknameAlreadyUsed {
++    /*
++     *
++     *
++     *
++     */
++    public ArrayList<User> isNicknameAvailable(String nickname, int id) throws NicknameAlreadyUsed, UdpConnectionFailure {
+         ArrayList<User> activeUsers = new ArrayList();
+-        int port = 1025 + (int)(Math.random() * ((65535 - 1025) + 1));
++        int port = 1025;
+         String message = nickname + ":" + Integer.toString(id);
+ 
++        UdpCommunication communication = new UdpCommunication();
++        if (!communication.openSocket(port))
++            throw (new UdpConnectionFailure("ouverture du socket"));
++        if (!communication.broadcastMessage(message, 1024))
++            throw (new UdpConnectionFailure("autorisation du broadcast"));
++
+         try {
+-            DatagramSocket socket = new DatagramSocket(port);
+-            socket.setBroadcast(true);
+-            InetAddress broadcastAdress = getBroadcastAddress();
+-            DatagramPacket packet = new DatagramPacket(message.getBytes(), message.length(), broadcastAdress, port);
+-            socket.send(packet);
+-
+-            byte[] buf = new byte[1024];
+-            packet = new DatagramPacket(buf, buf.length);
+-            socket.setSoTimeout(TIMEOUT_RECEPTION_REPONSE);
+-
++            ArrayList<String> messagesRetour = communication.receiveMessages(TIMEOUT_RECEPTION_REPONSE);
+             InetAddress myAddress = InetAddress.getLocalHost();
+-            socket.receive(packet);
+-            while (packet.getAddress().getHostAddress().contains(myAddress.toString())) {
+-                socket.receive(packet);
+-                //Traitement des packet
++            for (int i = 0; i < messagesRetour.size(); i++) {
++                String[] infos = messagesRetour.get(i).split(":");
++                if (infos[0].compareTo(myAddress.toString()) == 0) {
++                    continue;
++                }
++                else if (Integer.parseInt(infos[1]) == 0) {
++                    throw (new NicknameAlreadyUsed(nickname));
++                }
++                //                            0                                 1                               2      3
++                //Messages format : <Sender's IP Address>:<0 if the sender uses the nickname, 1 otherwise>:<nickname>:<id>
++                activeUsers.add(new User(Integer.parseInt(infos[3]), infos[2], InetAddress.getByName(infos[0])));
+             }
+-
+-            socket.close();
+         }
+         catch (IOException e) {
+             e.printStackTrace();
+         }
+ 
++        communication.closeSocket();
++
+         return activeUsers;
+     }
+ 
++    public void listenForConnections() {
++        ConnectionsListener listener = new ConnectionsListener(this);
++    }
++
+     private boolean notifyNicknameChanged(String oldNickname, String newNickname) {
+         return false;
+     }
+@@ -109,7 +112,11 @@
+         return false;
+     }
+ 
+-    public static void main(String[] args) throws SocketException {
+-        System.out.println(getBroadcastAddress().toString());
++    public User getCurrentUser() {
++        return currentUser;
++    }
++
++    public void addUser(User user) {
++        activeUsers.add(user);
+     }
+ }
+Index: src/main/java/models/User.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package models;\r\n\r\nimport java.net.InetAddress;\r\nimport java.net.UnknownHostException;\r\n\r\nimport static java.net.InetAddress.getLocalHost;\r\n\r\npublic class User {\r\n\r\n    // Attributes\r\n    private int id;\r\n    private InetAddress ipAddress;\r\n    private String nickname;\r\n    private String password;\r\n\r\n\r\n    // Constructor\r\n    public User(int id, String nickname, String password) {\r\n        this.id = id;\r\n        try {\r\n            this.ipAddress = getLocalHost();\r\n        } catch (UnknownHostException e) {\r\n            e.printStackTrace();\r\n        }\r\n        this.nickname = nickname;\r\n        this.password = password;\r\n    }\r\n\r\n\r\n    // Getters and setters\r\n\r\n    // Getters\r\n    public int getId() { return this.id; }\r\n\r\n    public InetAddress getIpAddress() { return this.ipAddress; }\r\n\r\n    public String getNickname() {\r\n        return this.nickname;\r\n    }\r\n\r\n    public String getPassword() {\r\n        return this.password;\r\n    }\r\n\r\n\r\n    // Setters\r\n    public void setNickname(String nickname) {\r\n        this.nickname = nickname;\r\n    }\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/models/User.java b/src/main/java/models/User.java
+--- a/src/main/java/models/User.java	(revision def9f50272f429e03147c1cd667703cee84cbfa4)
++++ b/src/main/java/models/User.java	(date 1607697734038)
+@@ -11,19 +11,13 @@
+     private int id;
+     private InetAddress ipAddress;
+     private String nickname;
+-    private String password;
+ 
+ 
+     // Constructor
+-    public User(int id, String nickname, String password) {
++    public User(int id, String nickname, InetAddress ipAddress) {
+         this.id = id;
+-        try {
+-            this.ipAddress = getLocalHost();
+-        } catch (UnknownHostException e) {
+-            e.printStackTrace();
+-        }
+         this.nickname = nickname;
+-        this.password = password;
++        this.ipAddress = ipAddress;
+     }
+ 
+ 
+@@ -38,11 +32,6 @@
+         return this.nickname;
+     }
+ 
+-    public String getPassword() {
+-        return this.password;
+-    }
+-
+-
+     // Setters
+     public void setNickname(String nickname) {
+         this.nickname = nickname;
+Index: src/main/java/communication/ConnectionsListener.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/communication/ConnectionsListener.java b/src/main/java/communication/ConnectionsListener.java
+new file mode 100644
+--- /dev/null	(date 1607706834068)
++++ b/src/main/java/communication/ConnectionsListener.java	(date 1607706834068)
+@@ -0,0 +1,48 @@
++package communication;
++
++import controllers.MessageManagement;
++import models.User;
++
++import java.io.IOException;
++import java.net.InetAddress;
++
++public class ConnectionsListener extends Thread {
++
++    private MessageManagement messageManager;
++
++    public ConnectionsListener(MessageManagement messageManager) {
++        this.messageManager = messageManager;
++    }
++
++    public void run() {
++        UdpCommunication communication = new UdpCommunication();
++        if (!communication.openSocket(1024))
++            System.out.println("ConnectionsListener : Erreur lors de l'ouverture du socket");
++        String response = null;
++        while(true) {
++            try {
++                String message = communication.receiveMessage();
++                String[] infos = message.split(":");
++                String nickname = infos[1];
++                int id = Integer.parseInt(infos[2]);
++                InetAddress address = InetAddress.getByName(infos[0]);
++                if (nickname.compareTo(messageManager.getCurrentUser().getNickname()) == 0) {
++                    response = "0:" + messageManager.getCurrentUser().getNickname() + Integer.toString(messageManager.getCurrentUser().getId());
++                }
++                else {
++                    response = "1:" + messageManager.getCurrentUser().getNickname() + Integer.toString(messageManager.getCurrentUser().getId());
++                    messageManager.addUser(new User(id, nickname, address));
++                }
++                if (!communication.unicastMessage(response, address, 1025)) {
++                    System.out.println("ConnectionsListener : Erreur lors de l'envoi du message réponse");
++                }
++            }
++            catch (IOException e) {
++                System.out.println("ConnectionsListener : Erreur lors de la réception d'un message");
++            }
++        }
++    }
++
++
++
++}
+Index: src/main/java/communication/UdpCommunication.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/communication/UdpCommunication.java b/src/main/java/communication/UdpCommunication.java
+new file mode 100644
+--- /dev/null	(date 1607706088782)
++++ b/src/main/java/communication/UdpCommunication.java	(date 1607706088782)
+@@ -0,0 +1,194 @@
++package communication;
++
++import java.io.IOException;
++import java.net.*;
++import java.util.ArrayList;
++import java.util.Enumeration;
++
++
++public class UdpCommunication {
++
++    DatagramSocket socket;
++
++    /*
++     *   Call this method before sending or receiving any message to open a udp socket
++     *
++     *   @param port
++     *          port number you want to open the socket at
++     *
++     *   @return false if the socket could not be open (if the port was already used for example)
++     *           else return true
++     */
++    public boolean openSocket(int port) {
++        try {
++            socket = new DatagramSocket(port);
++            return true;
++        } catch (SocketException e) {
++            e.printStackTrace();
++            return false;
++        }
++    }
++
++    /*
++     *   Sends a message to the selected ip address
++     *
++     *   @param message
++     *          the message you want to broadcast
++     *
++     *   @param address
++     *          the ip address you want to send the message to
++     *
++     *   @param port
++     *          the port you want to broadcast on
++     *
++     *   @return false if the message could not be sent (by activating broadcast or while sending the message)
++     *           else return true
++     */
++    public boolean unicastMessage(String message, InetAddress address, int port) {
++        try {
++            DatagramPacket packet = new DatagramPacket(message.getBytes(), message.length(), address, port);
++            socket.send(packet);
++
++            return true;
++        }
++        catch (IOException e) {
++            e.printStackTrace();
++            return false;
++        }
++    }
++
++
++    /*
++     *   Finds the local network's broadcast address and sends a message to every machine on the network
++     *
++     *   @param message
++     *          the message you want to broadcast
++     *
++     *   @param port
++     *          the port you want to broadcast on
++     *
++     *   @return false if the message could not be sent (by activating broadcast or while sending the message)
++     *           else return true
++     */
++    public boolean broadcastMessage(String message, int port) {
++        try {
++            socket.setBroadcast(true);
++            InetAddress broadcastAddress = getBroadcastAddress();
++            DatagramPacket packet = new DatagramPacket(message.getBytes(), message.length(), broadcastAddress, port);
++            socket.send(packet);
++
++            return true;
++        }
++        catch (IOException e) {
++            e.printStackTrace();
++            return false;
++        }
++    }
++
++
++    /*
++     *   Receive one single message
++     *
++     *   @return the message received
++     */
++    public String receiveMessage() throws IOException {
++        String message = null;
++        try {
++            byte[] buf = new byte[1024];
++            DatagramPacket packet = new DatagramPacket(buf, buf.length);
++            socket.receive(packet);
++            message = packet.getAddress().toString() + ":" + packet.getData().toString();
++        }
++        catch (SocketTimeoutException te) {
++            System.out.println("Timeout expiré.");
++        }
++        return message;
++    }
++
++
++    /*
++     *   Receive one single message, but stops if the timeout has been reached (and return a null message)
++     *
++     *   @param max_timeout
++     *          the maximum time (in milliseconds) you want to wait after starting to wait for a message
++     *
++     *   @return the message received
++     */
++    public String receiveMessage(int max_timeout) throws IOException {
++        String message = null;
++        try {
++            byte[] buf = new byte[1024];
++            DatagramPacket packet = new DatagramPacket(buf, buf.length);
++            socket.setSoTimeout(max_timeout);
++            socket.receive(packet);
++            message = packet.getAddress().toString() + ":" + packet.getData().toString();
++        }
++        catch (SocketTimeoutException te) {
++            System.out.println("Timeout expiré.");
++        }
++        return message;
++    }
++
++
++    /*
++     *   Receive an undefined number of messages, and stop receiving if the timeout has been reached
++     *
++     *   @param max_timeout
++     *          the maximum time (in milliseconds) you want to wait after starting to wait for a message
++     *
++     *   @return the messages received
++     */
++    public ArrayList<String> receiveMessages(int max_timeout) throws IOException {
++        ArrayList<String> messageList = new ArrayList<String>();
++        try {
++            byte[] buf = new byte[1024];
++            DatagramPacket packet = new DatagramPacket(buf, buf.length);
++            socket.setSoTimeout(max_timeout);
++
++            while (true) {
++                socket.receive(packet);
++                String message = packet.getData().toString();
++                messageList.add(packet.getAddress().toString() + ":" + message) ;
++            }
++        }
++        catch (SocketTimeoutException te) {
++            System.out.println("Timeout atteint. On suppose que tous les autres utilisateurs ont répondu.");
++        }
++        return messageList;
++    }
++
++
++    /*
++     *   Use this method to get the local network's broadcast address
++     *
++     *   @return the local network's broadcast address
++     */
++    private InetAddress getBroadcastAddress() throws SocketException {
++        InetAddress broadcastAddress = null;
++        Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
++        while (interfaces.hasMoreElements())
++        {
++            NetworkInterface networkInterface = interfaces.nextElement();
++            if (networkInterface.isLoopback())
++                continue;    // Do not want to use the loopback interface.
++            for (InterfaceAddress interfaceAddress : networkInterface.getInterfaceAddresses())
++            {
++                InetAddress broadcast = interfaceAddress.getBroadcast();
++                if (broadcast == null)
++                    continue;
++
++                broadcastAddress = broadcast;
++            }
++        }
++        return broadcastAddress;
++    }
++
++
++    /*
++     *   Use this method to close the socket once you're done using it
++     */
++    public void closeSocket() {
++        socket.close();
++    }
++
++}
+Index: src/main/java/exceptions/UdpConnectionFailure.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/exceptions/UdpConnectionFailure.java b/src/main/java/exceptions/UdpConnectionFailure.java
+new file mode 100644
+--- /dev/null	(date 1607702741786)
++++ b/src/main/java/exceptions/UdpConnectionFailure.java	(date 1607702741786)
+@@ -0,0 +1,7 @@
++package exceptions;
++
++public class UdpConnectionFailure extends Exception {
++    public UdpConnectionFailure(String infos) {
++        super("Erreur au niveau de " + infos);
++    }
++}
+Index: .idea/workspace.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<project version=\"4\">\r\n  <component name=\"AutoImportSettings\">\r\n    <option name=\"autoReloadType\" value=\"SELECTIVE\" />\r\n  </component>\r\n  <component name=\"BranchesTreeState\">\r\n    <expand>\r\n      <path>\r\n        <item name=\"ROOT\" type=\"e8cecc67:BranchNodeDescriptor\" />\r\n        <item name=\"LOCAL_ROOT\" type=\"e8cecc67:BranchNodeDescriptor\" />\r\n      </path>\r\n      <path>\r\n        <item name=\"ROOT\" type=\"e8cecc67:BranchNodeDescriptor\" />\r\n        <item name=\"REMOTE_ROOT\" type=\"e8cecc67:BranchNodeDescriptor\" />\r\n      </path>\r\n      <path>\r\n        <item name=\"ROOT\" type=\"e8cecc67:BranchNodeDescriptor\" />\r\n        <item name=\"REMOTE_ROOT\" type=\"e8cecc67:BranchNodeDescriptor\" />\r\n        <item name=\"GROUP_NODE:origin\" type=\"e8cecc67:BranchNodeDescriptor\" />\r\n      </path>\r\n    </expand>\r\n    <select />\r\n  </component>\r\n  <component name=\"ChangeListManager\">\r\n    <list default=\"true\" id=\"bc36b956-7b2f-4f2c-bb11-bbe5912cf8d3\" name=\"Default Changelist\" comment=\"Création projet Maven\">\r\n      <change beforePath=\"$PROJECT_DIR$/.idea/workspace.xml\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/.idea/workspace.xml\" afterDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/src/main/java/controllers/MessageManagement.java\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/src/main/java/controllers/MessageManagement.java\" afterDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/target/classes/Controllers/MessageManagement.class\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/target/classes/Controllers/MessageManagement.class\" afterDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/target/classes/Controllers/UserManagement.class\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/target/classes/Controllers/UserManagement.class\" afterDir=\"false\" />\r\n    </list>\r\n    <option name=\"SHOW_DIALOG\" value=\"false\" />\r\n    <option name=\"HIGHLIGHT_CONFLICTS\" value=\"true\" />\r\n    <option name=\"HIGHLIGHT_NON_ACTIVE_CHANGELIST\" value=\"false\" />\r\n    <option name=\"LAST_RESOLUTION\" value=\"IGNORE\" />\r\n  </component>\r\n  <component name=\"FileTemplateManagerImpl\">\r\n    <option name=\"RECENT_TEMPLATES\">\r\n      <list>\r\n        <option value=\"Class\" />\r\n      </list>\r\n    </option>\r\n  </component>\r\n  <component name=\"Git.Settings\">\r\n    <option name=\"RECENT_GIT_ROOT_PATH\" value=\"$PROJECT_DIR$/..\" />\r\n  </component>\r\n  <component name=\"ProjectId\" id=\"1lPq9CM4QwbBTWY7KuhIdQRdfGQ\" />\r\n  <component name=\"ProjectLevelVcsManager\" settingsEditedManually=\"true\">\r\n    <ConfirmationsSetting value=\"2\" id=\"Add\" />\r\n  </component>\r\n  <component name=\"ProjectViewState\">\r\n    <option name=\"hideEmptyMiddlePackages\" value=\"true\" />\r\n    <option name=\"showLibraryContents\" value=\"true\" />\r\n  </component>\r\n  <component name=\"PropertiesComponent\">\r\n    <property name=\"ASKED_ADD_EXTERNAL_FILES\" value=\"true\" />\r\n    <property name=\"Downloaded.Files.Path.Enabled\" value=\"false\" />\r\n    <property name=\"Repository.Attach.Annotations\" value=\"false\" />\r\n    <property name=\"Repository.Attach.JavaDocs\" value=\"false\" />\r\n    <property name=\"Repository.Attach.Sources\" value=\"false\" />\r\n    <property name=\"RunOnceActivity.OpenProjectViewOnStart\" value=\"true\" />\r\n    <property name=\"RunOnceActivity.ShowReadmeOnStart\" value=\"true\" />\r\n    <property name=\"SHARE_PROJECT_CONFIGURATION_FILES\" value=\"true\" />\r\n    <property name=\"last_opened_file_path\" value=\"$PROJECT_DIR$\" />\r\n    <property name=\"project.structure.last.edited\" value=\"Libraries\" />\r\n    <property name=\"project.structure.proportion\" value=\"0.15\" />\r\n    <property name=\"project.structure.side.proportion\" value=\"0.2\" />\r\n  </component>\r\n  <component name=\"RecentsManager\">\r\n    <key name=\"MoveFile.RECENT_KEYS\">\r\n      <recent name=\"C:\\Users\\celes\\Desktop\\INSA\\POO\\chat_project\\Project\\src\\main\\java\" />\r\n    </key>\r\n  </component>\r\n  <component name=\"RunManager\" selected=\"Application.MessageManagement\">\r\n    <configuration name=\"Main\" type=\"Application\" factoryName=\"Application\" temporary=\"true\" nameIsGenerated=\"true\">\r\n      <option name=\"MAIN_CLASS_NAME\" value=\"main.Main\" />\r\n      <module name=\"Project\" />\r\n      <extension name=\"coverage\">\r\n        <pattern>\r\n          <option name=\"PATTERN\" value=\"main.*\" />\r\n          <option name=\"ENABLED\" value=\"true\" />\r\n        </pattern>\r\n      </extension>\r\n      <method v=\"2\">\r\n        <option name=\"Make\" enabled=\"true\" />\r\n      </method>\r\n    </configuration>\r\n    <configuration name=\"MessageManagement\" type=\"Application\" factoryName=\"Application\" temporary=\"true\" nameIsGenerated=\"true\">\r\n      <option name=\"MAIN_CLASS_NAME\" value=\"controllers.MessageManagement\" />\r\n      <module name=\"Project\" />\r\n      <extension name=\"coverage\">\r\n        <pattern>\r\n          <option name=\"PATTERN\" value=\"controllers.*\" />\r\n          <option name=\"ENABLED\" value=\"true\" />\r\n        </pattern>\r\n      </extension>\r\n      <method v=\"2\">\r\n        <option name=\"Make\" enabled=\"true\" />\r\n      </method>\r\n    </configuration>\r\n    <recent_temporary>\r\n      <list>\r\n        <item itemvalue=\"Application.MessageManagement\" />\r\n        <item itemvalue=\"Application.Main\" />\r\n      </list>\r\n    </recent_temporary>\r\n  </component>\r\n  <component name=\"SpellCheckerSettings\" RuntimeDictionaries=\"0\" Folders=\"0\" CustomDictionaries=\"0\" DefaultDictionary=\"application-level\" UseSingleDictionary=\"true\" transferred=\"true\" />\r\n  <component name=\"TaskManager\">\r\n    <task active=\"true\" id=\"Default\" summary=\"Default task\">\r\n      <changelist id=\"bc36b956-7b2f-4f2c-bb11-bbe5912cf8d3\" name=\"Default Changelist\" comment=\"\" />\r\n      <created>1607508921172</created>\r\n      <option name=\"number\" value=\"Default\" />\r\n      <option name=\"presentableId\" value=\"Default\" />\r\n      <updated>1607508921172</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00001\" summary=\"Création projet Maven\">\r\n      <created>1607513481747</created>\r\n      <option name=\"number\" value=\"00001\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00001\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1607513481748</updated>\r\n    </task>\r\n    <option name=\"localTasksCounter\" value=\"2\" />\r\n    <servers />\r\n  </component>\r\n  <component name=\"Vcs.Log.Tabs.Properties\">\r\n    <option name=\"TAB_STATES\">\r\n      <map>\r\n        <entry key=\"MAIN\">\r\n          <value>\r\n            <State />\r\n          </value>\r\n        </entry>\r\n      </map>\r\n    </option>\r\n    <option name=\"oldMeFiltersMigrated\" value=\"true\" />\r\n  </component>\r\n  <component name=\"VcsManagerConfiguration\">\r\n    <option name=\"ADD_EXTERNAL_FILES_SILENTLY\" value=\"true\" />\r\n    <MESSAGE value=\"Création projet Maven\" />\r\n    <option name=\"LAST_COMMIT_MESSAGE\" value=\"Création projet Maven\" />\r\n  </component>\r\n</project>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/workspace.xml b/.idea/workspace.xml
+--- a/.idea/workspace.xml	(revision def9f50272f429e03147c1cd667703cee84cbfa4)
++++ b/.idea/workspace.xml	(date 1607704998050)
+@@ -23,10 +23,12 @@
+   </component>
+   <component name="ChangeListManager">
+     <list default="true" id="bc36b956-7b2f-4f2c-bb11-bbe5912cf8d3" name="Default Changelist" comment="Création projet Maven">
++      <change afterPath="$PROJECT_DIR$/src/main/java/communication/ConnectionsListener.java" afterDir="false" />
++      <change afterPath="$PROJECT_DIR$/src/main/java/communication/UdpCommunication.java" afterDir="false" />
++      <change afterPath="$PROJECT_DIR$/src/main/java/exceptions/UdpConnectionFailure.java" afterDir="false" />
+       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+       <change beforePath="$PROJECT_DIR$/src/main/java/controllers/MessageManagement.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/controllers/MessageManagement.java" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/target/classes/Controllers/MessageManagement.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/Controllers/MessageManagement.class" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/target/classes/Controllers/UserManagement.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/Controllers/UserManagement.class" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/src/main/java/models/User.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/models/User.java" afterDir="false" />
+     </list>
+     <option name="SHOW_DIALOG" value="false" />
+     <option name="HIGHLIGHT_CONFLICTS" value="true" />
