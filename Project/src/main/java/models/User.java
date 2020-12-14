@@ -11,13 +11,15 @@ public class User {
     private int id;
     private InetAddress ipAddress;
     private String nickname;
+    private int port;
 
 
     // Constructor
-    public User(int id, String nickname, InetAddress ipAddress) {
+    public User(int id, String nickname, InetAddress ipAddress, int port) {
         this.id = id;
         this.nickname = nickname;
         this.ipAddress = ipAddress;
+        this.port = port;
     }
 
 

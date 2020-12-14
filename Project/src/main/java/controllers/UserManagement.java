@@ -1,5 +1,7 @@
 package controllers;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.sql.SQLException;
 import exceptions.UserCreationFailure;
 import exceptions.UserAuthentificationFailure;
@@ -31,12 +33,14 @@ public class UserManagement {
 
         try {
             if(databaseUserInterface.createUser(id, password)) {
-                user = new User(id, null, password);
+                user = new User(id, null, InetAddress.getLocalHost(), 1024);
             } else {
                 throw new UserCreationFailure(id);
             }
         } catch (SQLException | ClassNotFoundException ex) {
             ex.printStackTrace();
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
         }
 
         return user;
@@ -62,12 +66,14 @@ public class UserManagement {
 
         try {
             if(databaseUserInterface.signIn(id, password)){
-                user = new User(id, null, password);
+                user = new User(id, null, InetAddress.getLocalHost(), 1024);
             } else {
                 throw new UserAuthentificationFailure();
             }
         } catch (SQLException | ClassNotFoundException ex) {
             ex.printStackTrace();
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
         }
 
         return user;

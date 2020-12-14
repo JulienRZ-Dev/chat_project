@@ -8,7 +8,7 @@ import java.sql.Statement;
 
 public class DatabaseUserInterface {
 
-    private final String url = "mysql://tp_servlet_008:oe7OoTh3@srv-bdens.insa-toulouse.fr:3306/TP_ROUZOT_MOENNE.db";
+    private final String url = "mysql://tp_servlet_008:oe7OoTh3@srv-bdens.insa-toulouse.fr:3306/tp_servlet_008.db";
     private Connection connection;
 
 
@@ -46,7 +46,13 @@ public class DatabaseUserInterface {
     private void doConnect() throws ClassNotFoundException, SQLException {
         Class.forName("com.mysql.jdbc.Driver");
 
-        connection = DriverManager.getConnection(url);
+        try {
+            connection = DriverManager.getConnection(url);
+        }
+        catch (SQLException e) {
+            System.out.println("Erreur lors de la connexion à la base de données");
+            e.printStackTrace();
+        }
     }
 
 

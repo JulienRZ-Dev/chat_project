@@ -93,15 +93,10 @@ public class UdpCommunication {
      */
     public String receiveMessage() throws IOException {
         String message = null;
-        try {
-            byte[] buf = new byte[1024];
-            DatagramPacket packet = new DatagramPacket(buf, buf.length);
-            socket.receive(packet);
-            message = packet.getAddress().toString() + ":" + packet.getData().toString();
-        }
-        catch (SocketTimeoutException te) {
-            System.out.println("Timeout expiré.");
-        }
+        byte[] buf = new byte[1024];
+        DatagramPacket packet = new DatagramPacket(buf, buf.length);
+        socket.receive(packet);
+        message = packet.getData().toString() + ":" + packet.getAddress().toString() + ":" + Integer.toString(packet.getPort());
         return message;
     }
 
@@ -121,10 +116,10 @@ public class UdpCommunication {
             DatagramPacket packet = new DatagramPacket(buf, buf.length);
             socket.setSoTimeout(max_timeout);
             socket.receive(packet);
-            message = packet.getAddress().toString() + ":" + packet.getData().toString();
+            message = packet.getData().toString() + ":" + packet.getAddress().toString() + ":" + Integer.toString(packet.getPort());
         }
         catch (SocketTimeoutException te) {
-            System.out.println("Timeout expiré.");
+            System.out.println("Timeout while receiving a single message.");
         }
         return message;
     }
@@ -148,11 +143,11 @@ public class UdpCommunication {
             while (true) {
                 socket.receive(packet);
                 String message = packet.getData().toString();
-                messageList.add(packet.getAddress().toString() + ":" + message) ;
+                messageList.add(message + ":" + packet.getAddress().toString() + ":" + Integer.toString(packet.getPort())) ;
             }
         }
         catch (SocketTimeoutException te) {
-            System.out.println("Timeout atteint. On suppose que tous les autres utilisateurs ont répondu.");
+            System.out.println("Timeout reached. We suppose that every other user has answered.");
         }
         return messageList;
     }
