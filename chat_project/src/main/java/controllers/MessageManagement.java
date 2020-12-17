@@ -120,6 +120,12 @@ public class MessageManagement {
      */
     public void listenForConnections() {
         listener = new ConnectionsListener(this);
+        listener.start();
+    }
+    
+    public void stopListener() throws InterruptedException {
+    	listener.stopListening();
+    	listener.join();
     }
 
     /*
@@ -169,40 +175,44 @@ public class MessageManagement {
 			MessageManagement messageManager1 = new MessageManagement(new User(1, InetAddress.getLocalHost(), 2001));
 			MessageManagement messageManager2 = new MessageManagement(new User(2, InetAddress.getLocalHost(), 2002));
 			MessageManagement messageManager3 = new MessageManagement(new User(3, InetAddress.getLocalHost(), 2003));
+			
+			messageManager1.listenForConnections();
+			
 			if (!messageManager1.isNicknameAvailable("Henri")) {
 				System.out.println("Henri is unavailable");
 			}
-			else {
-				messageManager1.listenForConnections();
-			}
+			
 			System.out.println("Liste des utilisateurs actifs pour 1 : " + messageManager1.getActiveUsers().toString());
 			System.out.println("Liste des utilisateurs actifs pour 2 : " + messageManager2.getActiveUsers().toString());
 			System.out.println("Liste des utilisateurs actifs pour 3 : " + messageManager3.getActiveUsers().toString());
 			System.out.println();
+			
 			if (!messageManager2.isNicknameAvailable("Robert")) {
 				System.out.println("Robert is unavailable");
 			}
-			else {
-				messageManager2.listenForConnections();
-			}
+			
 			System.out.println("Liste des utilisateurs actifs pour 1 : " + messageManager1.getActiveUsers().toString());
 			System.out.println("Liste des utilisateurs actifs pour 2 : " + messageManager2.getActiveUsers().toString());
 			System.out.println("Liste des utilisateurs actifs pour 3 : " + messageManager3.getActiveUsers().toString());
 			System.out.println();
+			
 			if (!messageManager3.isNicknameAvailable("Robert")) {
 				System.out.println("Robert is unavailable");
 			}
-			else {
-				messageManager3.listenForConnections();
-			}
+
 			System.out.println("Liste des utilisateurs actifs pour 1 : " + messageManager1.getActiveUsers().toString());
 			System.out.println("Liste des utilisateurs actifs pour 2 : " + messageManager2.getActiveUsers().toString());
 			System.out.println("Liste des utilisateurs actifs pour 3 : " + messageManager3.getActiveUsers().toString());
 			System.out.println();
+			
+			messageManager1.stopListener();
+			
 		} catch (UnknownHostException e) {
 			System.out.println("Impossible to get local address.");
 		} catch (UdpConnectionFailure e) {
 			System.out.println("Udp error.");
+		} catch (InterruptedException e) {
+			System.out.println("Interrupted exception");
 		}
     }
 }

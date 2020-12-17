@@ -8,7 +8,11 @@ import java.util.Enumeration;
 
 public class UdpCommunication {
 
-    DatagramSocket socket;
+    private DatagramSocket socket;
+    
+    public DatagramSocket getSocket() {
+    	return socket;
+    }
 
     /*
      *   Call this method before sending or receiving any message to open a udp socket
@@ -71,6 +75,7 @@ public class UdpCommunication {
      *           else return true
      */
     public boolean broadcastMessage(String message, int port) {
+    	System.out.println("Broadcast depuis le port " + Integer.toString(socket.getLocalPort()));
         try {
             socket.setBroadcast(true);
             InetAddress broadcastAddress = getBroadcastAddress();
@@ -96,6 +101,7 @@ public class UdpCommunication {
         byte[] buf = new byte[1024];
         DatagramPacket packet = new DatagramPacket(buf, buf.length);
         socket.receive(packet);
+        System.out.println("Reception d'un message sur venant du port " + Integer.toString(packet.getPort()));
         message = packet.getData().toString() + ":" + packet.getAddress().toString() + ":" + Integer.toString(packet.getPort());
         return message;
     }
@@ -119,7 +125,7 @@ public class UdpCommunication {
             message = packet.getData().toString() + ":" + packet.getAddress().toString() + ":" + Integer.toString(packet.getPort());
         }
         catch (SocketTimeoutException te) {
-            System.out.println("Timeout while receiving a single message.");
+            //System.out.println("Timeout while receiving a single message.");
         }
         return message;
     }
@@ -148,8 +154,9 @@ public class UdpCommunication {
         }
         catch (SocketTimeoutException te) {
             System.out.println("Timeout reached. We suppose that every other user has answered.");
+            return messageList;
         }
-        return messageList;
+        //return messageList;
     }
 
 
@@ -165,7 +172,7 @@ public class UdpCommunication {
         {
             NetworkInterface networkInterface = interfaces.nextElement();
             if (networkInterface.isLoopback())
-                continue;    // Do not want to use the loopback interface.
+                continue;    // Do not want to use the loop back interface.
             for (InterfaceAddress interfaceAddress : networkInterface.getInterfaceAddresses())
             {
                 InetAddress broadcast = interfaceAddress.getBroadcast();

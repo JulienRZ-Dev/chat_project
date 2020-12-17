@@ -8,21 +8,32 @@ import java.net.InetAddress;
 
 public class ConnectionsListener extends Thread {
 
+	private boolean running;
     private MessageManagement messageManager;
 
     public ConnectionsListener(MessageManagement messageManager) {
         this.messageManager = messageManager;
+        running = true;
     }
 
+    public void stopListening() {
+    	running = false;
+    }
+    
     public void run() {
         UdpCommunication communication = new UdpCommunication();
-        if (!communication.openSocket(1024))
+        if (!communication.openSocket(1024)) {
             System.out.println("ConnectionsListener : error while opening the socket");
+            running = false;
+        }
+        System.out.println("Listening for connections on port " + Integer.toString(communication.getSocket().getPort()));
         String response = null;
-        while(true) {
+        while(running) {
             try {
-                //Block until a message is received
-                String message = communication.receiveMessage();
+                //Block until a message is received (no timeout)
+                String message = communication.receiveMessage(5000);
+                if (message == null)
+                	continue;
                 String[] infos = message.split(":");
                 //Location in "infos"      0           1      2             3                  4
                 //Messages format : login_request:<nickname>:<id>:<Sender's IP Address>:<Sender's port>
@@ -46,8 +57,10 @@ public class ConnectionsListener extends Thread {
             }
             catch (IOException e) {
                 System.out.println("ConnectionsListener : error while receiving a message");
+                running = false;
             }
         }
+        communication.closeSocket();
     }
 
 
