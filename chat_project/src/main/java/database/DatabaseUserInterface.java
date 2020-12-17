@@ -6,12 +6,13 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+
 public class DatabaseUserInterface {
 
-    private final String url = "mysql://tp_servlet_008:oe7OoTh3@srv-bdens.insa-toulouse.fr:3306/tp_servlet_008.db";
     private Connection connection;
-
-
+    private final static String url = "jdbc:sqlite:chat_app.db";
+    
+    
     /*
     *   Check if a user with the given id exists in the database
     *
@@ -44,13 +45,12 @@ public class DatabaseUserInterface {
     *   @throws SQLException if SQL error.
      */
     private void doConnect() throws ClassNotFoundException, SQLException {
-        Class.forName("com.mysql.jdbc.Driver");
 
         try {
             connection = DriverManager.getConnection(url);
         }
         catch (SQLException e) {
-            System.out.println("Erreur lors de la connexion Ã  la base de donnÃ©es");
+            System.out.println("Erreur lors de la connexion à  la base de données");
             e.printStackTrace();
         }
     }
@@ -74,7 +74,7 @@ public class DatabaseUserInterface {
         statement.setQueryTimeout(10);  // set timeout to 10 sec.
 
         if(!doesUserExist(id)){
-            ResultSet rs = statement.executeQuery("insert into users (id, pwd) values ('" + Integer.toString(id) + "', '" + password + "')");
+            statement.executeQuery("insert into users (id, pwd) values ('" + Integer.toString(id) + "', '" + password + "')");
             return true;
         } else {
             return false;

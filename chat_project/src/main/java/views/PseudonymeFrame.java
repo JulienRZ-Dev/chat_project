@@ -1,0 +1,102 @@
+package views;
+
+import java.awt.Color;
+import java.awt.Container;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JTextField;
+
+import controllers.MessageManagement;
+import exceptions.UdpConnectionFailure;
+import models.User;
+
+public class PseudonymeFrame extends JFrame implements ActionListener {
+	
+	private static final long serialVersionUID = 1L;
+	
+	// Graphic interface
+    Container container = getContentPane();
+    JLabel pseudonymeLabel = new JLabel("Veuillez saisir un pseudonyme");
+    JLabel messageLabel = new JLabel();
+    JTextField pseudonymeField = new JTextField();
+    JButton validateButton = new JButton("Valider");
+    
+    // User info
+    User user;
+    
+    // Message controller instance
+    MessageManagement messageManagement; 
+    
+    
+    public PseudonymeFrame(User user) {
+    	this.user = user;
+    	this.messageManagement = new MessageManagement(user);
+    	this.setVisible(false);
+        setLayoutManager();
+        setStyle();
+        setLocationAndSize();
+        addComponentsToContainer();
+        addActionEvent();
+    }
+    
+    public void setPseudonymeFrameVisible() {
+    	this.setVisible(true);
+    }
+    
+    private void setLayoutManager() {
+        container.setLayout(null);
+    }
+
+    private void setStyle() {
+        messageLabel.setForeground(Color.RED);
+        messageLabel.setVisible(false);
+    }
+    
+    private void setLocationAndSize() {
+        pseudonymeLabel.setBounds(50, 50, 200, 30);
+        pseudonymeField.setBounds(50, 100, 200, 30);
+        validateButton.setBounds(50, 150, 200, 30);
+        messageLabel.setBounds(50, 200, 200, 30);        
+    }
+    
+    private void addComponentsToContainer() {
+        container.add(pseudonymeLabel);
+        container.add(pseudonymeField);
+        container.add(validateButton);
+        container.add(messageLabel);
+    }
+
+    private void addActionEvent() {
+        validateButton.addActionListener(this);
+    }
+
+    private void showError(String content) {
+        // Show error message and reset the form
+        messageLabel.setText(content);
+        messageLabel.setVisible(true);
+    }
+    
+    
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		
+        // reset the error message
+        messageLabel.setVisible(false);
+        
+        try {
+			if(messageManagement.isNicknameAvailable(pseudonymeField.getText())) {
+				
+				// TODO
+				
+			} else {
+				showError("Le pseudonyme est déjà utilisé.");
+			}
+		} catch (UdpConnectionFailure ex) {
+			ex.printStackTrace();
+		}
+	}
+}

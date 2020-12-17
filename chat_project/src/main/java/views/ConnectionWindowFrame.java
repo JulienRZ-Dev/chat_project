@@ -12,7 +12,9 @@ import java.awt.event.ActionListener;
 
 public class ConnectionWindowFrame extends JFrame implements ActionListener {
 
-    // Graphic interface
+	private static final long serialVersionUID = 1L;
+	
+	// Graphic interface
     Container container = getContentPane();
     JLabel userLabel = new JLabel("ID :");
     JLabel passwordLabel = new JLabel("Mot de passe :");
@@ -20,12 +22,15 @@ public class ConnectionWindowFrame extends JFrame implements ActionListener {
     JTextField idField = new JTextField();
     JPasswordField passwordField = new JPasswordField();
     JButton loginButton = new JButton("Se connecter");
-    JButton createAccountButton = new JButton("Cr√©er un compte");
-
+    JButton createAccountButton = new JButton("CrÈer un compte");
+    
     // Database interaction
     UserManagement userManagement = new UserManagement();
-
-    ConnectionWindowFrame() {
+    
+    // Pseudonyme Frame
+    PseudonymeFrame pseudonymeFrame;
+    
+    public ConnectionWindowFrame() {
         setLayoutManager();
         setStyle();
         setLocationAndSize();
@@ -93,6 +98,9 @@ public class ConnectionWindowFrame extends JFrame implements ActionListener {
                     try { // verifie user info with the database
 
                         User user = userManagement.signInUser(Integer.parseInt(id), password);
+                        pseudonymeFrame = new PseudonymeFrame(user);
+                        pseudonymeFrame.setPseudonymeFrameVisible();
+                        this.dispose();
 
                     } catch (UserAuthentificationFailure ex) { // user doesn't exist in the database
 
@@ -114,7 +122,7 @@ public class ConnectionWindowFrame extends JFrame implements ActionListener {
 
                     } catch (UserCreationFailure ex) {
 
-                        showError("Id d√©j√† utilis√©");
+                        showError("Id dÈj‡ utilisÈ.");
                         idField.setText("");
 
                     }  catch(NumberFormatException ex) {
