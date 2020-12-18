@@ -9,10 +9,11 @@ import communication.UdpCommunication;
 import java.io.IOException;
 import java.net.*;
 import java.util.ArrayList;
+import java.util.Random;
 
 public class MessageManagement {
 
-    private final int TIMEOUT_RECEPTION_REPONSE = 500;
+    private final int TIMEOUT_RECEPTION_REPONSE = 2000;
 
     private User currentUser;
     private ArrayList<User> activeUsers = new ArrayList<User>();
@@ -21,6 +22,7 @@ public class MessageManagement {
 
     public MessageManagement(User currentUser) {
         this.currentUser = currentUser;
+        listener = new ConnectionsListener(this);
     }
 
     /*
@@ -73,42 +75,46 @@ public class MessageManagement {
      */
     public boolean isNicknameAvailable(String nickname) throws UdpConnectionFailure {
         int id = this.currentUser.getId();
-    	int port = 1025 + (int)(Math.random() * ((65535 - 1025) + 1)); //send the message from a random port between 1025 and 65535
+        Random random = new Random();
+    	int port = random.nextInt(65535 + 1 - 6000) + 6000; //send the message from a random port between 6000 and 65535
         String message = "login_request:" + nickname + ":" + Integer.toString(id);
 
-        UdpCommunication communication = new UdpCommunication();
-        if (!communication.openSocket(port))
-            throw (new UdpConnectionFailure("opening the socket"));
-        //We chose port 1024 to receive all the connections
-        if (!communication.broadcastMessage(message, 1024))
-            throw (new UdpConnectionFailure("authorizing broadcast"));
-
         try {
-            ArrayList<String> messagesRetour = communication.receiveMessages(TIMEOUT_RECEPTION_REPONSE);
-            for (int i = 0; i < messagesRetour.size(); i++) {
+        	UdpCommunication communication = new UdpCommunication();
+        	if (!communication.openSocket(port, InetAddress.getLocalHost()))
+        		throw (new UdpConnectionFailure("opening the socket"));
+        	//We chose port 1024 to receive all the connections
+        	if (!communication.broadcastMessage(message, 5000))
+        		throw (new UdpConnectionFailure("authorizing broadcast"));
+
+        
+            ArrayList<String> responses = communication.receiveMessages(TIMEOUT_RECEPTION_REPONSE);
+            for (int i = 0; i < responses.size(); i++) {
                 //Location in "infos"      0                               1                             2       3            4                   5
                 //Messages format : login_response:<0 if the sender uses the nickname, 1 otherwise>:<nickname>:<id>:<Sender's IP Address>:<Sender's port>
-                String[] infos = messagesRetour.get(i).split(":");
+            	String[] infos = responses.get(i).split(":");
                 //If the response doesn't have the right type, we ignore it
-                if (infos[0].compareTo("login_response") != 0) {
+                if (!infos[0].equals("login_response")) {
                     continue;
                 }
-                //If the response is from us, we ignore it
-                else if ((infos[4].compareTo(InetAddress.getLocalHost().toString()) == 0) && (this.currentUser.getPort() == Integer.parseInt(infos[5]))) {
+                //If the response is from us, we ignore it (not sure if it will happen)
+                else if ((infos[4].equals(InetAddress.getLocalHost().toString())) && (this.currentUser.getPort() == Integer.parseInt(infos[5]))) {
                 	continue;
                 }
                 //If infos[1] != 0 then another user has already chosen the nickname
                 else if (Integer.parseInt(infos[1]) == 0) {
+                	this.activeUsers.clear();
                     return false;
                 }
-                this.addUser(new User(Integer.parseInt(infos[3]), infos[2], InetAddress.getByName(infos[4]), Integer.parseInt(infos[5])));
+                else {
+                	this.addUser(new User(Integer.parseInt(infos[3]), infos[2], InetAddress.getByName(infos[4]), Integer.parseInt(infos[5])));
+                }
             }
+            communication.closeSocket();
         }
         catch (IOException e) {
             e.printStackTrace();
         }
-
-        communication.closeSocket();
 
         currentUser.setNickname(nickname);
         return true;
@@ -119,7 +125,6 @@ public class MessageManagement {
      *   to listen for new connections and actualize the active user list regularly with a thread
      */
     public void listenForConnections() {
-        listener = new ConnectionsListener(this);
         listener.start();
     }
     
@@ -178,31 +183,40 @@ public class MessageManagement {
 			
 			messageManager1.listenForConnections();
 			
-			if (!messageManager1.isNicknameAvailable("Henri")) {
-				System.out.println("Henri is unavailable");
+			if (!messageManager1.isNicknameAvailable("Celestin")) {
+				System.out.println("Celestin is unavailable for 1");
 			}
 			
-			System.out.println("Liste des utilisateurs actifs pour 1 : " + messageManager1.getActiveUsers().toString());
-			System.out.println("Liste des utilisateurs actifs pour 2 : " + messageManager2.getActiveUsers().toString());
-			System.out.println("Liste des utilisateurs actifs pour 3 : " + messageManager3.getActiveUsers().toString());
+			System.out.println("Active users list for 1 : " + messageManager1.getActiveUsers().toString());
+			System.out.println("Active users list for 2 : " + messageManager2.getActiveUsers().toString());
+			System.out.println("Active users list for 3 : " + messageManager3.getActiveUsers().toString());
 			System.out.println();
 			
-			if (!messageManager2.isNicknameAvailable("Robert")) {
-				System.out.println("Robert is unavailable");
+			if (!messageManager2.isNicknameAvailable("Julien")) {
+				System.out.println("Julien is unavailable for 2");
 			}
 			
-			System.out.println("Liste des utilisateurs actifs pour 1 : " + messageManager1.getActiveUsers().toString());
-			System.out.println("Liste des utilisateurs actifs pour 2 : " + messageManager2.getActiveUsers().toString());
-			System.out.println("Liste des utilisateurs actifs pour 3 : " + messageManager3.getActiveUsers().toString());
+			System.out.println("Active users list for 1 : " + messageManager1.getActiveUsers().toString());
+			System.out.println("Active users list for 2 : " + messageManager2.getActiveUsers().toString());
+			System.out.println("Active users list for 3 : " + messageManager3.getActiveUsers().toString());
+			System.out.println();
+			
+			if (!messageManager3.isNicknameAvailable("Celestin")) {
+				System.out.println("Celestin is unavailable for 3");
+			}
+
+			System.out.println("Active users list for 1 : " + messageManager1.getActiveUsers().toString());
+			System.out.println("Active users list for 2 : " + messageManager2.getActiveUsers().toString());
+			System.out.println("Active users list for 3 : " + messageManager3.getActiveUsers().toString());
 			System.out.println();
 			
 			if (!messageManager3.isNicknameAvailable("Robert")) {
-				System.out.println("Robert is unavailable");
+				System.out.println("Robert is unavailable for 3");
 			}
 
-			System.out.println("Liste des utilisateurs actifs pour 1 : " + messageManager1.getActiveUsers().toString());
-			System.out.println("Liste des utilisateurs actifs pour 2 : " + messageManager2.getActiveUsers().toString());
-			System.out.println("Liste des utilisateurs actifs pour 3 : " + messageManager3.getActiveUsers().toString());
+			System.out.println("Active users list for 1 : " + messageManager1.getActiveUsers().toString());
+			System.out.println("Active users list for 2 : " + messageManager2.getActiveUsers().toString());
+			System.out.println("Active users list for 3 : " + messageManager3.getActiveUsers().toString());
 			System.out.println();
 			
 			messageManager1.stopListener();

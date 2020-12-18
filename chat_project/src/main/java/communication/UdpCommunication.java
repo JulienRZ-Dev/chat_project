@@ -11,7 +11,7 @@ public class UdpCommunication {
     private DatagramSocket socket;
     
     public DatagramSocket getSocket() {
-    	return socket;
+    	return this.socket;
     }
 
     /*
@@ -23,9 +23,9 @@ public class UdpCommunication {
      *   @return false if the socket could not be open (if the port was already used for example)
      *           else return true
      */
-    public boolean openSocket(int port) {
+    public boolean openSocket(int port, InetAddress address) {
         try {
-            socket = new DatagramSocket(port);
+            this.socket = new DatagramSocket(port, address);
             return true;
         } catch (SocketException e) {
             e.printStackTrace();
@@ -50,7 +50,7 @@ public class UdpCommunication {
      */
     public boolean unicastMessage(String message, InetAddress address, int port) {
         try {
-            DatagramPacket packet = new DatagramPacket(message.getBytes(), message.length(), address, port);
+            DatagramPacket packet = new DatagramPacket(message.getBytes(), message.getBytes().length, address, port);
             socket.send(packet);
 
             return true;
@@ -78,8 +78,8 @@ public class UdpCommunication {
     	System.out.println("Broadcast depuis le port " + Integer.toString(socket.getLocalPort()));
         try {
             socket.setBroadcast(true);
-            InetAddress broadcastAddress = getBroadcastAddress();
-            DatagramPacket packet = new DatagramPacket(message.getBytes(), message.length(), broadcastAddress, port);
+            InetAddress broadcastAddress = InetAddress.getByName("255.255.255.255");
+            DatagramPacket packet = new DatagramPacket(message.getBytes(), message.getBytes().length, broadcastAddress, port);
             socket.send(packet);
 
             return true;
@@ -102,7 +102,10 @@ public class UdpCommunication {
         DatagramPacket packet = new DatagramPacket(buf, buf.length);
         socket.receive(packet);
         System.out.println("Reception d'un message sur venant du port " + Integer.toString(packet.getPort()));
-        message = packet.getData().toString() + ":" + packet.getAddress().toString() + ":" + Integer.toString(packet.getPort());
+        String address = packet.getAddress().toString();
+        address = address.substring(1, address.length());
+        String port = Integer.toString(packet.getPort());
+        message = (new String(packet.getData()).trim()) + ":" + address + ":" + port;
         return message;
     }
 
@@ -122,7 +125,10 @@ public class UdpCommunication {
             DatagramPacket packet = new DatagramPacket(buf, buf.length);
             socket.setSoTimeout(max_timeout);
             socket.receive(packet);
-            message = packet.getData().toString() + ":" + packet.getAddress().toString() + ":" + Integer.toString(packet.getPort());
+            String address = packet.getAddress().toString();
+            address = address.substring(1, address.length());
+            String port = Integer.toString(packet.getPort());
+            message = (new String(packet.getData()).trim()) + ":" + address + ":" + port;
         }
         catch (SocketTimeoutException te) {
             //System.out.println("Timeout while receiving a single message.");
@@ -148,8 +154,11 @@ public class UdpCommunication {
 
             while (true) {
                 socket.receive(packet);
-                String message = packet.getData().toString();
-                messageList.add(message + ":" + packet.getAddress().toString() + ":" + Integer.toString(packet.getPort())) ;
+                String address = packet.getAddress().toString();
+                address = address.substring(1, address.length());
+                String port = Integer.toString(packet.getPort());
+                String message = (new String(packet.getData()).trim());
+                messageList.add(message + ":" + address + ":" + port) ;
             }
         }
         catch (SocketTimeoutException te) {
