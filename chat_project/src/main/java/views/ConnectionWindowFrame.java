@@ -27,8 +27,8 @@ public class ConnectionWindowFrame extends JFrame implements ActionListener {
     // Database interaction
     UserManagement userManagement = new UserManagement();
     
-    // Pseudonyme Frame
-    PseudonymeFrame pseudonymeFrame;
+    // Nickname Frame
+    NicknameWindowFrame nicknameFrame;
     
     public ConnectionWindowFrame() {
         setLayoutManager();
@@ -98,8 +98,8 @@ public class ConnectionWindowFrame extends JFrame implements ActionListener {
                     try { // verifie user info with the database
 
                         User user = userManagement.signInUser(Integer.parseInt(id), password);
-                        pseudonymeFrame = new PseudonymeFrame(user);
-                        pseudonymeFrame.setPseudonymeFrameVisible();
+                        nicknameFrame = new NicknameWindowFrame(user);
+                        nicknameFrame.setNicknameFrameVisible();
                         this.dispose();
 
                     } catch (UserAuthentificationFailure ex) { // user doesn't exist in the database
