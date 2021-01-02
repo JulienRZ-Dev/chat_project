@@ -43,26 +43,27 @@ public class ConnectionsListener extends Thread {
                 if (message == null)
                 	continue;
                 String[] infos = message.split(":");
-                //Location in "infos"      0           1      2             3                  4
-                //Messages format : login_request:<nickname>:<id>:<Sender's IP Address>:<Sender's port>
+                //Location in "infos"      0           1      2       3                4               5
+                //Messages format : login_request:<nickname>:<id>:<tcp_port>:<Sender's IP Address>:<udp_port>
                 if (!infos[0].equals("login_request")) {
                     continue;
                 }
                 String nickname = infos[1];
                 int id = Integer.parseInt(infos[2]);
-                InetAddress address = InetAddress.getByName(infos[3]);
-                int port = Integer.parseInt(infos[4]);
+                int tcp_port = Integer.parseInt(infos[3]);
+                InetAddress address = InetAddress.getByName(infos[4]);
+                int udp_port = Integer.parseInt(infos[5]);
                 if (id == messageManager.getCurrentUser().getId()) {
                     continue;
                 }
                 else if (nickname.equals(messageManager.getCurrentUser().getNickname())) {
-                	response = "login_response:0:" + messageManager.getCurrentUser().getNickname() + ":" + Integer.toString(messageManager.getCurrentUser().getId());
+                	response = "login_response:0:" + messageManager.getCurrentUser().getNickname() + ":" + Integer.toString(messageManager.getCurrentUser().getId()) + ":" + Integer.toString(messageManager.getCurrentUser().getPort());
                 }
                 else {
-                    response = "login_response:1:" + messageManager.getCurrentUser().getNickname() + ":" + Integer.toString(messageManager.getCurrentUser().getId());
-                    messageManager.addUser(new User(id, nickname, address, port));
+                    response = "login_response:1:" + messageManager.getCurrentUser().getNickname() + ":" + Integer.toString(messageManager.getCurrentUser().getId()) + ":" + Integer.toString(messageManager.getCurrentUser().getPort());
+                    messageManager.addUser(new User(id, nickname, address, tcp_port));
                 }
-                if (!communication.unicastMessage(response, address, port)) {
+                if (!communication.unicastMessage(response, address, udp_port)) {
                     System.out.println("ConnectionsListener : error while sending response");
                 }
             }
