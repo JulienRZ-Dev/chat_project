@@ -1,6 +1,8 @@
 package controllers;
 
+import communication.ChatManager;
 import communication.ConnectionsListener;
+import exceptions.ChatNotFoundException;
 import exceptions.UdpConnectionFailure;
 import models.Message;
 import models.User;
@@ -13,16 +15,18 @@ import java.util.Random;
 
 public class MessageManagement {
 
-    private final int TIMEOUT_RECEPTION_REPONSE = 2000;
+    private final int TIMEOUT_RECEPTION_REPONSE = 300;
 
     private User currentUser;
     private ArrayList<User> activeUsers = new ArrayList<User>();
     
     ConnectionsListener listener;
+    ChatManager chatManager;
 
     public MessageManagement(User currentUser) {
         this.currentUser = currentUser;
-        listener = new ConnectionsListener(this);
+        this.listener = new ConnectionsListener(this);
+        this.chatManager = new ChatManager(this.currentUser.getPort());
     }
 
     /*
@@ -76,29 +80,28 @@ public class MessageManagement {
     public boolean isNicknameAvailable(String nickname) throws UdpConnectionFailure {
         int id = this.currentUser.getId();
         Random random = new Random();
-    	int port = random.nextInt(65535 + 1 - 6000) + 6000; //send the message from a random port between 6000 and 65535
-        String message = "login_request:" + nickname + ":" + Integer.toString(id);
+    	int broadcast_port = random.nextInt(65535 + 1 - 6000) + 6000; //send the message from a random port between 6000 and 65535
+        String message = "login_request:" + nickname + ":" + Integer.toString(id) + ":" + this.currentUser.getPort();
 
         try {
         	UdpCommunication communication = new UdpCommunication();
-        	if (!communication.openSocket(port, InetAddress.getLocalHost()))
+        	if (!communication.openSocket(broadcast_port, InetAddress.getLocalHost()))
         		throw (new UdpConnectionFailure("opening the socket"));
         	//We chose port 1024 to receive all the connections
         	if (!communication.broadcastMessage(message, 5000))
         		throw (new UdpConnectionFailure("authorizing broadcast"));
-
         
             ArrayList<String> responses = communication.receiveMessages(TIMEOUT_RECEPTION_REPONSE);
             for (int i = 0; i < responses.size(); i++) {
-                //Location in "infos"      0                               1                             2       3            4                   5
-                //Messages format : login_response:<0 if the sender uses the nickname, 1 otherwise>:<nickname>:<id>:<Sender's IP Address>:<Sender's port>
+                //Location in "infos"      0                               1                             2       3            4                   5               6
+                //Messages format : login_response:<0 if the sender uses the nickname, 1 otherwise>:<nickname>:<id>:<Sender's tcp_port>:<Sender's IP Address>:<udp_port>
             	String[] infos = responses.get(i).split(":");
                 //If the response doesn't have the right type, we ignore it
                 if (!infos[0].equals("login_response")) {
                     continue;
                 }
                 //If the response is from us, we ignore it (not sure if it will happen)
-                else if ((infos[4].equals(InetAddress.getLocalHost().toString())) && (this.currentUser.getPort() == Integer.parseInt(infos[5]))) {
+                else if ((infos[5].equals(InetAddress.getLocalHost().toString())) && (this.currentUser.getPort() == Integer.parseInt(infos[4]))) {
                 	continue;
                 }
                 //If infos[1] != 0 then another user has already chosen the nickname
@@ -107,7 +110,7 @@ public class MessageManagement {
                     return false;
                 }
                 else {
-                	this.addUser(new User(Integer.parseInt(infos[3]), infos[2], InetAddress.getByName(infos[4]), Integer.parseInt(infos[5])));
+                	this.addUser(new User(Integer.parseInt(infos[3]), infos[2], InetAddress.getByName(infos[5]), Integer.parseInt(infos[4])));
                 }
             }
             communication.closeSocket();
@@ -116,7 +119,7 @@ public class MessageManagement {
             e.printStackTrace();
         }
 
-        currentUser.setNickname(nickname);
+        this.currentUser.setNickname(nickname);
         return true;
     }
 
@@ -125,12 +128,21 @@ public class MessageManagement {
      *   to listen for new connections and actualize the active user list regularly with a thread
      */
     public void listenForConnections() {
-        listener.start();
+        this.listener.start();
+    }
+    
+    public void startChatManager() {
+    	this.chatManager.start();
     }
     
     public void stopListener() throws InterruptedException {
-    	listener.stopListening();
-    	listener.join();
+    	this.listener.stopListening();
+    	this.listener.join();
+    }
+    
+    public void stopChatManager() throws InterruptedException {
+    	this.chatManager.stopChatManager();
+    	this.chatManager.join();
     }
 
     /*
@@ -157,11 +169,15 @@ public class MessageManagement {
      *   @return the user for which this messageManager instance is ran
      */
     public User getCurrentUser() {
-        return currentUser;
+        return this.currentUser;
     }
     
     public ArrayList<User> getActiveUsers() {
     	return this.activeUsers;
+    }
+    
+    public ChatManager getChatManager() {
+    	return this.chatManager;
     }
 
     /*
@@ -177,14 +193,17 @@ public class MessageManagement {
     
     public static void main(String[] a) {
     	try {
-			MessageManagement messageManager1 = new MessageManagement(new User(1, InetAddress.getLocalHost(), 2001));
-			MessageManagement messageManager2 = new MessageManagement(new User(2, InetAddress.getLocalHost(), 2002));
-			MessageManagement messageManager3 = new MessageManagement(new User(3, InetAddress.getLocalHost(), 2003));
+			MessageManagement messageManager1 = new MessageManagement(new User(1, InetAddress.getLocalHost(), 6001));
+			MessageManagement messageManager2 = new MessageManagement(new User(2, InetAddress.getLocalHost(), 6002));
+			MessageManagement messageManager3 = new MessageManagement(new User(3, InetAddress.getLocalHost(), 6003));
 			
 			messageManager1.listenForConnections();
 			
 			if (!messageManager1.isNicknameAvailable("Celestin")) {
 				System.out.println("Celestin is unavailable for 1");
+			}
+			else {
+				messageManager1.startChatManager();
 			}
 			
 			System.out.println("Active users list for 1 : " + messageManager1.getActiveUsers().toString());
@@ -195,6 +214,9 @@ public class MessageManagement {
 			if (!messageManager2.isNicknameAvailable("Julien")) {
 				System.out.println("Julien is unavailable for 2");
 			}
+			else {
+				messageManager2.startChatManager();
+			}
 			
 			System.out.println("Active users list for 1 : " + messageManager1.getActiveUsers().toString());
 			System.out.println("Active users list for 2 : " + messageManager2.getActiveUsers().toString());
@@ -203,6 +225,9 @@ public class MessageManagement {
 			
 			if (!messageManager3.isNicknameAvailable("Celestin")) {
 				System.out.println("Celestin is unavailable for 3");
+			}
+			else {
+				messageManager3.startChatManager();
 			}
 
 			System.out.println("Active users list for 1 : " + messageManager1.getActiveUsers().toString());
@@ -213,13 +238,42 @@ public class MessageManagement {
 			if (!messageManager3.isNicknameAvailable("Robert")) {
 				System.out.println("Robert is unavailable for 3");
 			}
+			else {
+				messageManager3.startChatManager();
+			}
 
 			System.out.println("Active users list for 1 : " + messageManager1.getActiveUsers().toString());
 			System.out.println("Active users list for 2 : " + messageManager2.getActiveUsers().toString());
 			System.out.println("Active users list for 3 : " + messageManager3.getActiveUsers().toString());
 			System.out.println();
 			
+			System.out.println("TCP Communication tests (chat tests)");
+			
+			//messageManager1.getActiveUsers().get(0) should be Julien
+			messageManager1.getChatManager().startChat(messageManager1.getActiveUsers().get(0));
+			
+			Thread.sleep(2000);
+			
+			try {
+				messageManager2.getChatManager().getChat(messageManager2.getActiveUsers().get(0)).sendMessage("Hey");
+				Thread.sleep(1000);
+				messageManager1.getChatManager().getChat(messageManager1.getActiveUsers().get(0)).sendMessage("Cv?");
+				Thread.sleep(1000);
+				messageManager2.getChatManager().getChat(messageManager2.getActiveUsers().get(0)).sendMessage("Cv et toi ?");
+				Thread.sleep(1000);
+				messageManager1.getChatManager().getChat(messageManager1.getActiveUsers().get(0)).sendMessage("Trkl trkl");
+				Thread.sleep(1000);
+				messageManager2.getChatManager().getChat(messageManager2.getActiveUsers().get(0)).sendMessage("");
+			} catch (ChatNotFoundException e) {
+				System.out.println(e.getMessage());
+			}
+			
+			Thread.sleep(2000);
+			
 			messageManager1.stopListener();
+			messageManager1.stopChatManager();
+			messageManager2.stopChatManager();
+			messageManager3.stopChatManager();
 			
 		} catch (UnknownHostException e) {
 			System.out.println("Impossible to get local address.");
@@ -229,4 +283,5 @@ public class MessageManagement {
 			System.out.println("Interrupted exception");
 		}
     }
+    
 }
