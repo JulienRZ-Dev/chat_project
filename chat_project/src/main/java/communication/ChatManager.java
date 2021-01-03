@@ -7,7 +7,9 @@ import java.net.Socket;
 import java.net.SocketException;
 import java.util.ArrayList;
 
-import exceptions.ChatNotFoundException;
+import controllers.MessageManagement;
+import exceptions.ChatNotFound;
+import exceptions.UserNotFound;
 import models.User;
 
 public class ChatManager extends Thread {
@@ -38,28 +40,42 @@ public class ChatManager extends Thread {
 	/*
 	 * Use this method to initiate a chat session
 	 * 
-	 * @param address
-	 * 		  The IP Address that the user want to chat with
-	 * @param port
-	 * 		  The port on which the user is listening for chats
+	 * @param user
+	 * 		  The user the current user wants to chat with
+	 * 
+	 * @return false if the Chat could not be properly created and started
 	 */
-	public void startChat(User user) {
+	public boolean startChat(User user) {
 		try {
 			System.out.println("Starting a chat between port " + this.port + " and port " + user.getPort());
 			this.chats.add(new ChatCommunication(new Socket(user.getIpAddress(), user.getPort())));
 			this.chats.get(this.chats.size() - 1).start();
+			return true;
 		} catch (IOException e) {
-			System.out.println("Could not start the chat with " + user.getNickname());
-		}
+			return false;
+		} /*catch (ChatNotFound ce) {
+			//This should not happen
+			System.out.println("Error while trying to start the just created chat");
+			return false;
+		}*/
 	}
 	
-	public ChatCommunication getChat(User user) throws ChatNotFoundException {
+	public boolean doesUserChatWith(User user) {
 		for(ChatCommunication chat : chats) {
-            if (user.getIpAddress().equals(chat.getAddress())) {
+            if ((user.getIpAddress().equals(chat.getRemoteAddress())) && (user.getPort() == chat.getRemotePort())) {
+            	return true;
+            }
+        }
+		return false;
+	}
+	
+	public ChatCommunication getChat(User user) throws ChatNotFound {
+		for(ChatCommunication chat : chats) {
+            if (user.getIpAddress().equals(chat.getRemoteAddress())) {
             	return chat;
             }
         }
-		throw (new ChatNotFoundException(user));
+		throw (new ChatNotFound(user));
 	}
 	
 	/*

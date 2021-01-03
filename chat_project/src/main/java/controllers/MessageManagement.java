@@ -2,8 +2,10 @@ package controllers;
 
 import communication.ChatManager;
 import communication.ConnectionsListener;
-import exceptions.ChatNotFoundException;
+import exceptions.ChatAlreadyExists;
+import exceptions.ChatNotFound;
 import exceptions.UdpConnectionFailure;
+import exceptions.UserNotFound;
 import models.Message;
 import models.User;
 import communication.UdpCommunication;
@@ -144,6 +146,45 @@ public class MessageManagement {
     	this.chatManager.stopChatManager();
     	this.chatManager.join();
     }
+    
+    
+    /*
+     * Use this method to start a tcp connection between the current user and another user.
+     * You have to call this method before sending any message !
+     * 
+     * @param user
+     * 		  The user the current user wants to chat with
+     * 
+     * @return false if the chat could not be started, else true
+     * 
+     * @throws ChatAlreadyExists if the chat was already started
+     */
+    public boolean startChat(User user) throws ChatAlreadyExists {
+    	if (this.chatManager.doesUserChatWith(user)) {
+    		throw (new ChatAlreadyExists(user));
+    	}
+    	else {
+    		return this.getChatManager().startChat(user);
+    	}
+    }
+    
+    /*
+     * Use this method to send a message to another user.
+     * A chat must have been started between the two users.
+     * 
+     * @param user
+     * 		  The user the current user wants to send a message to
+     * 
+     * @param message
+     * 		  The message that the current user wants to send
+     * 
+     * @return false if the message could not be sent, else true
+     * 
+     * @throws ChatNotFound if no chat was previously started between the two users
+     */
+    public boolean sendMessage(User user, String message) throws ChatNotFound {
+		return this.getChatManager().getChat(user).sendMessage(message);
+    }
 
     /*
      *   Call this method when a user who was already connected with an approved nickname
@@ -174,6 +215,14 @@ public class MessageManagement {
     
     public ArrayList<User> getActiveUsers() {
     	return this.activeUsers;
+    }
+    
+    public User getUser(InetAddress address, int port) throws UserNotFound {
+    	for (User user : this.activeUsers) {
+    		if ((user.getIpAddress().equals(address)) && (user.getPort() == port))
+    			return user;
+    	}
+    	throw (new UserNotFound());
     }
     
     public ChatManager getChatManager() {
@@ -249,26 +298,31 @@ public class MessageManagement {
 			
 			System.out.println("TCP Communication tests (chat tests)");
 			
-			//messageManager1.getActiveUsers().get(0) should be Julien
-			messageManager1.getChatManager().startChat(messageManager1.getActiveUsers().get(0));
-			
-			Thread.sleep(2000);
-			
 			try {
-				messageManager2.getChatManager().getChat(messageManager2.getActiveUsers().get(0)).sendMessage("Hey");
+				//messageManager1.getActiveUsers().get(0) should be Julien
+				if (!messageManager1.startChat(messageManager1.getActiveUsers().get(0))) {
+					System.out.println("Could not start the chat with Julien");
+				}
+			
+				Thread.sleep(2000);
+				
+				messageManager2.sendMessage(messageManager2.getActiveUsers().get(0), "Hey");
 				Thread.sleep(1000);
-				messageManager1.getChatManager().getChat(messageManager1.getActiveUsers().get(0)).sendMessage("Cv?");
+				messageManager1.sendMessage(messageManager1.getActiveUsers().get(0), "Cv?");
 				Thread.sleep(1000);
-				messageManager2.getChatManager().getChat(messageManager2.getActiveUsers().get(0)).sendMessage("Cv et toi ?");
+				messageManager2.sendMessage(messageManager2.getActiveUsers().get(0), "Cv et toi ?");
 				Thread.sleep(1000);
-				messageManager1.getChatManager().getChat(messageManager1.getActiveUsers().get(0)).sendMessage("Trkl trkl");
+				messageManager1.sendMessage(messageManager1.getActiveUsers().get(0), "Trkl trkl");
 				Thread.sleep(1000);
-				messageManager2.getChatManager().getChat(messageManager2.getActiveUsers().get(0)).sendMessage("");
-			} catch (ChatNotFoundException e) {
+				messageManager2.sendMessage(messageManager2.getActiveUsers().get(0), "");
+			
+				Thread.sleep(2000);
+				
+			} catch (ChatNotFound e) {
+				System.out.println(e.getMessage());
+			} catch (ChatAlreadyExists e) {
 				System.out.println(e.getMessage());
 			}
-			
-			Thread.sleep(2000);
 			
 			messageManager1.stopListener();
 			messageManager1.stopChatManager();
@@ -283,5 +337,51 @@ public class MessageManagement {
 			System.out.println("Interrupted exception");
 		}
     }
+    
+    //Tests avec l'ordinateur de Eva
+    /*public static void main(String[] a) {
+    	try {
+			MessageManagement messageManager1 = new MessageManagement(new User(2, InetAddress.getLocalHost(), 6002));
+			
+			messageManager1.listenForConnections();
+			
+			if (!messageManager1.isNicknameAvailable("Celestin")) {
+				System.out.println("Celestin is unavailable for 2");
+			}
+			else {
+				messageManager1.startChatManager();
+			}
+			
+			System.out.println("Active users list for 2 : " + messageManager1.getActiveUsers().toString());
+			System.out.println();
+			
+			if (!messageManager1.isNicknameAvailable("Julien")) {
+				System.out.println("Julien is unavailable for 2");
+			}
+			else {
+				messageManager1.startChatManager();
+			}
+			
+			System.out.println("Active users list for 2 : " + messageManager1.getActiveUsers().toString());
+			System.out.println();
+			
+			Thread.sleep(1000);
+			
+			while(true) {
+				messageManager1.getChatManager().getChat(messageManager1.getActiveUsers().get(0)).sendMessage("HEY de Julien");
+			}
+			
+		} catch (UnknownHostException e) {
+			System.out.println("Impossible to get local address.");
+		} catch (UdpConnectionFailure e) {
+			System.out.println("Udp error.");
+		} catch (ChatNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    }*/
     
 }

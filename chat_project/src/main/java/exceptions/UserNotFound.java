@@ -1,9 +1,11 @@
 package exceptions;
 
+import models.User;
+
 public class UserNotFound extends Exception {
 	
     public UserNotFound() {
-        super("L'utilisateur n'a pas été trouvé");
+        super("The user could not be found");
     }
 
 }

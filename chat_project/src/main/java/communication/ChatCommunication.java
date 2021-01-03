@@ -20,15 +20,17 @@ public class ChatCommunication extends Thread {
 		System.out.println("A socket has been opened between port " + this.socket.getLocalPort() + " and port " + this.socket.getPort());
 	}
 	
-	public void sendMessage(String message) {
+	public boolean sendMessage(String message) {
 		//System.out.println(this.socket.getLocalAddress().toString() + " has sent a message on port " + this.socket.getLocalPort() + " :\n" + message + "\nThis message was sent to " + this.socket.getInetAddress().toString() + " on port " + this.socket.getPort() + "\n");
 		PrintWriter writer;
 		try {
 			writer = new PrintWriter(this.socket.getOutputStream(), true);
 			writer.write(message+"\n");
 	        writer.flush();
+	        return true;
 		} catch (IOException e) {
-			System.out.println("Could not create a PrintWriter while sending a message");
+			//System.out.println("Could not create a PrintWriter while sending a message");
+			return false;
 		}
 	}
 	
@@ -61,8 +63,12 @@ public class ChatCommunication extends Thread {
 		this.running = false;
 	}
 	
-	public InetAddress getAddress() {
+	public InetAddress getRemoteAddress() {
 		return this.socket.getInetAddress();
+	}
+	
+	public int getRemotePort() {
+		return this.socket.getPort();
 	}
 	
 }
