@@ -8,6 +8,7 @@ import exceptions.UdpConnectionFailure;
 import exceptions.UserNotFound;
 import models.Message;
 import models.User;
+import views.GraphicUserList;
 import communication.UdpCommunication;
 
 import java.io.IOException;
@@ -15,21 +16,24 @@ import java.net.*;
 import java.util.ArrayList;
 import java.util.Random;
 
+import javax.lang.model.element.ModuleElement.UsesDirective;
+
 public class MessageManagement {
 
     private final int TIMEOUT_RECEPTION_REPONSE = 300;
 
     private User currentUser;
     private ArrayList<User> activeUsers = new ArrayList<User>();
+    private GraphicUserList userList;
     
-    ConnectionsListener listener;
-    ChatManager chatManager;
+    private ConnectionsListener listener;
+    private ChatManager chatManager;
 
     public MessageManagement(User currentUser) {
         this.currentUser = currentUser;
-        this.listener = new ConnectionsListener(this);
         this.chatManager = new ChatManager(this.currentUser.getPort());
     }
+
 
     /*
      *   Gets  all the messages that were sent between the two users
@@ -129,7 +133,13 @@ public class MessageManagement {
      *   Call this method once the user is connected AND has chosen a nickname that has been approved
      *   to listen for new connections and actualize the active user list regularly with a thread
      */
-    public void listenForConnections() {
+    public void listenForConnections(GraphicUserList userList) {
+    	this.userList = userList;
+        for(User user : this.activeUsers) {
+        	System.out.println("refresh dans listen for connections " + user.getNickname());
+        	userList.refreshUserList(user);
+        }
+    	this.listener = new ConnectionsListener(this);
         this.listener.start();
     }
     
@@ -236,107 +246,112 @@ public class MessageManagement {
      *          the user you want to add
      */
     public void addUser(User user) {
-        if (!activeUsers.contains(user))
+        if (!activeUsers.contains(user)) {
             activeUsers.add(user);
-    }
+            if(userList != null) {
+            	System.out.println("refresh dans add users " + user.getNickname());
+            	userList.refreshUserList(user);        		
+            }        	
+        }
+}
     
-    public static void main(String[] a) {
-    	try {
-			MessageManagement messageManager1 = new MessageManagement(new User(1, InetAddress.getLocalHost(), 6001));
-			MessageManagement messageManager2 = new MessageManagement(new User(2, InetAddress.getLocalHost(), 6002));
-			MessageManagement messageManager3 = new MessageManagement(new User(3, InetAddress.getLocalHost(), 6003));
-			
-			messageManager1.listenForConnections();
-			
-			if (!messageManager1.isNicknameAvailable("Celestin")) {
-				System.out.println("Celestin is unavailable for 1");
-			}
-			else {
-				messageManager1.startChatManager();
-			}
-			
-			System.out.println("Active users list for 1 : " + messageManager1.getActiveUsers().toString());
-			System.out.println("Active users list for 2 : " + messageManager2.getActiveUsers().toString());
-			System.out.println("Active users list for 3 : " + messageManager3.getActiveUsers().toString());
-			System.out.println();
-			
-			if (!messageManager2.isNicknameAvailable("Julien")) {
-				System.out.println("Julien is unavailable for 2");
-			}
-			else {
-				messageManager2.startChatManager();
-			}
-			
-			System.out.println("Active users list for 1 : " + messageManager1.getActiveUsers().toString());
-			System.out.println("Active users list for 2 : " + messageManager2.getActiveUsers().toString());
-			System.out.println("Active users list for 3 : " + messageManager3.getActiveUsers().toString());
-			System.out.println();
-			
-			if (!messageManager3.isNicknameAvailable("Celestin")) {
-				System.out.println("Celestin is unavailable for 3");
-			}
-			else {
-				messageManager3.startChatManager();
-			}
-
-			System.out.println("Active users list for 1 : " + messageManager1.getActiveUsers().toString());
-			System.out.println("Active users list for 2 : " + messageManager2.getActiveUsers().toString());
-			System.out.println("Active users list for 3 : " + messageManager3.getActiveUsers().toString());
-			System.out.println();
-			
-			if (!messageManager3.isNicknameAvailable("Robert")) {
-				System.out.println("Robert is unavailable for 3");
-			}
-			else {
-				messageManager3.startChatManager();
-			}
-
-			System.out.println("Active users list for 1 : " + messageManager1.getActiveUsers().toString());
-			System.out.println("Active users list for 2 : " + messageManager2.getActiveUsers().toString());
-			System.out.println("Active users list for 3 : " + messageManager3.getActiveUsers().toString());
-			System.out.println();
-			
-			System.out.println("TCP Communication tests (chat tests)");
-			
-			try {
-				//messageManager1.getActiveUsers().get(0) should be Julien
-				if (!messageManager1.startChat(messageManager1.getActiveUsers().get(0))) {
-					System.out.println("Could not start the chat with Julien");
-				}
-			
-				Thread.sleep(2000);
-				
-				messageManager2.sendMessage(messageManager2.getActiveUsers().get(0), "Hey");
-				Thread.sleep(1000);
-				messageManager1.sendMessage(messageManager1.getActiveUsers().get(0), "Cv?");
-				Thread.sleep(1000);
-				messageManager2.sendMessage(messageManager2.getActiveUsers().get(0), "Cv et toi ?");
-				Thread.sleep(1000);
-				messageManager1.sendMessage(messageManager1.getActiveUsers().get(0), "Trkl trkl");
-				Thread.sleep(1000);
-				messageManager2.sendMessage(messageManager2.getActiveUsers().get(0), "");
-			
-				Thread.sleep(2000);
-				
-			} catch (ChatNotFound e) {
-				System.out.println(e.getMessage());
-			} catch (ChatAlreadyExists e) {
-				System.out.println(e.getMessage());
-			}
-			
-			messageManager1.stopListener();
-			messageManager1.stopChatManager();
-			messageManager2.stopChatManager();
-			messageManager3.stopChatManager();
-			
-		} catch (UnknownHostException e) {
-			System.out.println("Impossible to get local address.");
-		} catch (UdpConnectionFailure e) {
-			System.out.println("Udp error.");
-		} catch (InterruptedException e) {
-			System.out.println("Interrupted exception");
-		}
-    }
+//    public static void main(String[] a) {
+//    	try {
+//			MessageManagement messageManager1 = new MessageManagement(new User(1, InetAddress.getLocalHost(), 6001));
+//			MessageManagement messageManager2 = new MessageManagement(new User(2, InetAddress.getLocalHost(), 6002));
+//			MessageManagement messageManager3 = new MessageManagement(new User(3, InetAddress.getLocalHost(), 6003));
+//			
+//			messageManager1.listenForConnections();
+//			
+//			if (!messageManager1.isNicknameAvailable("Celestin")) {
+//				System.out.println("Celestin is unavailable for 1");
+//			}
+//			else {
+//				messageManager1.startChatManager();
+//			}
+//			
+//			System.out.println("Active users list for 1 : " + messageManager1.getActiveUsers().toString());
+//			System.out.println("Active users list for 2 : " + messageManager2.getActiveUsers().toString());
+//			System.out.println("Active users list for 3 : " + messageManager3.getActiveUsers().toString());
+//			System.out.println();
+//			
+//			if (!messageManager2.isNicknameAvailable("Julien")) {
+//				System.out.println("Julien is unavailable for 2");
+//			}
+//			else {
+//				messageManager2.startChatManager();
+//			}
+//			
+//			System.out.println("Active users list for 1 : " + messageManager1.getActiveUsers().toString());
+//			System.out.println("Active users list for 2 : " + messageManager2.getActiveUsers().toString());
+//			System.out.println("Active users list for 3 : " + messageManager3.getActiveUsers().toString());
+//			System.out.println();
+//			
+//			if (!messageManager3.isNicknameAvailable("Celestin")) {
+//				System.out.println("Celestin is unavailable for 3");
+//			}
+//			else {
+//				messageManager3.startChatManager();
+//			}
+//
+//			System.out.println("Active users list for 1 : " + messageManager1.getActiveUsers().toString());
+//			System.out.println("Active users list for 2 : " + messageManager2.getActiveUsers().toString());
+//			System.out.println("Active users list for 3 : " + messageManager3.getActiveUsers().toString());
+//			System.out.println();
+//			
+//			if (!messageManager3.isNicknameAvailable("Robert")) {
+//				System.out.println("Robert is unavailable for 3");
+//			}
+//			else {
+//				messageManager3.startChatManager();
+//			}
+//
+//			System.out.println("Active users list for 1 : " + messageManager1.getActiveUsers().toString());
+//			System.out.println("Active users list for 2 : " + messageManager2.getActiveUsers().toString());
+//			System.out.println("Active users list for 3 : " + messageManager3.getActiveUsers().toString());
+//			System.out.println();
+//			
+//			System.out.println("TCP Communication tests (chat tests)");
+//			
+//			try {
+//				//messageManager1.getActiveUsers().get(0) should be Julien
+//				if (!messageManager1.startChat(messageManager1.getActiveUsers().get(0))) {
+//					System.out.println("Could not start the chat with Julien");
+//				}
+//			
+//				Thread.sleep(2000);
+//				
+//				messageManager2.sendMessage(messageManager2.getActiveUsers().get(0), "Hey");
+//				Thread.sleep(1000);
+//				messageManager1.sendMessage(messageManager1.getActiveUsers().get(0), "Cv?");
+//				Thread.sleep(1000);
+//				messageManager2.sendMessage(messageManager2.getActiveUsers().get(0), "Cv et toi ?");
+//				Thread.sleep(1000);
+//				messageManager1.sendMessage(messageManager1.getActiveUsers().get(0), "Trkl trkl");
+//				Thread.sleep(1000);
+//				messageManager2.sendMessage(messageManager2.getActiveUsers().get(0), "");
+//			
+//				Thread.sleep(2000);
+//				
+//			} catch (ChatNotFound e) {
+//				System.out.println(e.getMessage());
+//			} catch (ChatAlreadyExists e) {
+//				System.out.println(e.getMessage());
+//			}
+//			
+//			messageManager1.stopListener();
+//			messageManager1.stopChatManager();
+//			messageManager2.stopChatManager();
+//			messageManager3.stopChatManager();
+//			
+//		} catch (UnknownHostException e) {
+//			System.out.println("Impossible to get local address.");
+//		} catch (UdpConnectionFailure e) {
+//			System.out.println("Udp error.");
+//		} catch (InterruptedException e) {
+//			System.out.println("Interrupted exception");
+//		}
+//    }
     
     //Tests avec l'ordinateur de Eva
     /*public static void main(String[] a) {

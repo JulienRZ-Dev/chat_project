@@ -14,7 +14,7 @@ import controllers.MessageManagement;
 import exceptions.UdpConnectionFailure;
 import models.User;
 
-public class PseudonymeFrame extends JFrame implements ActionListener {
+public class NicknameFrame extends JFrame implements ActionListener {
 	
 	private static final long serialVersionUID = 1L;
 	
@@ -32,7 +32,7 @@ public class PseudonymeFrame extends JFrame implements ActionListener {
     MessageManagement messageManagement; 
     
     
-    public PseudonymeFrame(User user) {
+    public NicknameFrame(User user) {
     	this.user = user;
     	this.messageManagement = new MessageManagement(user);
     	this.setVisible(false);
@@ -88,9 +88,10 @@ public class PseudonymeFrame extends JFrame implements ActionListener {
         messageLabel.setVisible(false);
         
         try {
+        	
 			if(messageManagement.isNicknameAvailable(pseudonymeField.getText())) {
 				
-				// TODO
+				new MainWindow(messageManagement);
 				
 			} else {
 				showError("Le pseudonyme est déjà utilisé.");

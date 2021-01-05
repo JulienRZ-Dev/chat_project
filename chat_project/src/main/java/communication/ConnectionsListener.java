@@ -21,6 +21,7 @@ public class ConnectionsListener extends Thread {
     	running = false;
     }
     
+    
     public void run() {
     	running = true;
         UdpCommunication communication = new UdpCommunication();

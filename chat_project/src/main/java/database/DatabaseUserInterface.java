@@ -29,8 +29,10 @@ public class DatabaseUserInterface {
         ResultSet rs = statement.executeQuery("select * from users where id = '" + Integer.toString(id) + "'");
 
         if(rs.next()) { // Result set is not empty
+        	statement.close();
             return true; // Notify that user id already exist
         } else {
+        	statement.close();
             return false; // Notify that the user id does not exist
         }
     }
@@ -74,9 +76,11 @@ public class DatabaseUserInterface {
         statement.setQueryTimeout(10);  // set timeout to 10 sec.
 
         if(!doesUserExist(id)){
-            statement.executeQuery("insert into users (id, pwd) values ('" + Integer.toString(id) + "', '" + password + "')");
+            statement.executeUpdate("insert into users (id, pwd) values ('" + Integer.toString(id) + "', '" + password + "')");
+            statement.close();
             return true;
         } else {
+        	statement.close();
             return false;
         }
     }
@@ -104,8 +108,10 @@ public class DatabaseUserInterface {
         ResultSet rs = statement.executeQuery("select * from users where id = '" + Integer.toString(id) + "' and pwd = '" + password +"'");
 
         if(rs.next()) {
+        	statement.close();
             return true; // user exists
         } else {
+        	statement.close();
             return false; // user does not exists
         }
     }

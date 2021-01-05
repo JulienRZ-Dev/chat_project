@@ -6,6 +6,7 @@
 		<item key="SmartImportRootWizardPage.STORE_NESTED_PROJECTS" value="true"/>
 		<item key="SmartImportRootWizardPage.STORE_CONFIGURE_NATURES" value="true"/>
 		<list key="org.eclipse.ui.internal.wizards.datatransfer.SmartImportRootWizardPage.knownSources">
+			<item value="D:\Julien\Documents\4A\POO\chat_project\chat_project"/>
 			<item value="C:\Users\celes\Desktop\INSA\POO\chat_project\chat_project"/>
 		</list>
 	</section>

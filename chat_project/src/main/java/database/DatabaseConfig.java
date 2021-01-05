@@ -55,6 +55,7 @@ public class DatabaseConfig {
                 Statement stmt = conn.createStatement()) {
             // create a new table
             stmt.execute(sql);
+            stmt.close();
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
@@ -80,6 +81,7 @@ public class DatabaseConfig {
                 Statement stmt = conn.createStatement()) {
             // create a new table
             stmt.execute(sql);
+            stmt.close();
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }

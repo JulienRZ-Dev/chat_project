@@ -91,17 +91,14 @@ public class NicknameWindowFrame extends JFrame implements ActionListener {
         // reset the error message
         messageLabel.setVisible(false);
         
-//        try {
-			if(true) { // messageManagement.isNicknameAvailable(nicknameField.getText())
-				
-				new MainWindowFrame(user);
-				
+        try {
+			if(messageManagement.isNicknameAvailable(nicknameField.getText())) { 
+				new MainWindow(messageManagement);
+			} else {
+				showError("Le nickname est déjà utilisé.");
 			}
-//			} else {
-//				showError("Le nickname est déjà utilisé.");
-//			}
-//		} catch (UdpConnectionFailure ex) {
-//			ex.printStackTrace();
-//		}
+		} catch (UdpConnectionFailure ex) {
+			ex.printStackTrace();
+		}
 	}
 }

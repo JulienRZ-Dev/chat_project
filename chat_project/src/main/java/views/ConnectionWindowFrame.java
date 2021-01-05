@@ -9,6 +9,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.sql.SQLException;
 
 public class ConnectionWindowFrame extends JFrame implements ActionListener {
 
@@ -129,7 +130,13 @@ public class ConnectionWindowFrame extends JFrame implements ActionListener {
 
                         showError("Id incorrect (chiffres uniquement).");
 
-                    }
+                    } catch (ClassNotFoundException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					} catch (SQLException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
                 }
 
             } else { // password empty

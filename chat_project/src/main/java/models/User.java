@@ -2,6 +2,7 @@ package models;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.Random;
 
 import static java.net.InetAddress.getLocalHost;
 
@@ -15,6 +16,13 @@ public class User {
 
 
     // Constructor
+    public User(int id) throws UnknownHostException {
+    	this.id = id;
+    	this.ipAddress = InetAddress.getLocalHost();
+    	Random random = new Random();
+    	this.port = random.nextInt(65535 + 1 - 6000) + 6000;
+    }
+    
     public User(int id, InetAddress ipAddress, int port) {
         this.id = id;
         this.ipAddress = ipAddress;
