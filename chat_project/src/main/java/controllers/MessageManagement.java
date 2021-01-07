@@ -116,6 +116,7 @@ public class MessageManagement {
                     return false;
                 }
                 else {
+                	System.out.println("Calling addUser(" + infos[2] + ") from " + this.currentUser.getNickname() +"'s messageManager");
                 	this.addUser(new User(Integer.parseInt(infos[3]), infos[2], InetAddress.getByName(infos[5]), Integer.parseInt(infos[4])));
                 }
             }
@@ -135,10 +136,6 @@ public class MessageManagement {
      */
     public void listenForConnections(GraphicUserList userList) {
     	this.userList = userList;
-        for(User user : this.activeUsers) {
-        	System.out.println("refresh dans listen for connections " + user.getNickname());
-        	userList.refreshUserList(user);
-        }
     	this.listener = new ConnectionsListener(this);
         this.listener.start();
     }
@@ -247,13 +244,22 @@ public class MessageManagement {
      */
     public void addUser(User user) {
         if (!activeUsers.contains(user)) {
+        	if(userList != null) {
+            	System.out.println("refresh de la graphic user list de " + this.currentUser.getNickname() + " depuis add users");
+            	userList.addUser(user);        		
+            }
             activeUsers.add(user);
-            if(userList != null) {
-            	System.out.println("refresh dans add users " + user.getNickname());
-            	userList.refreshUserList(user);        		
-            }        	
         }
-}
+    }
+    
+    public void removeUser(User user) throws UserNotFound {
+    	userList.removeUser(user);
+    	for (int i = 0; i < this.activeUsers.size(); i++) {
+    		if (user.getNickname().equals(this.activeUsers.get(i).getNickname())) {
+    			this.activeUsers.remove(i);
+    		}
+    	}
+    }
     
 //    public static void main(String[] a) {
 //    	try {
