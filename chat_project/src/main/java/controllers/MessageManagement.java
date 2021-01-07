@@ -31,7 +31,7 @@ public class MessageManagement {
 
     public MessageManagement(User currentUser) {
         this.currentUser = currentUser;
-        this.chatManager = new ChatManager(this.currentUser.getPort());
+        this.chatManager = new ChatManager(this.currentUser.getPort(), this);
     }
 
 
@@ -260,6 +260,17 @@ public class MessageManagement {
     		}
     	}
     }
+
+
+	public User getUserByNickname(String nickname) throws UserNotFound {
+
+		for(User user : this.activeUsers) {
+			if(user.getNickname().equals(nickname)) {
+				return user;
+			}
+		}
+		throw new UserNotFound();
+	}
     
 //    public static void main(String[] a) {
 //    	try {

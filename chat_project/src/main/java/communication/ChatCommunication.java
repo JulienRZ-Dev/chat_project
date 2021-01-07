@@ -9,15 +9,26 @@ import java.net.Socket;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
 
+import exceptions.UserNotFound;
+import views.ChatWindow;
+
 public class ChatCommunication extends Thread {
 	
 	private boolean running = false;
 	
 	private Socket socket;
+	private boolean awaitconfig = true;
+	private ChatWindow chatWindow;
 	
-	public ChatCommunication(Socket socket) {
+	public ChatCommunication(Socket socket, ChatWindow chatWindow, boolean awaitconfig) {
+		this.chatWindow = chatWindow;
 		this.socket = socket;
+		this.awaitconfig = awaitconfig;
 		System.out.println("A socket has been opened between port " + this.socket.getLocalPort() + " and port " + this.socket.getPort());
+	}
+	
+	public Socket getSocket() {
+		return this.socket;
 	}
 	
 	public boolean sendMessage(String message) {
@@ -45,11 +56,20 @@ public class ChatCommunication extends Thread {
 				//Give the message to the correct class
 				if (message != null) {
 					System.out.println(this.socket.getLocalAddress().toString() + " has received a message on port " + this.socket.getLocalPort() + " :\n" + message + "\n");
+					if(this.awaitconfig) {
+						chatWindow.setUser(message);
+						this.awaitconfig = false;
+					} else {
+						chatWindow.printMessage(message);
+					}
+					
 				}
 			} catch (SocketException se) {
 				System.out.println("Chat communication stopped between port " + this.socket.getLocalPort() + " and port " + this.socket.getPort());
 			} catch (IOException e) {
 				System.out.println("Error while receiving a message");
+			} catch (UserNotFound e) {
+				System.out.println("No user active for this nickname");
 			}
 		}
 	}

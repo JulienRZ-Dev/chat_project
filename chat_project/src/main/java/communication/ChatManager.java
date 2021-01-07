@@ -11,6 +11,7 @@ import controllers.MessageManagement;
 import exceptions.ChatNotFound;
 import exceptions.UserNotFound;
 import models.User;
+import views.ChatWindow;
 
 public class ChatManager extends Thread {
 	
@@ -20,6 +21,8 @@ public class ChatManager extends Thread {
 	
 	private ServerSocket serverSocket;
 	private ArrayList<ChatCommunication> chats;
+	private MessageManagement messageManagement;
+	
 	
 	/*
 	 * The Chat manager is used to initiate a thread for each chat (received or launch)
@@ -27,7 +30,8 @@ public class ChatManager extends Thread {
 	 * @param port
 	 * 		  The port on which the current user wants to chat
 	 */
-	public ChatManager(int port) {
+	public ChatManager(int port, MessageManagement messageManagement) {
+		this.messageManagement = messageManagement;
 		this.port = port;
 		try {
 			this.serverSocket = new ServerSocket(this.port);
@@ -48,8 +52,9 @@ public class ChatManager extends Thread {
 	public boolean startChat(User user) {
 		try {
 			System.out.println("Starting a chat between port " + this.port + " and port " + user.getPort());
-			this.chats.add(new ChatCommunication(new Socket(user.getIpAddress(), user.getPort())));
+			this.chats.add(new ChatCommunication(new Socket(user.getIpAddress(), user.getPort()), new ChatWindow(messageManagement, user), false));
 			this.chats.get(this.chats.size() - 1).start();
+			this.chats.get(this.chats.size() - 1).sendMessage(messageManagement.getCurrentUser().getNickname());
 			return true;
 		} catch (IOException e) {
 			return false;
@@ -87,7 +92,7 @@ public class ChatManager extends Thread {
 		while (running) {
 			try {
 				System.out.println("Waiting for connections on port " + this.port);
-				this.chats.add(new ChatCommunication(this.serverSocket.accept()));
+				this.chats.add(new ChatCommunication(this.serverSocket.accept(), new ChatWindow(messageManagement), true));
 				this.chats.get(this.chats.size() - 1).start();
 				System.out.println("Connection received on port " + this.port);
 			} catch (SocketException se) {
