@@ -1,7 +1,7 @@
 package controllers;
 
 import communication.ChatManager;
-import communication.ConnectionsListener;
+import communication.NotificationsListener;
 import exceptions.ChatAlreadyExists;
 import exceptions.ChatNotFound;
 import exceptions.UdpConnectionFailure;
@@ -26,7 +26,7 @@ public class MessageManagement {
     private ArrayList<User> activeUsers = new ArrayList<User>();
     private GraphicUserList userList;
     
-    private ConnectionsListener listener;
+    private NotificationsListener listener;
     private ChatManager chatManager;
 
     public MessageManagement(User currentUser) {
@@ -93,7 +93,7 @@ public class MessageManagement {
         	UdpCommunication communication = new UdpCommunication();
         	if (!communication.openSocket(broadcast_port, InetAddress.getLocalHost()))
         		throw (new UdpConnectionFailure("opening the socket"));
-        	//We chose port 1024 to receive all the connections
+        	//We chose port 5000 to receive all the connections and disconnection messages
         	if (!communication.broadcastMessage(message, 5000))
         		throw (new UdpConnectionFailure("authorizing broadcast"));
         
@@ -106,7 +106,7 @@ public class MessageManagement {
                 if (!infos[0].equals("login_response")) {
                     continue;
                 }
-                //If the response is from us, we ignore it (not sure if it will happen)
+                //If the response is from ourself, we ignore it
                 else if ((infos[5].equals(InetAddress.getLocalHost().toString())) && (this.currentUser.getPort() == Integer.parseInt(infos[4]))) {
                 	continue;
                 }
@@ -129,6 +129,86 @@ public class MessageManagement {
         this.currentUser.setNickname(nickname);
         return true;
     }
+    
+    public void disconnect() throws UdpConnectionFailure {
+    	int id = this.currentUser.getId();
+    	String nickname = this.currentUser.getNickname();
+    	Random random = new Random();
+    	int broadcast_port = random.nextInt(65535 + 1 - 6000) + 6000; //send the message from a random port between 6000 and 65535
+        String message = "disconnect_message:" + nickname + ":" + Integer.toString(id);
+        try {
+        	
+        	UdpCommunication communication = new UdpCommunication();
+        	
+        	if (!communication.openSocket(broadcast_port, InetAddress.getLocalHost()))
+        		throw (new UdpConnectionFailure("opening the socket"));
+        	
+        	//We chose port 5000 to receive all the connections and disconnection messages
+        	if (!communication.broadcastMessage(message, 5000))
+        		throw (new UdpConnectionFailure("authorizing broadcast"));
+        	
+        	communication.closeSocket();
+        	
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    
+    /*
+     *   Call this method when a user who was already connected with an approved nickname
+     *   wants to change his nickname
+     *
+     *   @param newNickname
+     *          the nickname that the current user wants
+     *
+     *   @return false if the newNickname is already used, else true
+     */
+    private boolean tryToChangeMyNickname(String newNickname) throws UdpConnectionFailure {
+    	int id = this.currentUser.getId();
+    	String nickname = this.currentUser.getNickname();
+    	int port = this.currentUser.getPort();
+        Random random = new Random();
+    	int broadcast_port = random.nextInt(65535 + 1 - 6000) + 6000; //send the message from a random port between 6000 and 65535
+        String message = "nickname_change:" + nickname + ":" + newNickname + ":" + Integer.toString(id) + ":" + Integer.toString(port);
+
+        try {
+        	
+        	UdpCommunication communication = new UdpCommunication();
+        	
+        	if (!communication.openSocket(broadcast_port, InetAddress.getLocalHost()))
+        		throw (new UdpConnectionFailure("opening the socket"));
+        	
+        	//We chose port 5000 to receive all the connections and disconnection messages
+        	if (!communication.broadcastMessage(message, 5000))
+        		throw (new UdpConnectionFailure("authorizing broadcast"));
+        
+            ArrayList<String> responses = communication.receiveMessages(TIMEOUT_RECEPTION_REPONSE);
+            for (int i = 0; i < responses.size(); i++) {
+                //Location in "infos"      0                                 1                                 2                3
+                //Messages format : nickname_response:<0 if the sender uses the nickname, 1 otherwise><Sender's IP Address>:<udp_port>
+            	String[] infos = responses.get(i).split(":");
+                //If the response doesn't have the right type, we ignore it
+                if (!infos[0].equals("nickname_response")) {
+                    continue;
+                }
+                //If the response is from ourself, we ignore it
+                else if ((infos[5].equals(InetAddress.getLocalHost().toString())) && (this.currentUser.getPort() == Integer.parseInt(infos[4]))) {
+                	continue;
+                }
+                //If infos[1] != 0 then another user has already chosen the nickname
+                else if (Integer.parseInt(infos[1]) == 0) {
+                    return false;
+                }
+            }
+            communication.closeSocket();
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        this.currentUser.setNickname(newNickname);
+        return true;
+    }
 
     /*
      *   Call this method once the user is connected AND has chosen a nickname that has been approved
@@ -136,7 +216,7 @@ public class MessageManagement {
      */
     public void listenForConnections(GraphicUserList userList) {
     	this.userList = userList;
-    	this.listener = new ConnectionsListener(this);
+    	this.listener = new NotificationsListener(this);
         this.listener.start();
     }
     
@@ -191,19 +271,6 @@ public class MessageManagement {
      */
     public boolean sendMessage(User user, String message) throws ChatNotFound {
 		return this.getChatManager().getChat(user).sendMessage(message);
-    }
-
-    /*
-     *   Call this method when a user who was already connected with an approved nickname
-     *   has changed his nickname
-     *
-     *   @param newNickname
-     *          the nickname that the current user wants
-     *
-     *   @return false if the newNickname is already used, else true
-     */
-    private boolean notifyNicknameChanged(String newNickname) {
-        return false;
     }
 
     /*
@@ -271,6 +338,16 @@ public class MessageManagement {
 		}
 		throw new UserNotFound();
 	}
+    
+    public void changeOtherUserNickname(String oldNickname, String newNickname) throws UserNotFound {
+    	for (User user : this.activeUsers) {
+    		if (user.getNickname().equals(oldNickname)) {
+    			user.setNickname(newNickname);
+    			return;
+    		}
+    	}
+    	throw (new UserNotFound());
+    }
     
 //    public static void main(String[] a) {
 //    	try {

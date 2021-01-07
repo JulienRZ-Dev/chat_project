@@ -15,12 +15,17 @@ public class User {
     private int port;
 
 
-    // Constructor
+    // Constructors
     public User(int id) throws UnknownHostException {
     	this.id = id;
     	this.ipAddress = InetAddress.getLocalHost();
     	Random random = new Random();
     	this.port = random.nextInt(65535 + 1 - 6000) + 6000;
+    }
+    
+    public User(int id, String nickname) {
+    	this.id = id;
+    	this.nickname = nickname;
     }
     
     public User(int id, InetAddress ipAddress, int port) {
