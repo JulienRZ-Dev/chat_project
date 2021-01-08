@@ -10,9 +10,11 @@ import models.Message;
 import models.User;
 import views.GraphicUserList;
 import communication.UdpCommunication;
+import database.DatabaseMessages;
 
 import java.io.IOException;
 import java.net.*;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -24,11 +26,17 @@ public class MessageManagement {
 
     private User currentUser;
     private ArrayList<User> activeUsers = new ArrayList<User>();
+    
+    // Update view
     private GraphicUserList userList;
     
+    // TCP message listener and manager
     private NotificationsListener listener;
     private ChatManager chatManager;
 
+    // Database
+    private DatabaseMessages db = new DatabaseMessages();
+    
     public MessageManagement(User currentUser) {
         this.currentUser = currentUser;
         this.chatManager = new ChatManager(this.currentUser.getPort(), this);
@@ -38,17 +46,21 @@ public class MessageManagement {
     /*
      *   Gets  all the messages that were sent between the two users
      *
-     *   @param user1
+     *   @param idLocal
      *
-     *   @param user2
+     *   @param idDistant
      *
      *   @return the history of messages between the two users
      */
-    public ArrayList<Message> getHistory(int user1, int user2) {
+    public ArrayList<Message> getHistory(int idLocal, int idDistant) {
         ArrayList<Message> messageList = new ArrayList<Message>();
 
-        // TODO
-
+        try {
+			messageList = db.getHistory(idLocal, idDistant);
+		} catch (ClassNotFoundException | SQLException e) {
+			e.printStackTrace();
+		}
+        
         return messageList;
     }
 
@@ -65,7 +77,11 @@ public class MessageManagement {
      */
     public void AddMessage(int recipient, int transmitter, String content) {
 
-        // TODO
+        try {
+			db.appendHistory(recipient, transmitter, content);
+		} catch (ClassNotFoundException | SQLException e) {
+			e.printStackTrace();
+		}
 
     }
 

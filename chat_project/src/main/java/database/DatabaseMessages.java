@@ -44,6 +44,9 @@ public class DatabaseMessages {
      */
     public ArrayList<Message> getHistory(int idLocal, int idDistant) throws SQLException, ClassNotFoundException {
     	
+    	Message message;
+    	ArrayList<Message> history = new ArrayList<Message>();
+    	
     	doConnect();
     	
         Statement statement = connection.createStatement(); // create the statement object
@@ -52,14 +55,19 @@ public class DatabaseMessages {
         ResultSet rs = statement.executeQuery("select * from messages where (recipient = '" + Integer.toString(idLocal) + "' and transmitter = '" + Integer.toString(idDistant) + "')" +
         		"or where (recipient = '" + Integer.toString(idDistant) + "' and transmitter = '" + Integer.toString(idLocal) + "')");
 
+        while(rs.next()) {
+        	message = new Message(rs.getInt("recipient"), rs.getInt("transmitter"), rs.getString("content"), rs.getTimestamp("message_date")); 
+        	System.out.println(message);
+        	history.add(message);
+        }
     	
-    	ArrayList<Message> history = new ArrayList<Message>();
+        statement.close();
         
     	return history;
     }
     
     
-    public void appendHistory(Message message) throws SQLException, ClassNotFoundException {
+    public void appendHistory(int recipient, int transmitter, String content) throws SQLException, ClassNotFoundException {
     	
     	doConnect();
     	
@@ -68,9 +76,9 @@ public class DatabaseMessages {
         
         statement.executeUpdate(
         	"insert into messages (recipient, transmitter, content, message_date) values ('" + 
-        	message.getRecipient() + "', '" + 
-        	message.getTransmitter() + "', '" +
-        	message.getContent() + "', '" +
+        	recipient + "', '" + 
+        	transmitter + "', '" +
+        	content + "', '" +
         	"NOW()" +
         	"')"
         );

@@ -1,6 +1,6 @@
 package models;
 
-import java.util.Date;
+import java.sql.Timestamp;
 
 public class Message {
 
@@ -8,15 +8,15 @@ public class Message {
     private final int recipient; // destinataire
     private final int transmitter; // emetteur
     private final String content;
-    private final Date date;
+    private final Timestamp date;
 
 
     // Constructor
-    public Message(int recipient, int transmitter, String content) {
+    public Message(int recipient, int transmitter, String content, Timestamp date) {
         this.recipient = recipient;
         this.transmitter = transmitter;
         this.content = content;
-        this.date = new Date(); // La date est décidée au moment de la construction de l'objet message
+        this.date = date;
     }
 
 
@@ -36,7 +36,7 @@ public class Message {
         return content;
     }
 
-    public Date getDate() {
+    public Timestamp getDate() {
         return date;
     }
 

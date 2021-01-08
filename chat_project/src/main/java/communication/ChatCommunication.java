@@ -9,6 +9,7 @@ import java.net.Socket;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
 
+import controllers.MessageManagement;
 import exceptions.UserNotFound;
 import views.ChatWindow;
 
@@ -20,6 +21,7 @@ public class ChatCommunication extends Thread {
 	private boolean awaitconfig = true;
 	private ChatWindow chatWindow;
 	private String otherUser;
+	
 	
 	public ChatCommunication(Socket socket, ChatWindow chatWindow, String otherUser) {
 		this.chatWindow = chatWindow;
