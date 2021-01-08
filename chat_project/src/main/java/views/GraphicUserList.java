@@ -17,7 +17,7 @@ public class GraphicUserList  {
 	private DefaultListModel<String> l1 = new DefaultListModel<>();  
 
 	public GraphicUserList(MessageManagement messageManagement) {
-
+		
 		messageManagement.listenForConnections(this);
 		messageManagement.startChatManager();
 
@@ -27,26 +27,20 @@ public class GraphicUserList  {
 			addUser(user);
 		}
 
-		JFrame f= new JFrame();  
+		JFrame frame= new JFrame();  
 		JButton b=new JButton("Chat"); 
 		JList<String> list1 = new JList<>(l1);
+		
+		list1.setBounds(50, 50, 100, 300);  
+		b.setBounds(160, 320, 80, 30); 
+		
+		frame.add(list1);  
+		frame.add(b);
 
-		f.setSize(400,400);  
-		f.setLayout(null);  
-		f.setVisible(true); 
-
-
-		b.setBounds(200,150,80,30); 
-
-
-		list1.setBounds(100,100, 75,75);  
-
-		f.add(list1);  
-		f.add(b);
-
-		f.setSize(450,450);  
-		f.setLayout(null);  
-		f.setVisible(true); 
+		frame.setBounds(10, 10, 300, 500);  
+		frame.setLayout(null);  
+		frame.setVisible(true); 
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 		b.addActionListener(new ActionListener() {  
 			public void actionPerformed(ActionEvent e) {

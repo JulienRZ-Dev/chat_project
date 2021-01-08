@@ -2,6 +2,7 @@ package views;
 
 import java.awt.Color;
 import java.awt.Container;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
@@ -34,9 +35,10 @@ public class NicknameFrame extends JFrame implements ActionListener {
     
     
     public NicknameFrame(User user) {
+    	this.setBounds(10, 10, 300, 300);
     	this.user = user;
     	this.messageManagement = new MessageManagement(user);
-    	this.setVisible(false);
+    	this.setVisible(true);
         setLayoutManager();
         setStyle();
         setLocationAndSize();
@@ -44,9 +46,6 @@ public class NicknameFrame extends JFrame implements ActionListener {
         addActionEvent();
     }
     
-    public void setPseudonymeFrameVisible() {
-    	this.setVisible(true);
-    }
     
     private void setLayoutManager() {
         container.setLayout(null);
@@ -91,10 +90,9 @@ public class NicknameFrame extends JFrame implements ActionListener {
         try {
         	
 			if(messageManagement.isNicknameAvailable(pseudonymeField.getText())) {
-				
+			
 				new MainWindow(messageManagement);
-				//We also close the nickname frame
-				this.setVisible(false);
+				this.dispose(); // We also close the nickname frame
 				
 			} else {
 				showError("Le pseudonyme ou l'id est en cours d'utilisation.");

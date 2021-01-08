@@ -59,7 +59,7 @@ public class DatabaseUserInterface {
 
 
     /*
-    *   Create a new user with the given id ans password.
+    *   Create a new user with the given id and password.
     *   If a user with this id already exist, does not create the user.
     *
     *   @ return true if user id is available and user have been created into the database,
