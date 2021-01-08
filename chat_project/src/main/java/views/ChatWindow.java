@@ -20,6 +20,7 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
+import javax.swing.WindowConstants;
 
 import controllers.MessageManagement;
 import exceptions.ChatNotFound;
@@ -44,11 +45,11 @@ public class ChatWindow {
 	private WindowAdapter windowAdapter;
     
     public ChatWindow(MessageManagement messageManagement, User user) {
+    	
     	this.messageManagement = messageManagement;
     	this.currentUser = messageManagement.getCurrentUser();
     	this.otherUser = user;
     	this.appName = "Clavardage avec " + user.getNickname();
-    	
       	display();
     }
     
@@ -75,7 +76,6 @@ public class ChatWindow {
         mainPanel.setLayout(new BorderLayout());
 
         JPanel southPanel = new JPanel();
-        southPanel.setBackground(Color.BLUE);
         southPanel.setLayout(new GridBagLayout());
 
         messageBox = new JTextField(30);
@@ -110,7 +110,7 @@ public class ChatWindow {
         mainPanel.add(BorderLayout.SOUTH, southPanel);
 
         newFrame.add(mainPanel);
-        newFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        newFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         newFrame.setSize(470, 300);
         newFrame.setVisible(true);
         

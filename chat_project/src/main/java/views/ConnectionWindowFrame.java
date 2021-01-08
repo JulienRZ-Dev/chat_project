@@ -29,7 +29,7 @@ public class ConnectionWindowFrame extends JFrame implements ActionListener {
     UserManagement userManagement = new UserManagement();
     
     // Nickname Frame
-    NicknameWindowFrame nicknameFrame;
+    NicknameFrame nicknameFrame;
     
     public ConnectionWindowFrame() {
         setLayoutManager();
@@ -99,8 +99,7 @@ public class ConnectionWindowFrame extends JFrame implements ActionListener {
                     try { // verifie user info with the database
 
                         User user = userManagement.signInUser(Integer.parseInt(id), password);
-                        nicknameFrame = new NicknameWindowFrame(user);
-                        nicknameFrame.setNicknameFrameVisible();
+                        nicknameFrame = new NicknameFrame(user);
                         this.dispose();
 
                     } catch (UserAuthentificationFailure ex) { // user doesn't exist in the database
