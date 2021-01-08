@@ -106,9 +106,11 @@ public class ChatManager extends Thread {
 	/*
 	 * Use this method to stop the ChatManager thread
 	 */
-	public void stopChatManager() {
+	public void stopChatManager() throws InterruptedException {
 		for (ChatCommunication chat : chats) {
+			chat.getChatWindow().disconnect();
 			chat.stopCommunication();
+			chat.join();
 		}
 		try {
 			serverSocket.close();
@@ -119,10 +121,13 @@ public class ChatManager extends Thread {
 	}
 	
 	public void stopChat(User user) throws InterruptedException {
-		for (ChatCommunication chat : this.chats) {
-			if (user.getNickname().equals(chat.getOtherUser())) {
-				chat.stopCommunication();
-				chat.join();
+		for (int i = 0; i < this.chats.size(); i++) {
+			if (user.getNickname().equals(chats.get(i).getOtherUser())) {
+				chats.get(i).getChatWindow().disconnect();
+				chats.get(i).stopCommunication();
+				chats.get(i).join();
+				chats.remove(i);
+				return;
 			}
 		}
 	}

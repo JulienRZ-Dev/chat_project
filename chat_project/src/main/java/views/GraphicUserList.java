@@ -5,6 +5,7 @@ import javax.swing.*;
 import communication.ChatManager;
 import controllers.MessageManagement;
 import exceptions.ChatAlreadyExists;
+import exceptions.UdpConnectionFailure;
 import exceptions.UserNotFound;
 import models.User;
 
@@ -14,7 +15,8 @@ import java.util.ArrayList;
 public class GraphicUserList  {  
 
 	private ArrayList<User> users = new ArrayList<User>();
-	private DefaultListModel<String> l1 = new DefaultListModel<>();  
+	private DefaultListModel<String> l1 = new DefaultListModel<>();
+	private WindowAdapter windowAdapter;  
 
 	public GraphicUserList(MessageManagement messageManagement) {
 		
@@ -40,7 +42,7 @@ public class GraphicUserList  {
 		frame.setBounds(10, 10, 300, 500);  
 		frame.setLayout(null);  
 		frame.setVisible(true); 
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 
 		b.addActionListener(new ActionListener() {  
 			public void actionPerformed(ActionEvent e) {
@@ -55,6 +57,26 @@ public class GraphicUserList  {
 				}
 			}
 		});
+		
+		//Define what to do when we close the window
+        this.windowAdapter = new WindowAdapter() {
+
+            // WINDOW_CLOSED event handler
+            @Override
+            public void windowClosing(WindowEvent e) {
+                super.windowClosing(e);
+                try {
+                	messageManagement.stopChatManager();
+                	messageManagement.disconnect();
+                } catch (InterruptedException e1) {
+                	System.out.println("Chat already stopped");
+                } catch (UdpConnectionFailure e1) {
+					System.out.println("Could not broadcast udp disconnect message");
+				}
+                System.exit(0);
+            }
+        };
+        frame.addWindowListener(windowAdapter);
 	}  
 
 

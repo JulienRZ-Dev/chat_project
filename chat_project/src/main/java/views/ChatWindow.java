@@ -32,10 +32,10 @@ public class ChatWindow {
 	// Graphical Logic
     ChatWindow  chatwindow;
     String		appName = "";
-    JFrame      newFrame;
+    JFrame      frame;
     JButton     sendButton;
     JTextField  messageBox;
-    JTextArea   chatBox;
+    JPanel      chatBox;
     
     // Backend Logic
     MessageManagement messageManagement;
@@ -70,7 +70,7 @@ public class ChatWindow {
 
     public void display() {
     	
-    	newFrame = new JFrame(appName);
+    	frame = new JFrame(appName);
     	
         JPanel mainPanel = new JPanel();
         mainPanel.setLayout(new BorderLayout());
@@ -84,10 +84,8 @@ public class ChatWindow {
         sendButton = new JButton("Send Message");
         sendButton.addActionListener(new sendMessageButtonListener());
 
-        chatBox = new JTextArea();
-        chatBox.setEditable(false);
+        chatBox = new JPanel();
         chatBox.setFont(new Font("Serif", Font.PLAIN, 15));
-        chatBox.setLineWrap(true);
 
         mainPanel.add(new JScrollPane(chatBox), BorderLayout.CENTER);
 
@@ -109,51 +107,55 @@ public class ChatWindow {
 
         mainPanel.add(BorderLayout.SOUTH, southPanel);
 
-        newFrame.add(mainPanel);
-        newFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        newFrame.setSize(470, 300);
-        newFrame.setVisible(true);
+        frame.add(mainPanel);
+        frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+        frame.setSize(470, 300);
+        frame.setVisible(true);
         
         //Define what to do when we close the window
         this.windowAdapter = new WindowAdapter() {
-            // WINDOW_CLOSING event handler
+
+            // WINDOW_CLOSED event handler
             @Override
             public void windowClosing(WindowEvent e) {
                 super.windowClosing(e);
                 try {
                 	messageManagement.stopChat(otherUser);
+                	disconnect();
                 } catch (InterruptedException e1) {
                 	System.out.println("Chat already stopped");
                 }
             }
-
-            // WINDOW_CLOSED event handler
-            @Override
-            public void windowClosed(WindowEvent e) {
-                super.windowClosed(e);
-                // Close application if you want to with System.exit(0)
-                // but don't forget to dispose of all resources 
-                // like child frames, threads, ...
-                // System.exit(0);
-            }
+            
         };
+        this.frame.addWindowListener(windowAdapter);
+        
     }
     
     
     public void printMessage(String message) {
-        chatBox.append("<" + otherUser.getNickname() + ">:  " + message + "\n");
+        chatBox.add(new JLabel("<html><font color='blue'>" + otherUser.getNickname() + "</font>:  " + message + "<br></html>"));
     }
     
+    public void disconnect() {
+    	try {
+			this.messageManagement.sendMessage(otherUser, "#disconnect#");
+		} catch (ChatNotFound e) {
+			System.out.println("Chat already closed.");
+		}
+    	this.frame.dispose();
+    }
+    
+    public void printDisconnectMessage() {
+    	chatBox.add(new JLabel("<html><font color='red'>The other user has closed the chat.</font><br></html>"));
+    }
 
     class sendMessageButtonListener implements ActionListener {
         public void actionPerformed(ActionEvent event) {
             if (messageBox.getText().length() < 1) {
                 // do nothing
-            } else if (messageBox.getText().equals(".clear")) {
-                chatBox.setText("Cleared all messages\n");
-                messageBox.setText("");
             } else {
-                chatBox.append("<" + currentUser.getNickname() + ">:  " + messageBox.getText() + "\n");
+            	chatBox.add(new JLabel("<html><font color='green'>" + currentUser.getNickname() + "</font>:  " + messageBox.getText() + "<br></html>"));
                 try {
 					messageManagement.sendMessage(otherUser, messageBox.getText());
 				} catch (ChatNotFound e) {

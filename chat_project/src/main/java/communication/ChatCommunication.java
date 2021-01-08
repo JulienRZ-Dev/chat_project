@@ -69,15 +69,16 @@ public class ChatCommunication extends Thread {
 						chatWindow.setUser(message);
 						this.otherUser = message;
 						this.awaitconfig = false;
-					} else {
+					}
+					else if (message.equals("#disconnect#")) {
+						this.chatWindow.printDisconnectMessage();
+					}
+					else {
 						chatWindow.printMessage(message);
 					}
-					
 				}
 			} catch (SocketException se) {
 				System.out.println("Chat communication stopped between port " + this.socket.getLocalPort() + " and port " + this.socket.getPort());
-				//TODO
-				//Stop the related ChatWindow
 			} catch (IOException e) {
 				System.out.println("Error while receiving a message");
 			} catch (UserNotFound e) {
@@ -104,7 +105,11 @@ public class ChatCommunication extends Thread {
 	}
 	
 	public String getOtherUser() {
-		return this.getOtherUser();
+		return this.otherUser;
+	}
+	
+	public ChatWindow getChatWindow() {
+		return this.chatWindow;
 	}
 	
 }
