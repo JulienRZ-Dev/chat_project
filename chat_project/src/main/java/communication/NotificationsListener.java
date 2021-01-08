@@ -44,6 +44,7 @@ public class NotificationsListener extends Thread {
                 String message = communication.receiveMessage(5000);
                 if (message == null)
                 	continue;
+                System.out.println("NotificationListener - message reçu : " + message);
                 String[] infos = message.split(":");
                 //Location in "infos"      0           1      2       3                4               5
                 //Messages format : login_request:<nickname>:<id>:<tcp_port>:<Sender's IP Address>:<udp_port>
@@ -53,10 +54,10 @@ public class NotificationsListener extends Thread {
                     int tcp_port = Integer.parseInt(infos[3]);
                     InetAddress address = InetAddress.getByName(infos[4]);
                     int udp_port = Integer.parseInt(infos[5]);
-                    if (id == messageManager.getCurrentUser().getId()) {
-                        continue;
-                    }
-                    else if (nickname.equals(messageManager.getCurrentUser().getNickname())) {
+//                    if () {
+//                        continue;
+//                    }
+                    if ((id == messageManager.getCurrentUser().getId()) || (nickname.equals(messageManager.getCurrentUser().getNickname()))) {
                     	response = "login_response:0:" + messageManager.getCurrentUser().getNickname() + ":" + Integer.toString(messageManager.getCurrentUser().getId()) + ":" + Integer.toString(messageManager.getCurrentUser().getPort());
                     }
                     else {

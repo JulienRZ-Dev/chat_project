@@ -99,6 +99,7 @@ public class MessageManagement {
         
             ArrayList<String> responses = communication.receiveMessages(TIMEOUT_RECEPTION_REPONSE);
             for (int i = 0; i < responses.size(); i++) {
+            	System.out.println("isNicknameAvailable - message reçu : " + responses.get(i));
                 //Location in "infos"      0                               1                             2       3            4                   5               6
                 //Messages format : login_response:<0 if the sender uses the nickname, 1 otherwise>:<nickname>:<id>:<Sender's tcp_port>:<Sender's IP Address>:<udp_port>
             	String[] infos = responses.get(i).split(":");

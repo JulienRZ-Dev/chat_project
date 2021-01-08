@@ -97,7 +97,7 @@ public class NicknameFrame extends JFrame implements ActionListener {
 				this.setVisible(false);
 				
 			} else {
-				showError("Le pseudonyme est déjà utilisé.");
+				showError("Le pseudonyme ou l'id est en cours d'utilisation.");
 			}
 		} catch (UdpConnectionFailure ex) {
 			ex.printStackTrace();
