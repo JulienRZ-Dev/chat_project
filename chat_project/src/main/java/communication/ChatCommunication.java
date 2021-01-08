@@ -19,12 +19,19 @@ public class ChatCommunication extends Thread {
 	private Socket socket;
 	private boolean awaitconfig = true;
 	private ChatWindow chatWindow;
+	private String otherUser;
 	
-	public ChatCommunication(Socket socket, ChatWindow chatWindow, boolean awaitconfig) {
+	public ChatCommunication(Socket socket, ChatWindow chatWindow, String otherUser) {
 		this.chatWindow = chatWindow;
 		this.socket = socket;
-		this.awaitconfig = awaitconfig;
-		System.out.println("A socket has been opened between port " + this.socket.getLocalPort() + " and port " + this.socket.getPort());
+		this.otherUser = otherUser;
+		this.awaitconfig = false;
+	}
+	
+	public ChatCommunication(Socket socket, ChatWindow chatWindow) {
+		this.chatWindow = chatWindow;
+		this.socket = socket;
+		this.awaitconfig = true;
 	}
 	
 	public Socket getSocket() {
@@ -58,6 +65,7 @@ public class ChatCommunication extends Thread {
 					System.out.println(this.socket.getLocalAddress().toString() + " has received a message on port " + this.socket.getLocalPort() + " :\n" + message + "\n");
 					if(this.awaitconfig) {
 						chatWindow.setUser(message);
+						this.otherUser = message;
 						this.awaitconfig = false;
 					} else {
 						chatWindow.printMessage(message);
@@ -66,6 +74,8 @@ public class ChatCommunication extends Thread {
 				}
 			} catch (SocketException se) {
 				System.out.println("Chat communication stopped between port " + this.socket.getLocalPort() + " and port " + this.socket.getPort());
+				//TODO
+				//Stop the related ChatWindow
 			} catch (IOException e) {
 				System.out.println("Error while receiving a message");
 			} catch (UserNotFound e) {
@@ -89,6 +99,10 @@ public class ChatCommunication extends Thread {
 	
 	public int getRemotePort() {
 		return this.socket.getPort();
+	}
+	
+	public String getOtherUser() {
+		return this.getOtherUser();
 	}
 	
 }

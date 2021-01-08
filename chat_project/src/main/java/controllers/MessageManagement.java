@@ -255,6 +255,10 @@ public class MessageManagement {
     	}
     }
     
+    public void stopChat(User user) throws InterruptedException {
+    	this.chatManager.stopChat(user);
+    }
+    
     /*
      * Use this method to send a message to another user.
      * A chat must have been started between the two users.

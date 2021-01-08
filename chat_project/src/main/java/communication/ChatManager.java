@@ -52,7 +52,7 @@ public class ChatManager extends Thread {
 	public boolean startChat(User user) {
 		try {
 			System.out.println("Starting a chat between port " + this.port + " and port " + user.getPort());
-			this.chats.add(new ChatCommunication(new Socket(user.getIpAddress(), user.getPort()), new ChatWindow(messageManagement, user), false));
+			this.chats.add(new ChatCommunication(new Socket(user.getIpAddress(), user.getPort()), new ChatWindow(messageManagement, user), user.getNickname()));
 			this.chats.get(this.chats.size() - 1).start();
 			this.chats.get(this.chats.size() - 1).sendMessage(messageManagement.getCurrentUser().getNickname());
 			return true;
@@ -92,7 +92,7 @@ public class ChatManager extends Thread {
 		while (running) {
 			try {
 				System.out.println("Waiting for connections on port " + this.port);
-				this.chats.add(new ChatCommunication(this.serverSocket.accept(), new ChatWindow(messageManagement), true));
+				this.chats.add(new ChatCommunication(this.serverSocket.accept(), new ChatWindow(messageManagement)));
 				this.chats.get(this.chats.size() - 1).start();
 				System.out.println("Connection received on port " + this.port);
 			} catch (SocketException se) {
@@ -116,5 +116,14 @@ public class ChatManager extends Thread {
 			System.out.println("Could not properly stop the server socket");
 		}
 		running = false;
+	}
+	
+	public void stopChat(User user) throws InterruptedException {
+		for (ChatCommunication chat : this.chats) {
+			if (user.getNickname().equals(chat.getOtherUser())) {
+				chat.stopCommunication();
+				chat.join();
+			}
+		}
 	}
 }

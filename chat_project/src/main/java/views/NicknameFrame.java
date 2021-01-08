@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Container;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowEvent;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -92,6 +93,8 @@ public class NicknameFrame extends JFrame implements ActionListener {
 			if(messageManagement.isNicknameAvailable(pseudonymeField.getText())) {
 				
 				new MainWindow(messageManagement);
+				//We also close the nickname frame
+				this.setVisible(false);
 				
 			} else {
 				showError("Le pseudonyme est déjà utilisé.");

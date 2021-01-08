@@ -8,6 +8,8 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -38,6 +40,8 @@ public class ChatWindow {
     MessageManagement messageManagement;
     User currentUser;
     User otherUser;
+    
+	private WindowAdapter windowAdapter;
     
     public ChatWindow(MessageManagement messageManagement, User user) {
     	this.messageManagement = messageManagement;
@@ -109,6 +113,30 @@ public class ChatWindow {
         newFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         newFrame.setSize(470, 300);
         newFrame.setVisible(true);
+        
+        //Define what to do when we close the window
+        this.windowAdapter = new WindowAdapter() {
+            // WINDOW_CLOSING event handler
+            @Override
+            public void windowClosing(WindowEvent e) {
+                super.windowClosing(e);
+                try {
+                	messageManagement.stopChat(otherUser);
+                } catch (InterruptedException e1) {
+                	System.out.println("Chat already stopped");
+                }
+            }
+
+            // WINDOW_CLOSED event handler
+            @Override
+            public void windowClosed(WindowEvent e) {
+                super.windowClosed(e);
+                // Close application if you want to with System.exit(0)
+                // but don't forget to dispose of all resources 
+                // like child frames, threads, ...
+                // System.exit(0);
+            }
+        };
     }
     
     
