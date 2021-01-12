@@ -5,6 +5,7 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 
 import models.Message;
@@ -52,8 +53,8 @@ public class DatabaseMessages {
         Statement statement = connection.createStatement(); // create the statement object
         statement.setQueryTimeout(10);  // set timeout to 10 sec.
 
-        ResultSet rs = statement.executeQuery("select * from messages where (recipient = '" + Integer.toString(idLocal) + "' and transmitter = '" + Integer.toString(idDistant) + "')" +
-        		"or where (recipient = '" + Integer.toString(idDistant) + "' and transmitter = '" + Integer.toString(idLocal) + "')");
+        ResultSet rs = statement.executeQuery("select * from messages where (recipient = " + Integer.toString(idLocal) + " and transmitter = " + Integer.toString(idDistant) + ")" +
+        		"or (recipient = " + Integer.toString(idDistant) + " and transmitter = " + Integer.toString(idLocal) + ")");
 
         while(rs.next()) {
         	message = new Message(rs.getInt("recipient"), rs.getInt("transmitter"), rs.getString("content"), rs.getTimestamp("message_date")); 
@@ -74,14 +75,44 @@ public class DatabaseMessages {
         Statement statement = connection.createStatement(); // create the statement object
         statement.setQueryTimeout(10);  // set timeout to 10 sec.
         
+        Timestamp time = new Timestamp(System.currentTimeMillis());
+        
         statement.executeUpdate(
         	"insert into messages (recipient, transmitter, content, message_date) values ('" + 
         	recipient + "', '" + 
         	transmitter + "', '" +
         	content + "', '" +
-        	"NOW()" +
+        	time +
         	"')"
         );
         statement.close();
     }
-}
+    
+    public void clearMessages() throws ClassNotFoundException, SQLException {
+    	doConnect();
+    	
+        Statement statement = connection.createStatement(); // create the statement object
+        statement.setQueryTimeout(10);  // set timeout to 10 sec.
+        
+        statement.executeUpdate(
+        	"DROP TABLE MESSAGES"
+        );
+        
+        // SQL statement for creating a new table
+        String sql = "CREATE TABLE IF NOT EXISTS users (\n"
+                + "	id INTEGER PRIMARY KEY NOT NULL,\n"
+                + "	pwd TEXT NOT NULL,\n"
+                + " capacity real \n"
+                + ");";
+        
+        try (Connection conn = DriverManager.getConnection(url);
+            Statement stmt = conn.createStatement()) {
+            // create a new table
+            stmt.execute(sql);
+            stmt.close();
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        statement.close();
+    }
+ }

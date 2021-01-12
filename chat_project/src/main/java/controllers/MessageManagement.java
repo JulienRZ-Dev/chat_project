@@ -46,20 +46,19 @@ public class MessageManagement {
     /*
      *   Gets  all the messages that were sent between the two users
      *
-     *   @param idLocal
+     *   @param otherUser
      *
-     *   @param idDistant
      *
      *   @return the history of messages between the two users
      */
-    public ArrayList<Message> getHistory(int idLocal, int idDistant) {
-        ArrayList<Message> messageList = new ArrayList<Message>();
+    public ArrayList<Message> getHistory(User otherUser) {
+    	ArrayList<Message> messageList = new ArrayList<Message>();
 
         try {
-			messageList = db.getHistory(idLocal, idDistant);
-		} catch (ClassNotFoundException | SQLException e) {
-			e.printStackTrace();
-		}
+            messageList = db.getHistory(this.currentUser.getId(), otherUser.getId());
+        } catch (ClassNotFoundException | SQLException e) {
+            e.printStackTrace();
+        }
         
         return messageList;
     }
@@ -75,10 +74,10 @@ public class MessageManagement {
      *          The person who sent the message
      *
      */
-    public void AddMessage(int recipient, int transmitter, String content) {
+    public void addMessage(User recipient, User transmitter, String content) {
 
         try {
-			db.appendHistory(recipient, transmitter, content);
+			db.appendHistory(recipient.getId(), transmitter.getId(), content);
 		} catch (ClassNotFoundException | SQLException e) {
 			e.printStackTrace();
 		}
@@ -364,6 +363,8 @@ public class MessageManagement {
     	for (User user : this.activeUsers) {
     		if (user.getNickname().equals(oldNickname)) {
     			user.setNickname(newNickname);
+    			userList.removeUser(user);
+    			userList.addUser(user);
     			return;
     		}
     	}

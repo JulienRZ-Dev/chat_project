@@ -2,14 +2,20 @@ package views;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.TextArea;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -25,6 +31,7 @@ import javax.swing.WindowConstants;
 import controllers.MessageManagement;
 import exceptions.ChatNotFound;
 import exceptions.UserNotFound;
+import models.Message;
 import models.User;
 
 public class ChatWindow {
@@ -35,7 +42,8 @@ public class ChatWindow {
     JFrame      frame;
     JButton     sendButton;
     JTextField  messageBox;
-    JPanel      chatBox;
+    TextArea chatBox;
+    ArrayList<Message> history;
     
     // Backend Logic
     MessageManagement messageManagement;
@@ -50,7 +58,17 @@ public class ChatWindow {
     	this.currentUser = messageManagement.getCurrentUser();
     	this.otherUser = user;
     	this.appName = "Clavardage avec " + user.getNickname();
-      	display();
+    	
+    	history = this.messageManagement.getHistory(this.otherUser);
+    	display();
+        for (Message message : history) {
+            if (message.getTransmitter() == this.currentUser.getId()) {
+            	chatBox.append(currentUser.getNickname() + message.getDate().toString() + ": " + message.getContent() + "\n");
+            }
+            else {
+            	chatBox.append(otherUser.getNickname() + message.getDate().toString() + ": " + message.getContent() + "\n");
+            }
+        }
     }
     
     public ChatWindow(MessageManagement messageManagement) {
@@ -70,13 +88,63 @@ public class ChatWindow {
     public void setUser(String nickname) throws UserNotFound {
     	this.otherUser = messageManagement.getUserByNickname(nickname);
     	this.appName = "Clavardage avec " + nickname;
-    
+    	history = this.messageManagement.getHistory(this.otherUser);
     	display(); // The app should be displayed only when the other user has been fetched
+        for (Message message : history) {
+            if (message.getTransmitter() == this.currentUser.getId()) {
+            	chatBox.append(currentUser.getNickname() + message.getDate().toString() + ": " + message.getContent() + "\n");
+            }
+            else {
+            	chatBox.append(otherUser.getNickname() + message.getDate().toString() + ": " + message.getContent() + "\n");
+            }
+        }
     }
 
+<<<<<<< HEAD
+    
+    /*
+     * Prints a received message in the chatWindow
+     * 
+     * @param date
+     *           The moment the message was sent
+     * 
+     * @param message
+     *           The message you want to print
+     */
+    public void printReceivedMessage(Timestamp date, String message) {
+    	Timestamp ts = date;
+    	Date dateDate = new Date();
+    	date.setTime(ts.getTime());
+    	String formattedDate = new SimpleDateFormat("yyyy:MM:dd:hh:mm").format(dateDate);
+    	messageManagement.addMessage(currentUser, otherUser, message);
+    	chatBox.append(otherUser.getNickname() + " <" + formattedDate + "> " + ": " + message + "\n");
+    }
+    
+    
+    /*
+     * Prints a sent message in the chatWindow
+     * 
+     * @param date
+     *           The moment the message was sent
+     * 
+     * @param message
+     *           The message you want to print
+     */
+    public void printSentMessage(Timestamp date, String message) {
+    	Timestamp ts = date;
+    	Date dateDate = new Date();
+    	date.setTime(ts.getTime());
+    	String formattedDate = new SimpleDateFormat("yyyy:MM:dd:hh:mm").format(dateDate);
+    	messageManagement.addMessage(otherUser, currentUser, message);
+    	chatBox.append(currentUser.getNickname() + " <" + formattedDate + "> " + ": " + message + "\n");
+    }
+
+
+=======
     /*
      * Use this method to display the chatWindow with every information required
      */
+>>>>>>> refs/remotes/origin/master
     public void display() {
     	
     	frame = new JFrame(appName);
@@ -93,10 +161,9 @@ public class ChatWindow {
         sendButton = new JButton("Send Message");
         sendButton.addActionListener(new sendMessageButtonListener());
 
-        chatBox = new JPanel();
-        chatBox.setFont(new Font("Serif", Font.PLAIN, 15));
-
-        mainPanel.add(new JScrollPane(chatBox), BorderLayout.CENTER);
+        chatBox = new TextArea();
+        
+        mainPanel.add(new JScrollPane(chatBox));
 
         GridBagConstraints left = new GridBagConstraints();
         left.anchor = GridBagConstraints.LINE_START;
@@ -118,8 +185,10 @@ public class ChatWindow {
 
         frame.add(mainPanel);
         frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-        frame.setSize(470, 300);
+        frame.setSize(600, 400);
         frame.setVisible(true);
+        
+        
         
         //Define what to do when we close the window
         this.windowAdapter = new WindowAdapter() {
@@ -141,6 +210,9 @@ public class ChatWindow {
         
     }
     
+<<<<<<< HEAD
+    
+=======
     /*
      * Prints a message in the chatWindow
      * 
@@ -154,6 +226,7 @@ public class ChatWindow {
     /*
      * Sends a disconnect message to the other user and close the window
      */
+>>>>>>> refs/remotes/origin/master
     public void disconnect() {
     	try {
 			this.messageManagement.sendMessage(otherUser, "#disconnect#");
@@ -168,7 +241,7 @@ public class ChatWindow {
      * and that this window can not be used anymore
      */
     public void printDisconnectMessage() {
-    	chatBox.add(new JLabel("<html><font color='red'>The other user has closed the chat.</font><br></html>"));
+    	chatBox.append("The other user has closed the chat \n");
     }
 
     /*
@@ -179,7 +252,7 @@ public class ChatWindow {
             if (messageBox.getText().length() < 1) {
                 // do nothing
             } else {
-            	chatBox.add(new JLabel("<html><font color='green'>" + currentUser.getNickname() + "</font>:  " + messageBox.getText() + "<br></html>"));
+            	printSentMessage(new Timestamp(System.currentTimeMillis()), messageBox.getText());
                 try {
 					messageManagement.sendMessage(otherUser, messageBox.getText());
 				} catch (ChatNotFound e) {

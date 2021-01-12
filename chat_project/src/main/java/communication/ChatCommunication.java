@@ -8,6 +8,7 @@ import java.net.InetAddress;
 import java.net.Socket;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
+import java.sql.Timestamp;
 
 import controllers.MessageManagement;
 import exceptions.UserNotFound;
@@ -83,7 +84,7 @@ public class ChatCommunication extends Thread {
 						this.chatWindow.printDisconnectMessage();
 					}
 					else {
-						chatWindow.printMessage(message);
+						chatWindow.printReceivedMessage(new Timestamp(System.currentTimeMillis()), message);
 					}
 				}
 			} catch (SocketException se) {

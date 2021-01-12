@@ -1,13 +1,18 @@
 package views;
 
+import java.sql.SQLException;
+
 import javax.swing.*;
 
 import database.DatabaseConfig;
+import database.DatabaseMessages;
 
 public class ConnectionWindow {
-    public static void main(String[] a) {
+    public static void main(String[] a) throws ClassNotFoundException, SQLException {
     	DatabaseConfig config = new DatabaseConfig(); 
     	config.configureDatabase();
+//    	DatabaseMessages dbMessages = new DatabaseMessages();
+//    	dbMessages.clearMessages();
         ConnectionWindowFrame frame = new ConnectionWindowFrame();
         frame.setTitle("Se connecter à Chat App");
         frame.setVisible(true);
