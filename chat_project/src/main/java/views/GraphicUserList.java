@@ -66,13 +66,13 @@ public class GraphicUserList  {
             public void windowClosing(WindowEvent e) {
                 super.windowClosing(e);
                 try {
+                	//We stop the Notification Listener to close the UDP socket properly
+                	//Furthermore, we don't need to refresh our active list anymore
+                	messageManagement.stopListener();
                 	//We stop the chatManager thread, and every launched chat in the same time
                 	messageManagement.stopChatManager();
                 	//We send a disconnect message to let every active user know that they can remove us from their active list
                 	messageManagement.disconnect();
-                	//We stop the Notification Listener to close the UDP socket properly
-                	//Furthermore, we don't need to refresh our active list anymore
-                	messageManagement.stopListener();
                 } catch (InterruptedException e1) {
                 	System.out.println("Chat already stopped");
                 } catch (UdpConnectionFailure e1) {

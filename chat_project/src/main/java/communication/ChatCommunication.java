@@ -89,6 +89,7 @@ public class ChatCommunication extends Thread {
 				}
 			} catch (SocketException se) {
 				System.out.println("Chat communication stopped between port " + this.socket.getLocalPort() + " and port " + this.socket.getPort());
+				this.running = false;
 			} catch (IOException e) {
 				System.out.println("Error while receiving a message");
 			} catch (UserNotFound e) {

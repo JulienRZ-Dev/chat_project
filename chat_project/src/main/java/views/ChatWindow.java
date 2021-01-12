@@ -63,10 +63,10 @@ public class ChatWindow {
     	display();
         for (Message message : history) {
             if (message.getTransmitter() == this.currentUser.getId()) {
-            	chatBox.append(currentUser.getNickname() + message.getDate().toString() + ": " + message.getContent() + "\n");
+            	chatBox.append(currentUser.getNickname() + " <" + message.getDate().toString() + "> : " + message.getContent() + "\n");
             }
             else {
-            	chatBox.append(otherUser.getNickname() + message.getDate().toString() + ": " + message.getContent() + "\n");
+            	chatBox.append(otherUser.getNickname() + " <" + message.getDate().toString() + "> : " + message.getContent() + "\n");
             }
         }
     }
@@ -92,10 +92,10 @@ public class ChatWindow {
     	display(); // The app should be displayed only when the other user has been fetched
         for (Message message : history) {
             if (message.getTransmitter() == this.currentUser.getId()) {
-            	chatBox.append(currentUser.getNickname() + message.getDate().toString() + ": " + message.getContent() + "\n");
+            	chatBox.append(currentUser.getNickname() + " <" + message.getDate().toString() + "> : " + message.getContent() + "\n");
             }
             else {
-            	chatBox.append(otherUser.getNickname() + message.getDate().toString() + ": " + message.getContent() + "\n");
+            	chatBox.append(otherUser.getNickname() + " <" + message.getDate().toString() + "> : " + message.getContent() + "\n");
             }
         }
     }
