@@ -99,8 +99,6 @@ public class ChatWindow {
             }
         }
     }
-
-<<<<<<< HEAD
     
     /*
      * Prints a received message in the chatWindow
@@ -140,11 +138,9 @@ public class ChatWindow {
     }
 
 
-=======
     /*
      * Use this method to display the chatWindow with every information required
      */
->>>>>>> refs/remotes/origin/master
     public void display() {
     	
     	frame = new JFrame(appName);
@@ -207,26 +203,12 @@ public class ChatWindow {
             
         };
         this.frame.addWindowListener(windowAdapter);
-        
     }
     
-<<<<<<< HEAD
-    
-=======
-    /*
-     * Prints a message in the chatWindow
-     * 
-     * @param message
-     * 		  The message you want to print
-     */
-    public void printMessage(String message) {
-        chatBox.add(new JLabel("<html><font color='blue'>" + otherUser.getNickname() + "</font>:  " + message + "<br></html>"));
-    }
-    
+
     /*
      * Sends a disconnect message to the other user and close the window
      */
->>>>>>> refs/remotes/origin/master
     public void disconnect() {
     	try {
 			this.messageManagement.sendMessage(otherUser, "#disconnect#");
