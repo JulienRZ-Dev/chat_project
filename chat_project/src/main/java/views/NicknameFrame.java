@@ -73,7 +73,10 @@ public class NicknameFrame extends JFrame implements ActionListener {
     private void addActionEvent() {
         validateButton.addActionListener(this);
     }
-
+    
+    /*
+     * Print a error message on the window to show what the user did bad
+     */
     private void showError(String content) {
         // Show error message and reset the form
         messageLabel.setText(content);

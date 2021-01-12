@@ -65,6 +65,14 @@ public class ChatManager extends Thread {
 		}*/
 	}
 	
+	/*
+	 * Tells if a chat already exists with the user
+	 * 
+	 * @param user
+	 * 		  The one you want to check
+	 * 
+	 * @return true if the current user already chats with the user, else false
+	 */
 	public boolean doesUserChatWith(User user) {
 		for(ChatCommunication chat : chats) {
             if ((user.getIpAddress().equals(chat.getRemoteAddress())) && (user.getPort() == chat.getRemotePort())) {
@@ -104,7 +112,7 @@ public class ChatManager extends Thread {
 	}
 	
 	/*
-	 * Use this method to stop the ChatManager thread
+	 * Use this method to stop the ChatManager thread and all the chat threads running
 	 */
 	public void stopChatManager() throws InterruptedException {
 		for (ChatCommunication chat : chats) {
@@ -120,6 +128,14 @@ public class ChatManager extends Thread {
 		running = false;
 	}
 	
+	/*
+	 * Stops a particular chat only
+	 * 
+	 * @param user
+	 * 		  The user in the chat that we want to stop
+	 * 
+	 * @throws InterruptedException if the chat was already stopped
+	 */
 	public void stopChat(User user) throws InterruptedException {
 		for (int i = 0; i < this.chats.size(); i++) {
 			if (user.getNickname().equals(chats.get(i).getOtherUser())) {

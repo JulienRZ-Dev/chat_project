@@ -18,11 +18,18 @@ public class NotificationsListener extends Thread {
         this.messageManager = messageManager;
     }
 
+    /*
+     * Use this method to stop the current thread. It will also properly close the socket before exiting the application
+     */
     public void stopListening() {
     	running = false;
     }
     
-    
+    /*
+     * This thread will listen for every broadcast message
+     * 
+     * It will refresh the active user list whenever another user connected, disconnected, or changed his nickname
+     */
     public void run() {
     	running = true;
         UdpCommunication communication = new UdpCommunication();

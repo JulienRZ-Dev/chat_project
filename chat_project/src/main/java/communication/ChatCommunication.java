@@ -40,6 +40,12 @@ public class ChatCommunication extends Thread {
 		return this.socket;
 	}
 	
+	/*
+	 * Use this method to send a message using the current socket
+	 * 
+	 * @param message
+	 * 		  The message you want to send (with no \n, we will add it in this method)
+	 */
 	public boolean sendMessage(String message) {
 		//System.out.println(this.socket.getLocalAddress().toString() + " has sent a message on port " + this.socket.getLocalPort() + " :\n" + message + "\nThis message was sent to " + this.socket.getInetAddress().toString() + " on port " + this.socket.getPort() + "\n");
 		PrintWriter writer;
@@ -54,6 +60,9 @@ public class ChatCommunication extends Thread {
 		}
 	}
 	
+	/*
+	 * This thread will listen for any received message and print it on the associated chatWindow
+	 */
 	public void run() {
 		this.running = true;
 		
@@ -87,6 +96,9 @@ public class ChatCommunication extends Thread {
 		}
 	}
 	
+	/*
+	 * Use this method to stop the current tcp connection properly
+	 */
 	public void stopCommunication() {
 		try {
 			this.socket.close();
@@ -96,18 +108,38 @@ public class ChatCommunication extends Thread {
 		this.running = false;
 	}
 	
+	/*
+	 * Use this method to get the other user's IP address
+	 * 
+	 * @return the other user's IP address
+	 */
 	public InetAddress getRemoteAddress() {
 		return this.socket.getInetAddress();
 	}
 	
+	/*
+	 * Use this method to get the other user's port
+	 * 
+	 * @return the other user's port
+	 */
 	public int getRemotePort() {
 		return this.socket.getPort();
 	}
 	
+	/*
+	 * Use this method to get the other user's nickname
+	 * 
+	 * @return the other user's nickname
+	 */
 	public String getOtherUser() {
 		return this.otherUser;
 	}
 	
+	/*
+	 * Use this method to get the associated chatWindow
+	 * 
+	 * @return the associated chatWindow
+	 */
 	public ChatWindow getChatWindow() {
 		return this.chatWindow;
 	}

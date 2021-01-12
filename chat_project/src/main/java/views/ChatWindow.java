@@ -58,7 +58,15 @@ public class ChatWindow {
     	this.currentUser = messageManagement.getCurrentUser();
     }
     
-    
+    /*
+     * Use this method if the ChatWindow could not be created with the otherUser
+     * This way, it will refresh the chatWindow and open it with every information required
+     * 
+     * @param nickname
+     * 		  The nickname of the other user
+     * 
+     * @throws UserNotFound if the nickname was not associated with any active user
+     */
     public void setUser(String nickname) throws UserNotFound {
     	this.otherUser = messageManagement.getUserByNickname(nickname);
     	this.appName = "Clavardage avec " + nickname;
@@ -66,8 +74,9 @@ public class ChatWindow {
     	display(); // The app should be displayed only when the other user has been fetched
     }
 
-
-
+    /*
+     * Use this method to display the chatWindow with every information required
+     */
     public void display() {
     	
     	frame = new JFrame(appName);
@@ -132,11 +141,19 @@ public class ChatWindow {
         
     }
     
-    
+    /*
+     * Prints a message in the chatWindow
+     * 
+     * @param message
+     * 		  The message you want to print
+     */
     public void printMessage(String message) {
         chatBox.add(new JLabel("<html><font color='blue'>" + otherUser.getNickname() + "</font>:  " + message + "<br></html>"));
     }
     
+    /*
+     * Sends a disconnect message to the other user and close the window
+     */
     public void disconnect() {
     	try {
 			this.messageManagement.sendMessage(otherUser, "#disconnect#");
@@ -146,10 +163,17 @@ public class ChatWindow {
     	this.frame.dispose();
     }
     
+    /*
+     * Prints a particular message to show the current user that the other user closed the chatWindow
+     * and that this window can not be used anymore
+     */
     public void printDisconnectMessage() {
     	chatBox.add(new JLabel("<html><font color='red'>The other user has closed the chat.</font><br></html>"));
     }
 
+    /*
+     * Defines the actions to do when the send button has been pressed
+     */
     class sendMessageButtonListener implements ActionListener {
         public void actionPerformed(ActionEvent event) {
             if (messageBox.getText().length() < 1) {

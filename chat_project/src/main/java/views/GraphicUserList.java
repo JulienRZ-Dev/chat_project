@@ -66,20 +66,31 @@ public class GraphicUserList  {
             public void windowClosing(WindowEvent e) {
                 super.windowClosing(e);
                 try {
+                	//We stop the chatManager thread, and every launched chat in the same time
                 	messageManagement.stopChatManager();
+                	//We send a disconnect message to let every active user know that they can remove us from their active list
                 	messageManagement.disconnect();
+                	//We stop the Notification Listener to close the UDP socket properly
+                	//Furthermore, we don't need to refresh our active list anymore
+                	messageManagement.stopListener();
                 } catch (InterruptedException e1) {
                 	System.out.println("Chat already stopped");
                 } catch (UdpConnectionFailure e1) {
 					System.out.println("Could not broadcast udp disconnect message");
 				}
+                //We terminate the program with an exit code 0 to show that everything went well
                 System.exit(0);
             }
         };
         frame.addWindowListener(windowAdapter);
 	}  
 
-
+	/*
+	 * Use this method to add a user to the graphic user list (so that the user can select a user to chat with him)
+	 * 
+	 * @param user
+	 * 		  The user that needs to be added to the graphic user list (who just connected for example)
+	 */
 	public void addUser(User user) {
 		if(!isUserInList(user)) {
 			System.out.println("adding the user " + user.getNickname() + " to the graphic user list");
@@ -91,6 +102,12 @@ public class GraphicUserList  {
 		}
 	}
 
+	/*
+	 * Use this method to remove a certain user from the graphic user list
+	 * 
+	 * @param user
+	 * 		  The user that needs to be removed from the graphic user list (if he disconnected for example)
+	 */
 	public void removeUser(User user) throws UserNotFound{
 		if(isUserInList(user)) {
 			for (int i = 0; i < users.size(); i++) {
@@ -105,6 +122,14 @@ public class GraphicUserList  {
 		}
 	}
 
+	/*
+	 * Use this method to check if a user is already printed in the graphic user list
+	 * 
+	 * @param userToCheck
+	 * 		  The user you want to check
+	 * 
+	 * @return true if the user is already printed in the graphic user list, else false
+	 */
 	public boolean isUserInList(User userToCheck) {
 		for(User user : users) {
 			if(user.getNickname().equals(userToCheck.getNickname())) {
