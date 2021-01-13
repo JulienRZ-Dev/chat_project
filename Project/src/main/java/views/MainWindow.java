@@ -5,6 +5,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.sql.SQLException;
 import java.util.ArrayList;
 
 import javax.swing.DefaultListModel;
@@ -16,6 +17,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 import controllers.MessageManagement;
+import database.DatabaseConfig;
 import exceptions.ChatAlreadyExists;
 import exceptions.UdpConnectionFailure;
 import exceptions.UserNotFound;
@@ -40,7 +42,6 @@ public class MainWindow {
 	JFrame frame= new JFrame();  
 	JButton b=new JButton("Chat"); 
 	JList<String> list1 = new JList<>(userList);
-    
     
     public MainWindow(MessageManagement messageManagement) {
     	this.messageManager = messageManagement;
@@ -67,19 +68,37 @@ public class MainWindow {
             @Override
             public void windowClosing(WindowEvent e) {
                 super.windowClosing(e);
+                
                 try {
                 	//We stop the Notification Listener to close the UDP socket properly
                 	//Furthermore, we don't need to refresh our active list anymore
-                	messageManagement.stopListener();
-                	//We stop the chatManager thread, and every launched chat in the same time
-                	messageManagement.stopChatManager();
-                	//We send a disconnect message to let every active user know that they can remove us from their active list
-                	messageManagement.disconnect();
+                	messageManager.stopListener();
                 } catch (InterruptedException e1) {
                 	System.out.println("Chat already stopped");
+                }
+                
+                try {
+                	//We stop the chatManager thread, and every launched chat in the same time
+                	messageManager.stopChatManager();
+                } catch (InterruptedException e1) {
+                	System.out.println("Chat already stopped");
+                }
+                
+                try {
+                	//We send a disconnect message to let every active user know that they can remove us from their active list
+                	messageManager.disconnect();
                 } catch (UdpConnectionFailure e1) {
 					System.out.println("Could not broadcast udp disconnect message");
 				}
+                
+                try {
+                	//We will also close the connection with the centralized database
+                	DatabaseConfig.conn.close();
+                }
+                 catch (SQLException e1) {
+					System.out.println("Could not close the database connection");
+				}
+                
                 //We terminate the program with an exit code 0 to show that everything went well
                 System.exit(0);
             }
@@ -114,7 +133,7 @@ public class MainWindow {
      * Add the components to the container and style container
      */
     private void addComponentsToContainer() {
-		frame.add(list1);  
+		frame.add(list1);
 		frame.add(b);
 		frame.add(pseudonymeLabel);
 		frame.add(pseudonymeField);

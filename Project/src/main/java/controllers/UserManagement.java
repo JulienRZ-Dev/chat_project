@@ -15,7 +15,7 @@ public class UserManagement {
     private DatabaseUserInterface databaseUserInterface = new DatabaseUserInterface();
 
     /*
-     *   Add a new user to the database and save it into the local app instance.
+     *   Add a new user to the database and notifies the success or failure.
      *
      *   @param id
      *          given user id.
@@ -23,27 +23,12 @@ public class UserManagement {
      *   @param password
      *          given user password.
      *
-     *   @return user.
+     *   @return boolean.
      *
-     *   @throws UserCreationFailure if the id already exists.
+     *   @throws UserCreationFailure, SQLException, ClassNotFoundException.
      */
-    public User createNewUser(int id, String password) throws UserCreationFailure {
-
-        User user = null;
-
-        try {
-            if(databaseUserInterface.createUser(id, password)) {
-                user = new User(id, null, InetAddress.getLocalHost(), 1024);
-            } else {
-                throw new UserCreationFailure(id);
-            }
-        } catch (SQLException | ClassNotFoundException ex) {
-            ex.printStackTrace();
-        } catch (UnknownHostException e) {
-            e.printStackTrace();
-        }
-
-        return user;
+    public boolean createNewUser(int id, String password) throws UserCreationFailure, SQLException, ClassNotFoundException {
+    	return databaseUserInterface.createUser(id, password);
     }
 
 
@@ -66,7 +51,7 @@ public class UserManagement {
 
         try {
             if(databaseUserInterface.signIn(id, password)){
-                user = new User(id, null, InetAddress.getLocalHost(), 1024);
+                user = new User(id);
             } else {
                 throw new UserAuthentificationFailure();
             }

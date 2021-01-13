@@ -8,7 +8,11 @@ import java.util.Enumeration;
 
 public class UdpCommunication {
 
-    DatagramSocket socket;
+    private DatagramSocket socket;
+    
+    public DatagramSocket getSocket() {
+    	return this.socket;
+    }
 
     /*
      *   Call this method before sending or receiving any message to open a udp socket
@@ -19,9 +23,9 @@ public class UdpCommunication {
      *   @return false if the socket could not be open (if the port was already used for example)
      *           else return true
      */
-    public boolean openSocket(int port) {
+    public boolean openSocket(int port, InetAddress address) {
         try {
-            socket = new DatagramSocket(port);
+            this.socket = new DatagramSocket(port, address);
             return true;
         } catch (SocketException e) {
             e.printStackTrace();
@@ -46,7 +50,7 @@ public class UdpCommunication {
      */
     public boolean unicastMessage(String message, InetAddress address, int port) {
         try {
-            DatagramPacket packet = new DatagramPacket(message.getBytes(), message.length(), address, port);
+            DatagramPacket packet = new DatagramPacket(message.getBytes(), message.getBytes().length, address, port);
             socket.send(packet);
 
             return true;
@@ -71,10 +75,11 @@ public class UdpCommunication {
      *           else return true
      */
     public boolean broadcastMessage(String message, int port) {
+    	System.out.println("Broadcast depuis le port " + Integer.toString(socket.getLocalPort()));
         try {
             socket.setBroadcast(true);
-            InetAddress broadcastAddress = getBroadcastAddress();
-            DatagramPacket packet = new DatagramPacket(message.getBytes(), message.length(), broadcastAddress, port);
+            InetAddress broadcastAddress = InetAddress.getByName("255.255.255.255");
+            DatagramPacket packet = new DatagramPacket(message.getBytes(), message.getBytes().length, broadcastAddress, port);
             socket.send(packet);
 
             return true;
@@ -96,7 +101,11 @@ public class UdpCommunication {
         byte[] buf = new byte[1024];
         DatagramPacket packet = new DatagramPacket(buf, buf.length);
         socket.receive(packet);
-        message = packet.getData().toString() + ":" + packet.getAddress().toString() + ":" + Integer.toString(packet.getPort());
+        System.out.println("Reception d'un message sur venant du port " + Integer.toString(packet.getPort()));
+        String address = packet.getAddress().toString();
+        address = address.substring(1, address.length());
+        String port = Integer.toString(packet.getPort());
+        message = (new String(packet.getData()).trim()) + ":" + address + ":" + port;
         return message;
     }
 
@@ -116,10 +125,13 @@ public class UdpCommunication {
             DatagramPacket packet = new DatagramPacket(buf, buf.length);
             socket.setSoTimeout(max_timeout);
             socket.receive(packet);
-            message = packet.getData().toString() + ":" + packet.getAddress().toString() + ":" + Integer.toString(packet.getPort());
+            String address = packet.getAddress().toString();
+            address = address.substring(1, address.length());
+            String port = Integer.toString(packet.getPort());
+            message = (new String(packet.getData()).trim()) + ":" + address + ":" + port;
         }
         catch (SocketTimeoutException te) {
-            System.out.println("Timeout while receiving a single message.");
+            //System.out.println("Timeout while receiving a single message.");
         }
         return message;
     }
@@ -142,40 +154,18 @@ public class UdpCommunication {
 
             while (true) {
                 socket.receive(packet);
-                String message = packet.getData().toString();
-                messageList.add(message + ":" + packet.getAddress().toString() + ":" + Integer.toString(packet.getPort())) ;
+                String address = packet.getAddress().toString();
+                address = address.substring(1, address.length());
+                String port = Integer.toString(packet.getPort());
+                String message = (new String(packet.getData()).trim());
+                messageList.add(message + ":" + address + ":" + port) ;
             }
         }
         catch (SocketTimeoutException te) {
             System.out.println("Timeout reached. We suppose that every other user has answered.");
+            return messageList;
         }
-        return messageList;
-    }
-
-
-    /*
-     *   Use this method to get the local network's broadcast address
-     *
-     *   @return the local network's broadcast address
-     */
-    private InetAddress getBroadcastAddress() throws SocketException {
-        InetAddress broadcastAddress = null;
-        Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
-        while (interfaces.hasMoreElements())
-        {
-            NetworkInterface networkInterface = interfaces.nextElement();
-            if (networkInterface.isLoopback())
-                continue;    // Do not want to use the loopback interface.
-            for (InterfaceAddress interfaceAddress : networkInterface.getInterfaceAddresses())
-            {
-                InetAddress broadcast = interfaceAddress.getBroadcast();
-                if (broadcast == null)
-                    continue;
-
-                broadcastAddress = broadcast;
-            }
-        }
-        return broadcastAddress;
+        //return messageList;
     }
 
 
