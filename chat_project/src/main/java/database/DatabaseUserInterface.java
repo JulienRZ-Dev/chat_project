@@ -10,9 +10,13 @@ import java.sql.Statement;
 public class DatabaseUserInterface {
 
     private Connection connection;
-    private final static String url = "jdbc:sqlite:chat_app.db";
     
+	
+	public DatabaseUserInterface() {
+		this.connection = DatabaseConfig.conn;
+	}
     
+	
     /*
     *   Check if a user with the given id exists in the database
     *
@@ -39,26 +43,6 @@ public class DatabaseUserInterface {
 
 
     /*
-    *   Create connection with the distant database,
-    *   Save connection in class attributes.
-    *
-    *   @throws ClassNotFoundException if driver haven't been loaded successfully.
-    *
-    *   @throws SQLException if SQL error.
-     */
-    private void doConnect() throws ClassNotFoundException, SQLException {
-
-        try {
-            connection = DriverManager.getConnection(url);
-        }
-        catch (SQLException e) {
-            System.out.println("Erreur lors de la connexion à  la base de données");
-            e.printStackTrace();
-        }
-    }
-
-
-    /*
     *   Create a new user with the given id and password.
     *   If a user with this id already exist, does not create the user.
     *
@@ -68,8 +52,6 @@ public class DatabaseUserInterface {
     *   @throws SQLException if SQL error.
      */
     public boolean createUser(int id, String password) throws SQLException, ClassNotFoundException {
-
-        doConnect();
 
         // check if ID already exists in the database
         Statement statement = connection.createStatement(); // create the statement object
@@ -98,8 +80,6 @@ public class DatabaseUserInterface {
     *   @throws SQLException if SQL error.
      */
     public boolean signIn(int id, String password) throws SQLException, ClassNotFoundException {
-
-        doConnect();
 
         // check if ID already exists in the database
         Statement statement = connection.createStatement(); // create the statement object

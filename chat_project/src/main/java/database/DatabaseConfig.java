@@ -8,24 +8,15 @@ import java.sql.Statement;
 
 public class DatabaseConfig {
 	
-	private final static String url = "jdbc:sqlite:chat_app.db";
+	private final static String url = "jdbc:mysql://db4free.net:3306/clavardage";
+	private final static String username = "rouzot";
+	private final static String password = "12345678";
+	public static Connection conn;
 	
-	
-	public void configureDatabase() {
-		createDatabase();
-		createUserTable();
-		createMessageTable();
-	}
-	
-	
-    /*
-    *   Create a new database ( first connection to the app )
-    *
-    *   @param filename, name of the database
-     */
-    public void createDatabase() {
-  	
-        try (Connection conn = DriverManager.getConnection(url)) {      
+	public Connection configureDatabase() throws ClassNotFoundException {
+        try {
+        	Class.forName("com.mysql.cj.jdbc.Driver");  
+        	conn = DriverManager.getConnection(url, username, password);    
         	
             if (conn != null) {
                 DatabaseMetaData meta = conn.getMetaData();
@@ -33,16 +24,21 @@ public class DatabaseConfig {
                 System.out.println("A new database has been created.");   
             }
             
-        } catch (SQLException e) {    	
+        } catch (SQLException | ClassNotFoundException e) {    	
             System.out.println(e.getMessage()); 
-        }
-    }
+        } 
+        
+		createUserTable();
+		createMessageTable();
+		
+		return(conn);
+	}
+
     
-    
-    /*
-    * Create the user table in the local database
-    */
-    public static void createUserTable() {
+	/*
+	 * Create the user table in the database
+	 */
+	public static void createUserTable() {
 
         // SQL statement for creating a new table
         String sql = "CREATE TABLE IF NOT EXISTS users (\n"
@@ -51,22 +47,21 @@ public class DatabaseConfig {
                 + " capacity real \n"
                 + ");";
         
-        try (Connection conn = DriverManager.getConnection(url);
-                Statement stmt = conn.createStatement()) {
-            // create a new table
+        Statement stmt;
+        
+		try {
+			stmt = conn.createStatement();
             stmt.execute(sql);
             stmt.close();
-        } catch (SQLException e) {
-            System.out.println(e.getMessage());
-        }
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
     }
     
-    
-    
-    /*
-    * Create the message table in the local database
-    */
-    public static void createMessageTable() {
+	/*
+	 * Create the message table in the database
+	 */
+	public static void createMessageTable() {
 
         // SQL statement for creating a new table
         String sql = "CREATE TABLE IF NOT EXISTS messages (\n"
@@ -77,9 +72,10 @@ public class DatabaseConfig {
                 + " capacity real \n"
                 + ");";
         
-        try (Connection conn = DriverManager.getConnection(url);
-                Statement stmt = conn.createStatement()) {
-            // create a new table
+        Statement stmt;
+        
+        try {
+        	stmt = conn.createStatement();
             stmt.execute(sql);
             stmt.close();
         } catch (SQLException e) {
