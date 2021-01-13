@@ -72,7 +72,7 @@ public class NotificationsListener extends Thread {
                         messageManager.addUser(new User(id, nickname, address, tcp_port));
                     }
                     if (!communication.unicastMessage(response, address, udp_port)) {
-                        System.out.println("ConnectionsListener : error while sending response");
+                        System.out.println("ConnectionsListener : error while sending connection response");
                     }
                 }
                 //Location in "infos"      0               1       2           3                4
@@ -83,6 +83,21 @@ public class NotificationsListener extends Thread {
 					} catch (UserNotFound e) {
 						System.out.println("The user was somehow already removed");
 					}
+                }
+                //Location in "infos"      0              1             2        3        4               5               6
+                //Messages format : nickname_request:<oldNickname>:<newNickname>:<id>:<tcp_port>:<Sender's IP Address>:<udp_port>
+                else if (infos[0].equals("nickname_request")) {
+                	InetAddress address = InetAddress.getByName(infos[5]);
+                    int udp_port = Integer.parseInt(infos[6]);
+                	if (this.messageManager.getCurrentUser().getNickname().equals(infos[2])) {
+                		response = "nickname_response:0"; 
+                	}
+                	else {
+                		response = "nickname_response:1"; 
+                	}
+                	if (!communication.unicastMessage(response, address, udp_port)) {
+                        System.out.println("ConnectionsListener : error while sending nickname response");
+                    }
                 }
                 //Location in "infos"      0              1             2        3        4               5               6
                 //Messages format : nickname_change:<oldNickname>:<newNickname>:<id>:<tcp_port>:<Sender's IP Address>:<udp_port>

@@ -42,51 +42,6 @@ public class MessageManagement {
         this.chatManager = new ChatManager(this.currentUser.getPort(), this);
     }
 
-
-    /*
-     *   Gets  all the messages that were sent between the two users
-     *
-     *   @param otherUser
-     *
-     *   @return the history of messages between the two users
-     */
-    public ArrayList<Message> getHistory(User otherUser) {
-    	ArrayList<Message> messageList = new ArrayList<Message>();
-
-        try {
-            messageList = db.getHistory(this.currentUser.getId(), otherUser.getId());
-        } catch (ClassNotFoundException | SQLException e) {
-            e.printStackTrace();
-        }
-        
-        return messageList;
-    }
-
-
-    /*
-     *   Adds a message to the database
-     *
-     *   @param recipient
-     *          The person the message is sent to
-     *
-     *   @param transmitter
-     *          The person who sent the message
-     *          
-     *   @param content
-     *   		The actual message sent
-     *
-     */
-    public void addMessage(User recipient, User transmitter, String content) {
-
-        try {
-			db.appendHistory(recipient.getId(), transmitter.getId(), content);
-		} catch (ClassNotFoundException | SQLException e) {
-			e.printStackTrace();
-		}
-
-    }
-
-
     /*
      *   Call this method once a user has been successfully connected and wants to chose a nickname
      *   It will then broadcast the nickname on the local network to check if anyone has already taken this nickname
@@ -188,13 +143,13 @@ public class MessageManagement {
      *   
      *   @throws UdpConnectionFailure if the connection could not be established to send the message
      */
-    private boolean tryToChangeMyNickname(String newNickname) throws UdpConnectionFailure {
+    public boolean tryToChangeMyNickname(String newNickname) throws UdpConnectionFailure {
     	int id = this.currentUser.getId();
     	String nickname = this.currentUser.getNickname();
     	int port = this.currentUser.getPort();
         Random random = new Random();
     	int broadcast_port = random.nextInt(65535 + 1 - 6000) + 6000; //send the message from a random port between 6000 and 65535
-        String message = "nickname_change:" + nickname + ":" + newNickname + ":" + Integer.toString(id) + ":" + Integer.toString(port);
+        String message = "nickname_request:" + nickname + ":" + newNickname + ":" + Integer.toString(id) + ":" + Integer.toString(port);
 
         try {
         	
@@ -210,7 +165,7 @@ public class MessageManagement {
             ArrayList<String> responses = communication.receiveMessages(TIMEOUT_RECEPTION_REPONSE);
             for (int i = 0; i < responses.size(); i++) {
                 //Location in "infos"      0                                 1                                 2                3
-                //Messages format : nickname_response:<0 if the sender uses the nickname, 1 otherwise><Sender's IP Address>:<udp_port>
+                //Messages format : nickname_response:<0 if the sender uses the nickname, 1 otherwise>:<Sender's IP Address>:<udp_port>
             	String[] infos = responses.get(i).split(":");
                 //If the response doesn't have the right type, we ignore it
                 if (!infos[0].equals("nickname_response")) {
@@ -222,9 +177,18 @@ public class MessageManagement {
                 }
                 //If infos[1] != 0 then another user has already chosen the nickname
                 else if (Integer.parseInt(infos[1]) == 0) {
-                    return false;
+                	communication.closeSocket();
+                	return false;
                 }
             }
+            
+            String confirm_nickname_change_message = "nickname_change:" + nickname + ":" + newNickname + ":" + Integer.toString(id) + ":" + Integer.toString(port);
+            if (!communication.broadcastMessage(confirm_nickname_change_message, 5000)) {
+            	System.out.println("Could not confirm the nickname change. Aborting.");
+            	communication.closeSocket();
+            	return false;
+            }
+            
             communication.closeSocket();
         }
         catch (IOException e) {
@@ -233,6 +197,29 @@ public class MessageManagement {
 
         this.currentUser.setNickname(newNickname);
         return true;
+    }
+    
+    /*
+     * Change the nickname of another user in the active user list and in the graphic user list
+     * 
+     * @param oldNickname
+     * 		  The nickname that the user was using
+     * 
+     * @param newNickname
+     * 		  The nickname that he uses now
+     * 
+     * @throws UserNotFound if no user was found with the oldNickname (you should add him)
+     */
+    public void changeOtherUserNickname(String oldNickname, String newNickname) throws UserNotFound {
+    	for (User user : this.activeUsers) {
+    		if (user.getNickname().equals(oldNickname)) {
+    			user.setNickname(newNickname);
+    			userList.removeUser(user);
+    			userList.addUser(user);
+    			return;
+    		}
+    	}
+    	throw (new UserNotFound());
     }
 
     /*
@@ -262,18 +249,18 @@ public class MessageManagement {
     }
     
     /*
+     * Properly stop a particular chat (if the associated chat window was closed for example
+     */
+    public void stopChat(User user) throws InterruptedException {
+    	this.chatManager.stopChat(user);
+    }
+    
+    /*
      * Properly stop the chat manager, its server socket, and every chat running
      */
     public void stopChatManager() throws InterruptedException {
     	this.chatManager.stopChatManager();
     	this.chatManager.join();
-    }
-    
-    /*
-     * Properly stop a particular chat (if the associated chat window was closed for example
-     */
-    public void stopChat(User user) throws InterruptedException {
-    	this.chatManager.stopChat(user);
     }
     
     /*
@@ -314,6 +301,25 @@ public class MessageManagement {
 		return this.getChatManager().getChat(user).sendMessage(message);
     }
 
+    /*
+     *   Gets  all the messages that were sent between the two users
+     *
+     *   @param otherUser
+     *
+     *   @return the history of messages between the two users
+     */
+    public ArrayList<Message> getHistory(User otherUser) {
+    	ArrayList<Message> messageList = new ArrayList<Message>();
+
+        try {
+            messageList = db.getHistory(this.currentUser.getId(), otherUser.getId());
+        } catch (ClassNotFoundException | SQLException e) {
+            e.printStackTrace();
+        }
+        
+        return messageList;
+    }
+    
     /*
      *   @return the user for which this messageManager instance is ran
      */
@@ -369,6 +375,29 @@ public class MessageManagement {
     }
 
     /*
+     *   Adds a message to the database
+     *
+     *   @param recipient
+     *          The person the message is sent to
+     *
+     *   @param transmitter
+     *          The person who sent the message
+     *          
+     *   @param content
+     *   		The actual message sent
+     *
+     */
+    public void addMessage(User recipient, User transmitter, String content) {
+
+        try {
+			db.appendHistory(recipient.getId(), transmitter.getId(), content);
+		} catch (ClassNotFoundException | SQLException e) {
+			e.printStackTrace();
+		}
+
+    }
+    
+    /*
      *   Adds a user to the active users list (if it doesn't contain it already)
      *
      *   @param user
@@ -401,172 +430,4 @@ public class MessageManagement {
     		}
     	}
     }
-
-    /*
-     * Change the nickname of another user in the active user list and in the graphic user list
-     * 
-     * @param oldNickname
-     * 		  The nickname that the user was using
-     * 
-     * @param newNickname
-     * 		  The nickname that he uses now
-     * 
-     * @throws UserNotFound if no user was found with the oldNickname (you should add him)
-     */
-    public void changeOtherUserNickname(String oldNickname, String newNickname) throws UserNotFound {
-    	for (User user : this.activeUsers) {
-    		if (user.getNickname().equals(oldNickname)) {
-    			user.setNickname(newNickname);
-    			userList.removeUser(user);
-    			userList.addUser(user);
-    			return;
-    		}
-    	}
-    	throw (new UserNotFound());
-    }
-    
-//    public static void main(String[] a) {
-//    	try {
-//			MessageManagement messageManager1 = new MessageManagement(new User(1, InetAddress.getLocalHost(), 6001));
-//			MessageManagement messageManager2 = new MessageManagement(new User(2, InetAddress.getLocalHost(), 6002));
-//			MessageManagement messageManager3 = new MessageManagement(new User(3, InetAddress.getLocalHost(), 6003));
-//			
-//			messageManager1.listenForConnections();
-//			
-//			if (!messageManager1.isNicknameAvailable("Celestin")) {
-//				System.out.println("Celestin is unavailable for 1");
-//			}
-//			else {
-//				messageManager1.startChatManager();
-//			}
-//			
-//			System.out.println("Active users list for 1 : " + messageManager1.getActiveUsers().toString());
-//			System.out.println("Active users list for 2 : " + messageManager2.getActiveUsers().toString());
-//			System.out.println("Active users list for 3 : " + messageManager3.getActiveUsers().toString());
-//			System.out.println();
-//			
-//			if (!messageManager2.isNicknameAvailable("Julien")) {
-//				System.out.println("Julien is unavailable for 2");
-//			}
-//			else {
-//				messageManager2.startChatManager();
-//			}
-//			
-//			System.out.println("Active users list for 1 : " + messageManager1.getActiveUsers().toString());
-//			System.out.println("Active users list for 2 : " + messageManager2.getActiveUsers().toString());
-//			System.out.println("Active users list for 3 : " + messageManager3.getActiveUsers().toString());
-//			System.out.println();
-//			
-//			if (!messageManager3.isNicknameAvailable("Celestin")) {
-//				System.out.println("Celestin is unavailable for 3");
-//			}
-//			else {
-//				messageManager3.startChatManager();
-//			}
-//
-//			System.out.println("Active users list for 1 : " + messageManager1.getActiveUsers().toString());
-//			System.out.println("Active users list for 2 : " + messageManager2.getActiveUsers().toString());
-//			System.out.println("Active users list for 3 : " + messageManager3.getActiveUsers().toString());
-//			System.out.println();
-//			
-//			if (!messageManager3.isNicknameAvailable("Robert")) {
-//				System.out.println("Robert is unavailable for 3");
-//			}
-//			else {
-//				messageManager3.startChatManager();
-//			}
-//
-//			System.out.println("Active users list for 1 : " + messageManager1.getActiveUsers().toString());
-//			System.out.println("Active users list for 2 : " + messageManager2.getActiveUsers().toString());
-//			System.out.println("Active users list for 3 : " + messageManager3.getActiveUsers().toString());
-//			System.out.println();
-//			
-//			System.out.println("TCP Communication tests (chat tests)");
-//			
-//			try {
-//				//messageManager1.getActiveUsers().get(0) should be Julien
-//				if (!messageManager1.startChat(messageManager1.getActiveUsers().get(0))) {
-//					System.out.println("Could not start the chat with Julien");
-//				}
-//			
-//				Thread.sleep(2000);
-//				
-//				messageManager2.sendMessage(messageManager2.getActiveUsers().get(0), "Hey");
-//				Thread.sleep(1000);
-//				messageManager1.sendMessage(messageManager1.getActiveUsers().get(0), "Cv?");
-//				Thread.sleep(1000);
-//				messageManager2.sendMessage(messageManager2.getActiveUsers().get(0), "Cv et toi ?");
-//				Thread.sleep(1000);
-//				messageManager1.sendMessage(messageManager1.getActiveUsers().get(0), "Trkl trkl");
-//				Thread.sleep(1000);
-//				messageManager2.sendMessage(messageManager2.getActiveUsers().get(0), "");
-//			
-//				Thread.sleep(2000);
-//				
-//			} catch (ChatNotFound e) {
-//				System.out.println(e.getMessage());
-//			} catch (ChatAlreadyExists e) {
-//				System.out.println(e.getMessage());
-//			}
-//			
-//			messageManager1.stopListener();
-//			messageManager1.stopChatManager();
-//			messageManager2.stopChatManager();
-//			messageManager3.stopChatManager();
-//			
-//		} catch (UnknownHostException e) {
-//			System.out.println("Impossible to get local address.");
-//		} catch (UdpConnectionFailure e) {
-//			System.out.println("Udp error.");
-//		} catch (InterruptedException e) {
-//			System.out.println("Interrupted exception");
-//		}
-//    }
-    
-    //Tests avec l'ordinateur de Eva
-    /*public static void main(String[] a) {
-    	try {
-			MessageManagement messageManager1 = new MessageManagement(new User(2, InetAddress.getLocalHost(), 6002));
-			
-			messageManager1.listenForConnections();
-			
-			if (!messageManager1.isNicknameAvailable("Celestin")) {
-				System.out.println("Celestin is unavailable for 2");
-			}
-			else {
-				messageManager1.startChatManager();
-			}
-			
-			System.out.println("Active users list for 2 : " + messageManager1.getActiveUsers().toString());
-			System.out.println();
-			
-			if (!messageManager1.isNicknameAvailable("Julien")) {
-				System.out.println("Julien is unavailable for 2");
-			}
-			else {
-				messageManager1.startChatManager();
-			}
-			
-			System.out.println("Active users list for 2 : " + messageManager1.getActiveUsers().toString());
-			System.out.println();
-			
-			Thread.sleep(1000);
-			
-			while(true) {
-				messageManager1.getChatManager().getChat(messageManager1.getActiveUsers().get(0)).sendMessage("HEY de Julien");
-			}
-			
-		} catch (UnknownHostException e) {
-			System.out.println("Impossible to get local address.");
-		} catch (UdpConnectionFailure e) {
-			System.out.println("Udp error.");
-		} catch (ChatNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-    }*/
-    
 }
