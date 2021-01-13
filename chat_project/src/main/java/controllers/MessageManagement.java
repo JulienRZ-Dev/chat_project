@@ -8,7 +8,7 @@ import exceptions.UdpConnectionFailure;
 import exceptions.UserNotFound;
 import models.Message;
 import models.User;
-import views.GraphicUserList;
+import views.MainWindow;
 import communication.UdpCommunication;
 import database.DatabaseMessages;
 
@@ -28,7 +28,7 @@ public class MessageManagement {
     private ArrayList<User> activeUsers = new ArrayList<User>();
     
     // Update view
-    private GraphicUserList userList;
+    private MainWindow mainWindow;
     
     // TCP message listener and manager
     private NotificationsListener listener;
@@ -71,7 +71,7 @@ public class MessageManagement {
         
             ArrayList<String> responses = communication.receiveMessages(TIMEOUT_RECEPTION_REPONSE);
             for (int i = 0; i < responses.size(); i++) {
-            	System.out.println("isNicknameAvailable - message reçu : " + responses.get(i));
+            	System.out.println("isNicknameAvailable - message reï¿½u : " + responses.get(i));
                 //Location in "infos"      0                               1                             2       3            4                   5               6
                 //Messages format : login_response:<0 if the sender uses the nickname, 1 otherwise>:<nickname>:<id>:<Sender's tcp_port>:<Sender's IP Address>:<udp_port>
             	String[] infos = responses.get(i).split(":");
@@ -226,8 +226,8 @@ public class MessageManagement {
      *   Call this method once the user is connected AND has chosen a nickname that has been approved
      *   to listen for new connections and actualize the active user list regularly with a thread
      */
-    public void listenForConnections(GraphicUserList userList) {
-    	this.userList = userList;
+    public void listenForConnections(MainWindow mainWindow) {
+    	this.mainWindow = mainWindow;
     	this.listener = new NotificationsListener(this);
         this.listener.start();
     }
@@ -405,9 +405,9 @@ public class MessageManagement {
      */
     public void addUser(User user) {
         if (!activeUsers.contains(user)) {
-        	if(userList != null) {
+        	if(mainWindow != null) {
             	System.out.println("refresh de la graphic user list de " + this.currentUser.getNickname() + " depuis add users");
-            	userList.addUser(user);        		
+            	mainWindow.addUser(user);        		
             }
             activeUsers.add(user);
         }
@@ -423,7 +423,7 @@ public class MessageManagement {
      * @throws UserNotFound if the user was not found in the active user list
      */
     public void removeUser(User user) throws UserNotFound {
-    	userList.removeUser(user);
+    	mainWindow.removeUser(user);
     	for (int i = 0; i < this.activeUsers.size(); i++) {
     		if (user.getNickname().equals(this.activeUsers.get(i).getNickname())) {
     			this.activeUsers.remove(i);
