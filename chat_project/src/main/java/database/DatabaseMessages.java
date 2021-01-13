@@ -13,27 +13,12 @@ import models.Message;
 public class DatabaseMessages {
 
     private Connection connection;
-    private final static String url = "jdbc:sqlite:chat_app.db";
+	
+	
+	public DatabaseMessages() {
+		this.connection = DatabaseConfig.conn;
+	}
 
-    
-    /*
-    *   Create connection with the distant database,
-    *   Save connection in class attributes.
-    *
-    *   @throws ClassNotFoundException if driver haven't been loaded successfully.
-    *
-    *   @throws SQLException if SQL error.
-     */
-    private void doConnect() throws ClassNotFoundException, SQLException {
-
-        try {
-            connection = DriverManager.getConnection(url);
-        }
-        catch (SQLException e) {
-            System.out.println("Erreur lors de la connexion à  la base de données");
-            e.printStackTrace();
-        }
-    }
     
     
     /*
@@ -47,8 +32,6 @@ public class DatabaseMessages {
     	
     	Message message;
     	ArrayList<Message> history = new ArrayList<Message>();
-    	
-    	doConnect();
     	
         Statement statement = connection.createStatement(); // create the statement object
         statement.setQueryTimeout(10);  // set timeout to 10 sec.
@@ -70,8 +53,6 @@ public class DatabaseMessages {
     
     public void appendHistory(int recipient, int transmitter, String content) throws SQLException, ClassNotFoundException {
     	
-    	doConnect();
-    	
         Statement statement = connection.createStatement(); // create the statement object
         statement.setQueryTimeout(10);  // set timeout to 10 sec.
         
@@ -85,34 +66,6 @@ public class DatabaseMessages {
         	time +
         	"')"
         );
-        statement.close();
-    }
-    
-    public void clearMessages() throws ClassNotFoundException, SQLException {
-    	doConnect();
-    	
-        Statement statement = connection.createStatement(); // create the statement object
-        statement.setQueryTimeout(10);  // set timeout to 10 sec.
-        
-        statement.executeUpdate(
-        	"DROP TABLE MESSAGES"
-        );
-        
-        // SQL statement for creating a new table
-        String sql = "CREATE TABLE IF NOT EXISTS users (\n"
-                + "	id INTEGER PRIMARY KEY NOT NULL,\n"
-                + "	pwd TEXT NOT NULL,\n"
-                + " capacity real \n"
-                + ");";
-        
-        try (Connection conn = DriverManager.getConnection(url);
-            Statement stmt = conn.createStatement()) {
-            // create a new table
-            stmt.execute(sql);
-            stmt.close();
-        } catch (SQLException e) {
-            System.out.println(e.getMessage());
-        }
         statement.close();
     }
  }

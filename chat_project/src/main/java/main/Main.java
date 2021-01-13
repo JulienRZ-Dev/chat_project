@@ -10,7 +10,11 @@ public class Main {
     	
     	// Create the database and tables if doesn't exists
     	DatabaseConfig config = new DatabaseConfig();
-    	config.configureDatabase();
+    	try {
+			config.configureDatabase();
+		} catch (ClassNotFoundException e1) {
+			e1.printStackTrace();
+		}
     	
     	// get a db interface instance 
         DatabaseUserInterface db = new DatabaseUserInterface();

@@ -11,8 +11,6 @@ public class ConnectionWindow {
     public static void main(String[] a) throws ClassNotFoundException, SQLException {
     	DatabaseConfig config = new DatabaseConfig(); 
     	config.configureDatabase();
-//    	DatabaseMessages dbMessages = new DatabaseMessages();
-//    	dbMessages.clearMessages();
         ConnectionWindowFrame frame = new ConnectionWindowFrame();
         frame.setTitle("Se connecter à Chat App");
         frame.setVisible(true);

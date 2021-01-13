@@ -133,7 +133,6 @@ public class ChatWindow {
     	Date dateDate = new Date();
     	date.setTime(ts.getTime());
     	String formattedDate = new SimpleDateFormat("yyyy:MM:dd:hh:mm").format(dateDate);
-    	messageManager.addMessage(otherUser, currentUser, message);
     	chatBox.append(currentUser.getNickname() + " <" + formattedDate + "> " + ": " + message + "\n");
     }
 
