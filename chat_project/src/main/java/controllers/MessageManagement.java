@@ -164,15 +164,15 @@ public class MessageManagement {
         
             ArrayList<String> responses = communication.receiveMessages(TIMEOUT_RECEPTION_REPONSE);
             for (int i = 0; i < responses.size(); i++) {
-                //Location in "infos"      0                                 1                                 2                3
-                //Messages format : nickname_response:<0 if the sender uses the nickname, 1 otherwise>:<Sender's IP Address>:<udp_port>
+                //Location in "infos"      0                                 1                                  2                         3                      4               5
+                //Messages format : nickname_response:<0 if the sender uses the nickname, 1 otherwise>:<other user's nickname>:<other user's tcp port>:<Sender's IP Address>:<udp_port>
             	String[] infos = responses.get(i).split(":");
                 //If the response doesn't have the right type, we ignore it
                 if (!infos[0].equals("nickname_response")) {
                     continue;
                 }
                 //If the response is from ourself, we ignore it
-                else if ((infos[5].equals(InetAddress.getLocalHost().toString())) && (this.currentUser.getPort() == Integer.parseInt(infos[4]))) {
+                else if ((infos[4].equals(InetAddress.getLocalHost().toString())) && (this.currentUser.getPort() == Integer.parseInt(infos[3]))) {
                 	continue;
                 }
                 //If infos[1] != 0 then another user has already chosen the nickname
@@ -214,8 +214,8 @@ public class MessageManagement {
     	for (User user : this.activeUsers) {
     		if (user.getNickname().equals(oldNickname)) {
     			user.setNickname(newNickname);
-    			userList.removeUser(user);
-    			userList.addUser(user);
+    			mainWindow.removeUser(user);
+    			mainWindow.addUser(user);
     			return;
     		}
     	}

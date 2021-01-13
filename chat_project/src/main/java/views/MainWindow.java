@@ -179,7 +179,7 @@ public class MainWindow {
 					if(messageManagement.tryToChangeMyNickname(pseudonymeField.getText())) {
 						showSuccess("Le pseudonyme a bien été changé");
 					} else {
-						showError("Le pseudonyme ou l'id est en cours d'utilisation.");
+						showError("Le pseudonyme est en cours d'utilisation.");
 					}
 				} catch (UdpConnectionFailure ex) {
 					ex.printStackTrace();

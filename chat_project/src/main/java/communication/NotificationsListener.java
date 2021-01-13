@@ -90,10 +90,10 @@ public class NotificationsListener extends Thread {
                 	InetAddress address = InetAddress.getByName(infos[5]);
                     int udp_port = Integer.parseInt(infos[6]);
                 	if (this.messageManager.getCurrentUser().getNickname().equals(infos[2])) {
-                		response = "nickname_response:0"; 
+                		response = "nickname_response:0:" + this.messageManager.getCurrentUser().getNickname() + ":" + this.messageManager.getCurrentUser().getPort(); 
                 	}
                 	else {
-                		response = "nickname_response:1"; 
+                		response = "nickname_response:1:" + this.messageManager.getCurrentUser().getNickname() + ":" + this.messageManager.getCurrentUser().getPort();
                 	}
                 	if (!communication.unicastMessage(response, address, udp_port)) {
                         System.out.println("ConnectionsListener : error while sending nickname response");
