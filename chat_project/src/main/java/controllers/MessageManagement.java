@@ -48,7 +48,6 @@ public class MessageManagement {
      *
      *   @param otherUser
      *
-     *
      *   @return the history of messages between the two users
      */
     public ArrayList<Message> getHistory(User otherUser) {
@@ -72,6 +71,9 @@ public class MessageManagement {
      *
      *   @param transmitter
      *          The person who sent the message
+     *          
+     *   @param content
+     *   		The actual message sent
      *
      */
     public void addMessage(User recipient, User transmitter, String content) {
@@ -146,6 +148,11 @@ public class MessageManagement {
         return true;
     }
     
+    
+    /*
+     * Send a message to every active user to let them know that the current user has left the application
+     * and is not active anymore
+     */
     public void disconnect() throws UdpConnectionFailure {
     	int id = this.currentUser.getId();
     	String nickname = this.currentUser.getNickname();
@@ -178,6 +185,8 @@ public class MessageManagement {
      *          the nickname that the current user wants
      *
      *   @return false if the newNickname is already used, else true
+     *   
+     *   @throws UdpConnectionFailure if the connection could not be established to send the message
      */
     private boolean tryToChangeMyNickname(String newNickname) throws UdpConnectionFailure {
     	int id = this.currentUser.getId();
@@ -236,20 +245,36 @@ public class MessageManagement {
         this.listener.start();
     }
     
-    public void startChatManager() {
-    	this.chatManager.start();
-    }
-    
+    /*
+     * Properly stop the listener thread and close the socket
+     */
     public void stopListener() throws InterruptedException {
     	this.listener.stopListening();
     	this.listener.join();
     }
     
+    /*
+     * Once a user is connected, you will want to use this method to start a thread who will listen
+     * for any TCP connection (chat request)
+     */
+    public void startChatManager() {
+    	this.chatManager.start();
+    }
+    
+    /*
+     * Properly stop the chat manager, its server socket, and every chat running
+     */
     public void stopChatManager() throws InterruptedException {
     	this.chatManager.stopChatManager();
     	this.chatManager.join();
     }
     
+    /*
+     * Properly stop a particular chat (if the associated chat window was closed for example
+     */
+    public void stopChat(User user) throws InterruptedException {
+    	this.chatManager.stopChat(user);
+    }
     
     /*
      * Use this method to start a tcp connection between the current user and another user.
@@ -271,10 +296,6 @@ public class MessageManagement {
     	}
     }
     
-    public void stopChat(User user) throws InterruptedException {
-    	this.chatManager.stopChat(user);
-    }
-    
     /*
      * Use this method to send a message to another user.
      * A chat must have been started between the two users.
@@ -294,23 +315,26 @@ public class MessageManagement {
     }
 
     /*
-     *   Broadcast a message to everyone on the local network to notify that the user is not active anymore
-     */
-    public void SignOutUser() {
-
-    }
-
-    /*
      *   @return the user for which this messageManager instance is ran
      */
     public User getCurrentUser() {
         return this.currentUser;
     }
     
+    /*
+     * @return the users currently active on the application
+     */
     public ArrayList<User> getActiveUsers() {
     	return this.activeUsers;
     }
     
+    /*
+     * Get a particular user with his IP address and his port
+     * 
+     * @return the user that has been found
+     * 
+     * @throw UserNotFound if there was no such user currently active
+     */
     public User getUser(InetAddress address, int port) throws UserNotFound {
     	for (User user : this.activeUsers) {
     		if ((user.getIpAddress().equals(address)) && (user.getPort() == port))
@@ -319,6 +343,27 @@ public class MessageManagement {
     	throw (new UserNotFound());
     }
     
+    /*
+     * Find a user in the active user list with his nickname
+     * 
+     * @param nickname
+     * 		  The nickname that the user is supposed to have chosen
+     * 
+     * @throws UserNotFound if no such user was found in the active user list
+     */
+	public User getUserByNickname(String nickname) throws UserNotFound {
+
+		for(User user : this.activeUsers) {
+			if(user.getNickname().equals(nickname)) {
+				return user;
+			}
+		}
+		throw new UserNotFound();
+	}
+    
+    /*
+     * @return the associated Chat Manager
+     */
     public ChatManager getChatManager() {
     	return this.chatManager;
     }
@@ -339,6 +384,15 @@ public class MessageManagement {
         }
     }
     
+    /*
+     * Remove a user from the active user list
+     * Also remove it from the graphic user list
+     * 
+     * @param user
+     * 		  The user you want to remove
+     * 
+     * @throws UserNotFound if the user was not found in the active user list
+     */
     public void removeUser(User user) throws UserNotFound {
     	userList.removeUser(user);
     	for (int i = 0; i < this.activeUsers.size(); i++) {
@@ -348,17 +402,17 @@ public class MessageManagement {
     	}
     }
 
-
-	public User getUserByNickname(String nickname) throws UserNotFound {
-
-		for(User user : this.activeUsers) {
-			if(user.getNickname().equals(nickname)) {
-				return user;
-			}
-		}
-		throw new UserNotFound();
-	}
-    
+    /*
+     * Change the nickname of another user in the active user list and in the graphic user list
+     * 
+     * @param oldNickname
+     * 		  The nickname that the user was using
+     * 
+     * @param newNickname
+     * 		  The nickname that he uses now
+     * 
+     * @throws UserNotFound if no user was found with the oldNickname (you should add him)
+     */
     public void changeOtherUserNickname(String oldNickname, String newNickname) throws UserNotFound {
     	for (User user : this.activeUsers) {
     		if (user.getNickname().equals(oldNickname)) {

@@ -77,7 +77,6 @@ public class ConnectionWindowFrame extends JFrame implements ActionListener {
      * Print a error message on the window to show what the user did bad
      */
     private void showError(String content) {
-        // Show error message and reset the form
         messageLabel.setText(content);
         messageLabel.setVisible(true);
     }
