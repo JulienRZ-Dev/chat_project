@@ -170,32 +170,6 @@ public class UdpCommunication {
 
 
     /*
-     *   Use this method to get the local network's broadcast address
-     *
-     *   @return the local network's broadcast address
-     */
-    private InetAddress getBroadcastAddress() throws SocketException {
-        InetAddress broadcastAddress = null;
-        Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
-        while (interfaces.hasMoreElements())
-        {
-            NetworkInterface networkInterface = interfaces.nextElement();
-            if (networkInterface.isLoopback())
-                continue;    // Do not want to use the loop back interface.
-            for (InterfaceAddress interfaceAddress : networkInterface.getInterfaceAddresses())
-            {
-                InetAddress broadcast = interfaceAddress.getBroadcast();
-                if (broadcast == null)
-                    continue;
-
-                broadcastAddress = broadcast;
-            }
-        }
-        return broadcastAddress;
-    }
-
-
-    /*
      *   Use this method to close the socket once you're done using it
      */
     public void closeSocket() {
