@@ -46,20 +46,20 @@ public class ChatWindow {
     ArrayList<Message> history;
     
     // Backend Logic
-    MessageManagement messageManagement;
+    MessageManagement messageManager;
     User currentUser;
     User otherUser;
     
 	private WindowAdapter windowAdapter;
     
-    public ChatWindow(MessageManagement messageManagement, User user) {
+    public ChatWindow(MessageManagement messageManager, User user) {
     	
-    	this.messageManagement = messageManagement;
-    	this.currentUser = messageManagement.getCurrentUser();
+    	this.messageManager = messageManager;
+    	this.currentUser = this.messageManager.getCurrentUser();
     	this.otherUser = user;
     	this.appName = "Clavardage avec " + user.getNickname();
     	
-    	history = this.messageManagement.getHistory(this.otherUser);
+    	history = this.messageManager.getHistory(this.otherUser);
     	display();
         for (Message message : history) {
             if (message.getTransmitter() == this.currentUser.getId()) {
@@ -72,7 +72,7 @@ public class ChatWindow {
     }
     
     public ChatWindow(MessageManagement messageManagement) {
-    	this.messageManagement = messageManagement;
+    	this.messageManager = messageManagement;
     	this.currentUser = messageManagement.getCurrentUser();
     }
     
@@ -86,9 +86,9 @@ public class ChatWindow {
      * @throws UserNotFound if the nickname was not associated with any active user
      */
     public void setUser(String nickname) throws UserNotFound {
-    	this.otherUser = messageManagement.getUserByNickname(nickname);
+    	this.otherUser = messageManager.getUserByNickname(nickname);
     	this.appName = "Clavardage avec " + nickname;
-    	history = this.messageManagement.getHistory(this.otherUser);
+    	history = this.messageManager.getHistory(this.otherUser);
     	display(); // The app should be displayed only when the other user has been fetched
         for (Message message : history) {
             if (message.getTransmitter() == this.currentUser.getId()) {
@@ -114,7 +114,7 @@ public class ChatWindow {
     	Date dateDate = new Date();
     	date.setTime(ts.getTime());
     	String formattedDate = new SimpleDateFormat("yyyy:MM:dd:hh:mm").format(dateDate);
-    	messageManagement.addMessage(currentUser, otherUser, message);
+    	messageManager.addMessage(currentUser, otherUser, message);
     	chatBox.append(otherUser.getNickname() + " <" + formattedDate + "> " + ": " + message + "\n");
     }
     
@@ -123,17 +123,17 @@ public class ChatWindow {
      * Prints a sent message in the chatWindow
      * 
      * @param date
-     *           The moment the message was sent
+     *        The moment the message was sent
      * 
      * @param message
-     *           The message you want to print
+     *        The message you want to print
      */
     public void printSentMessage(Timestamp date, String message) {
     	Timestamp ts = date;
     	Date dateDate = new Date();
     	date.setTime(ts.getTime());
     	String formattedDate = new SimpleDateFormat("yyyy:MM:dd:hh:mm").format(dateDate);
-    	messageManagement.addMessage(otherUser, currentUser, message);
+    	messageManager.addMessage(otherUser, currentUser, message);
     	chatBox.append(currentUser.getNickname() + " <" + formattedDate + "> " + ": " + message + "\n");
     }
 
@@ -194,7 +194,7 @@ public class ChatWindow {
             public void windowClosing(WindowEvent e) {
                 super.windowClosing(e);
                 try {
-                	messageManagement.stopChat(otherUser);
+                	messageManager.stopChat(otherUser);
                 	disconnect();
                 } catch (InterruptedException e1) {
                 	System.out.println("Chat already stopped");
@@ -211,7 +211,7 @@ public class ChatWindow {
      */
     public void disconnect() {
     	try {
-			this.messageManagement.sendMessage(otherUser, "#disconnect#");
+			this.messageManager.sendMessage(otherUser, "#disconnect#");
 		} catch (ChatNotFound e) {
 			System.out.println("Chat already closed.");
 		}
@@ -236,7 +236,7 @@ public class ChatWindow {
             } else {
             	printSentMessage(new Timestamp(System.currentTimeMillis()), messageBox.getText());
                 try {
-					messageManagement.sendMessage(otherUser, messageBox.getText());
+					messageManager.sendMessage(otherUser, messageBox.getText());
 				} catch (ChatNotFound e) {
 					System.out.println("You have been disconnected from the chat...");
 				}

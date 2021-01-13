@@ -5,7 +5,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.net.InetAddress;
 import java.util.ArrayList;
 
 import javax.swing.DefaultListModel;
@@ -24,10 +23,10 @@ import models.User;
 
 public class MainWindow {
 	
-	private MessageManagement messageManagement;
+	private MessageManagement messageManager;
 	
 	private ArrayList<User> users = new ArrayList<User>();
-	private DefaultListModel<String> l1 = new DefaultListModel<>();
+	private DefaultListModel<String> userList = new DefaultListModel<>();
 	private WindowAdapter windowAdapter;  
 
 	// Change nickname
@@ -40,11 +39,11 @@ public class MainWindow {
     // user list graphic
 	JFrame frame= new JFrame();  
 	JButton b=new JButton("Chat"); 
-	JList<String> list1 = new JList<>(l1);
+	JList<String> list1 = new JList<>(userList);
     
     
     public MainWindow(MessageManagement messageManagement) {
-    	this.messageManagement = messageManagement;
+    	this.messageManager = messageManagement;
 		
 		messageManagement.listenForConnections(this);
 		messageManagement.startChatManager();
@@ -161,7 +160,7 @@ public class MainWindow {
 					User user = users.get(list1.getSelectedIndex());
 					System.out.println("let's chat with " + user);
 					try {
-						messageManagement.startChat(user);
+						messageManager.startChat(user);
 					} catch (ChatAlreadyExists e1) {
 						System.out.println("Chat already running with " + user.getNickname());
 					}
@@ -176,7 +175,7 @@ public class MainWindow {
 			public void actionPerformed(ActionEvent e) {
 		        messageLabel.setVisible(false); // reset the error message
 		        try {
-					if(messageManagement.tryToChangeMyNickname(pseudonymeField.getText())) {
+					if(messageManager.tryToChangeMyNickname(pseudonymeField.getText())) {
 						showSuccess("Le pseudonyme a bien été changé");
 					} else {
 						showError("Le pseudonyme est en cours d'utilisation.");
@@ -198,7 +197,7 @@ public class MainWindow {
 	public void addUser(User user) {
 		if(!isUserInList(user)) {
 			System.out.println("adding the user " + user.getNickname() + " to the graphic user list");
-			l1.addElement(user.getNickname());
+			userList.addElement(user.getNickname());
 			users.add(user);
 		}
 		else {
@@ -217,7 +216,7 @@ public class MainWindow {
 		if(isUserInList(user)) {
 			for (int i = 0; i < users.size(); i++) {
 				if (user.getNickname().equals(users.get(i).getNickname())) {
-					l1.remove(i);
+					userList.remove(i);
 					users.remove(users.get(i));
 				}
 			}

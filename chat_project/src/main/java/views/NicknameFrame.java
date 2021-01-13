@@ -28,13 +28,13 @@ public class NicknameFrame extends JFrame implements ActionListener {
     User user;
     
     // Message controller instance
-    MessageManagement messageManagement; 
+    MessageManagement messageManager; 
     
     
     public NicknameFrame(User user) {
     	this.setBounds(10, 10, 300, 300);
     	this.user = user;
-    	this.messageManagement = new MessageManagement(user);
+    	this.messageManager = new MessageManagement(user);
     	this.setVisible(true);
         setLayoutManager();
         setStyle();
@@ -89,9 +89,9 @@ public class NicknameFrame extends JFrame implements ActionListener {
         
         try {
         	
-			if(messageManagement.isNicknameAvailable(pseudonymeField.getText())) {
+			if(messageManager.isNicknameAvailable(pseudonymeField.getText())) {
 			
-				new MainWindow(messageManagement);
+				new MainWindow(messageManager);
 				this.dispose(); // We also close the nickname frame
 				
 			} else {

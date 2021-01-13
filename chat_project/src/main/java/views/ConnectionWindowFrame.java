@@ -98,7 +98,7 @@ public class ConnectionWindowFrame extends JFrame implements ActionListener {
                 // Sign in button is clicked
                 if (e.getSource() == loginButton) {
 
-                    try { // verifie user info with the database
+                    try { // verify user info with the database
 
                         User user = userManagement.signInUser(Integer.parseInt(id), password);
                         nicknameFrame = new NicknameFrame(user);

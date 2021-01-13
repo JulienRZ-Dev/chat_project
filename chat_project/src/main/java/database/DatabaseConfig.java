@@ -17,7 +17,6 @@ public class DatabaseConfig {
 		createMessageTable();
 	}
 	
-	
     /*
     *   Create a new database ( first connection to the app )
     *
@@ -37,7 +36,6 @@ public class DatabaseConfig {
             System.out.println(e.getMessage()); 
         }
     }
-    
     
     /*
     * Create the user table in the local database
