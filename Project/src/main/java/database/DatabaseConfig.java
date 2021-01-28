@@ -13,25 +13,21 @@ public class DatabaseConfig {
 	private final static String password = "12345678";
 	public static Connection conn;
 	
-	public Connection configureDatabase() throws ClassNotFoundException {
+	public void configureDatabase() throws ClassNotFoundException {
         try {
-        	Class.forName("com.mysql.cj.jdbc.Driver");  
-        	conn = DriverManager.getConnection(url, username, password);    
+        	Class.forName("com.mysql.cj.jdbc.Driver");
+        	conn = DriverManager.getConnection(url, username, password);
         	
-            if (conn != null) {
-                DatabaseMetaData meta = conn.getMetaData();
-                System.out.println("The driver name is " + meta.getDriverName());
-                System.out.println("A new database has been created.");   
-            }
+            DatabaseMetaData meta = conn.getMetaData();
+            System.out.println("The driver name is " + meta.getDriverName());
+            System.out.println("A new database has been created.");
+            createUserTable();
+            createMessageTable();
             
         } catch (SQLException | ClassNotFoundException e) {    	
-            System.out.println(e.getMessage()); 
+            System.out.println("Error while trying to connect to the database");
+            System.exit(1);
         } 
-        
-		createUserTable();
-		createMessageTable();
-		
-		return(conn);
 	}
 
     
