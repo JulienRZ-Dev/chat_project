@@ -63,7 +63,7 @@ public class MessageManagement {
 
         try {
         	UdpCommunication communication = new UdpCommunication();
-        	if (!communication.openSocket(broadcast_port, InetAddress.getLocalHost()))
+        	if (!communication.openSocket(broadcast_port))
         		throw (new UdpConnectionFailure("opening the socket"));
         	//We chose port 5000 to receive all the connections and disconnection messages
         	if (!communication.broadcastMessage(message, 5000))
@@ -118,7 +118,7 @@ public class MessageManagement {
         	
         	UdpCommunication communication = new UdpCommunication();
         	
-        	if (!communication.openSocket(broadcast_port, InetAddress.getLocalHost()))
+        	if (!communication.openSocket(broadcast_port))
         		throw (new UdpConnectionFailure("opening the socket"));
         	
         	//We chose port 5000 to receive all the connections and disconnection messages
@@ -155,7 +155,7 @@ public class MessageManagement {
         	
         	UdpCommunication communication = new UdpCommunication();
         	
-        	if (!communication.openSocket(broadcast_port, InetAddress.getLocalHost()))
+        	if (!communication.openSocket(broadcast_port))
         		throw (new UdpConnectionFailure("opening the socket"));
         	
         	//We chose port 5000 to receive all the connections and disconnection messages

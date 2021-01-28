@@ -34,7 +34,7 @@ public class NotificationsListener extends Thread {
     	running = true;
         UdpCommunication communication = new UdpCommunication();
         try {
-			if (!communication.openSocket(5000, InetAddress.getByName("0.0.0.0"))) {
+			if (!communication.openSocket(5000)) {
 			    System.out.println("ConnectionsListener : error while opening the socket");
 			    running = false;
 			}
