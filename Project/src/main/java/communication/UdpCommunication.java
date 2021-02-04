@@ -22,10 +22,13 @@ public class UdpCommunication {
      *
      *   @return false if the socket could not be open (if the port was already used for example)
      *           else return true
+     *           
+     *   @throws UnknownHostException if the local address could not be resolved (if the host isn't
+     *   	     connected to any network and hasn't been assigned to any address)
      */
-    public boolean openSocket(int port, InetAddress address) {
+    public boolean openSocket(int port) throws UnknownHostException {
         try {
-            this.socket = new DatagramSocket(port, address);
+            this.socket = new DatagramSocket(port, InetAddress.getLocalHost());
             return true;
         } catch (SocketException e) {
             e.printStackTrace();
