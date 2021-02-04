@@ -17,7 +17,7 @@ public class LoadingView {
 	public LoadingView() {
 		frame = new JFrame();
 		title = new JLabel("Bienvenue dans l'application de clavardage", JLabel.CENTER);
-		loading = new ImageIcon("ajax-loader.gif");
+		loading = new ImageIcon(getClass().getResource("/ajax-loader.gif"));
 		subTitle = new JLabel("Veuillez patienter", loading, JLabel.CENTER);
 		
 		setStyle();
