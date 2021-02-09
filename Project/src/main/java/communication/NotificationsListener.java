@@ -65,10 +65,10 @@ public class NotificationsListener extends Thread {
 //                        continue;
 //                    }
                     if ((id == messageManager.getCurrentUser().getId()) || (nickname.equals(messageManager.getCurrentUser().getNickname()))) {
-                    	response = "login_response:0:" + messageManager.getCurrentUser().getNickname() + ":" + Integer.toString(messageManager.getCurrentUser().getId()) + ":" + Integer.toString(messageManager.getCurrentUser().getPort());
+                    	response = "login_response:0:" + messageManager.getCurrentUser().getNickname() + ":" + Integer.toString(messageManager.getCurrentUser().getId()) + ":" + Integer.toString(messageManager.getCurrentUser().getChatPort());
                     }
                     else {
-                        response = "login_response:1:" + messageManager.getCurrentUser().getNickname() + ":" + Integer.toString(messageManager.getCurrentUser().getId()) + ":" + Integer.toString(messageManager.getCurrentUser().getPort());
+                        response = "login_response:1:" + messageManager.getCurrentUser().getNickname() + ":" + Integer.toString(messageManager.getCurrentUser().getId()) + ":" + Integer.toString(messageManager.getCurrentUser().getChatPort());
                         messageManager.addUser(new User(id, nickname, address, tcp_port));
                     }
                     if (!communication.unicastMessage(response, address, udp_port)) {
@@ -90,10 +90,10 @@ public class NotificationsListener extends Thread {
                 	InetAddress address = InetAddress.getByName(infos[5]);
                     int udp_port = Integer.parseInt(infos[6]);
                 	if (this.messageManager.getCurrentUser().getNickname().equals(infos[2])) {
-                		response = "nickname_response:0:" + this.messageManager.getCurrentUser().getNickname() + ":" + this.messageManager.getCurrentUser().getPort(); 
+                		response = "nickname_response:0:" + this.messageManager.getCurrentUser().getNickname() + ":" + this.messageManager.getCurrentUser().getChatPort(); 
                 	}
                 	else {
-                		response = "nickname_response:1:" + this.messageManager.getCurrentUser().getNickname() + ":" + this.messageManager.getCurrentUser().getPort();
+                		response = "nickname_response:1:" + this.messageManager.getCurrentUser().getNickname() + ":" + this.messageManager.getCurrentUser().getChatPort();
                 	}
                 	if (!communication.unicastMessage(response, address, udp_port)) {
                         System.out.println("ConnectionsListener : error while sending nickname response");

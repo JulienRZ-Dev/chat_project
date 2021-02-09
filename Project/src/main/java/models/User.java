@@ -12,7 +12,8 @@ public class User {
     private int id;
     private InetAddress ipAddress;
     private String nickname;
-    private int port;
+    private int chat_port;
+    private int file_port;
 
 
     // Constructors
@@ -20,7 +21,8 @@ public class User {
     	this.id = id;
     	this.ipAddress = InetAddress.getLocalHost();
     	Random random = new Random();
-    	this.port = random.nextInt(65535 + 1 - 6000) + 6000;
+    	this.chat_port = random.nextInt(65535 + 1 - 6000) + 6000;
+    	this.file_port = random.nextInt(65535 + 1 - 6000) + 6000;
     }
     
     public User(int id, String nickname) {
@@ -31,14 +33,14 @@ public class User {
     public User(int id, InetAddress ipAddress, int port) {
         this.id = id;
         this.ipAddress = ipAddress;
-        this.port = port;
+        this.chat_port = port;
     }
     
     public User(int id, String nickname, InetAddress ipAddress, int port) {
         this.id = id;
         this.nickname = nickname;
         this.ipAddress = ipAddress;
-        this.port = port;
+        this.chat_port = port;
     }
 
 
@@ -51,7 +53,9 @@ public class User {
 
     public String getNickname() { return this.nickname; }
     
-    public int getPort() { return this.port; }
+    public int getChatPort() { return this.chat_port; }
+    
+    public int getFilePort() { return this.file_port; }
 
     // Setters
     public void setNickname(String nickname) { this.nickname = nickname; }

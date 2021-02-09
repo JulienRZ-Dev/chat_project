@@ -19,7 +19,7 @@ public class GetFileWindow extends JFrame implements ActionListener {
 	FileTransfert fProvider;
     File file = null;
 	
-    public GetFileWindow(User user) {
+    public GetFileWindow(String sender) {
     	selectButton = new JButton("Télécharger le fichier");
     	sendButton = new JButton("Ignorer");
     	fProvider = new FileTransfert();

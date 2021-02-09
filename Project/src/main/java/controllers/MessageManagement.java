@@ -39,7 +39,7 @@ public class MessageManagement {
     
     public MessageManagement(User currentUser) {
         this.currentUser = currentUser;
-        this.chatManager = new ChatManager(this.currentUser.getPort(), this);
+        this.chatManager = new ChatManager(this.currentUser.getChatPort(), this);
     }
 
     /*
@@ -59,7 +59,7 @@ public class MessageManagement {
         int id = this.currentUser.getId();
         Random random = new Random();
     	int broadcast_port = random.nextInt(65535 + 1 - 6000) + 6000; //send the message from a random port between 6000 and 65535
-        String message = "login_request:" + nickname + ":" + Integer.toString(id) + ":" + this.currentUser.getPort();
+        String message = "login_request:" + nickname + ":" + Integer.toString(id) + ":" + this.currentUser.getChatPort();
 
         try {
         	UdpCommunication communication = new UdpCommunication();
@@ -80,7 +80,7 @@ public class MessageManagement {
                     continue;
                 }
                 //If the response is from ourself, we ignore it
-                else if ((infos[5].equals(InetAddress.getLocalHost().toString())) && (this.currentUser.getPort() == Integer.parseInt(infos[4]))) {
+                else if ((infos[5].equals(InetAddress.getLocalHost().toString())) && (this.currentUser.getChatPort() == Integer.parseInt(infos[4]))) {
                 	continue;
                 }
                 //If infos[1] != 0 then another user has already chosen the nickname
@@ -146,7 +146,7 @@ public class MessageManagement {
     public boolean tryToChangeMyNickname(String newNickname) throws UdpConnectionFailure {
     	int id = this.currentUser.getId();
     	String nickname = this.currentUser.getNickname();
-    	int port = this.currentUser.getPort();
+    	int port = this.currentUser.getChatPort();
         Random random = new Random();
     	int broadcast_port = random.nextInt(65535 + 1 - 6000) + 6000; //send the message from a random port between 6000 and 65535
         String message = "nickname_request:" + nickname + ":" + newNickname + ":" + Integer.toString(id) + ":" + Integer.toString(port);
@@ -172,7 +172,7 @@ public class MessageManagement {
                     continue;
                 }
                 //If the response is from ourself, we ignore it
-                else if ((infos[4].equals(InetAddress.getLocalHost().toString())) && (this.currentUser.getPort() == Integer.parseInt(infos[3]))) {
+                else if ((infos[4].equals(InetAddress.getLocalHost().toString())) && (this.currentUser.getChatPort() == Integer.parseInt(infos[3]))) {
                 	continue;
                 }
                 //If infos[1] != 0 then another user has already chosen the nickname
@@ -343,7 +343,7 @@ public class MessageManagement {
      */
     public User getUser(InetAddress address, int port) throws UserNotFound {
     	for (User user : this.activeUsers) {
-    		if ((user.getIpAddress().equals(address)) && (user.getPort() == port))
+    		if ((user.getIpAddress().equals(address)) && (user.getChatPort() == port))
     			return user;
     	}
     	throw (new UserNotFound());
