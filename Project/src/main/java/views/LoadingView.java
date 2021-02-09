@@ -20,13 +20,11 @@ public class LoadingView {
 		title = new JLabel("Bienvenue dans l'application de clavardage", JLabel.CENTER);
 		loading = new ImageIcon(getClass().getResource("/ajax-loader.gif"));
 		subTitle = new JLabel("Veuillez patienter", loading, JLabel.CENTER);
-		icon = new ImageIcon(getClass().getResource("/iconchat.png"));
 		
 		setStyle();
         setLocationAndSize();
         addComponentsToContainer();
         
-        frame.setIconImage(icon.getImage());
         frame.setVisible(true);
 	}
 	

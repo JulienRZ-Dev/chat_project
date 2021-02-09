@@ -23,7 +23,7 @@ Les étapes de connexion sont les suivantes :
 
 - Sélectionner un autre utilisateur pour démarrer une session de clavardage.
     En sélectionnant un autre utilisateur de la liste, une fenêtre dédiée pour le clavardage se lance.
-    L'historique des messages est automatiquement chargé, si un des utilisateurs quitte la fenêtre de clavardage ou l'apllication elle même l'autre utilisateur est notifié.
+    L'historique des messages est automatiquement chargé, si un des utilisateurs quitte la fenêtre de clavardage ou l'application elle même l'autre utilisateur est notifié.
 
 ## Tester l'application
 
