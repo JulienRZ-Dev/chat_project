@@ -13,6 +13,7 @@ public class LoadingView {
 	JLabel title;
 	JLabel subTitle;
 	ImageIcon loading;
+	ImageIcon icon;
 	
 	public LoadingView() {
 		frame = new JFrame();

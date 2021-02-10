@@ -51,8 +51,8 @@ public class ChatManager extends Thread {
 	 */
 	public boolean startChat(User user) {
 		try {
-			System.out.println("Starting a chat between port " + this.port + " and port " + user.getPort());
-			this.chats.add(new ChatCommunication(new Socket(user.getIpAddress(), user.getPort()), new ChatWindow(messageManagement, user), user.getNickname()));
+			System.out.println("Starting a chat between port " + this.port + " and port " + user.getChatPort());
+			this.chats.add(new ChatCommunication(new Socket(user.getIpAddress(), user.getChatPort()), new ChatWindow(messageManagement, user), user.getNickname()));
 			this.chats.get(this.chats.size() - 1).start();
 			this.chats.get(this.chats.size() - 1).sendMessage(messageManagement.getCurrentUser().getNickname());
 			return true;
@@ -75,7 +75,7 @@ public class ChatManager extends Thread {
 	 */
 	public boolean doesUserChatWith(User user) {
 		for(ChatCommunication chat : chats) {
-            if ((user.getIpAddress().equals(chat.getRemoteAddress())) && (user.getPort() == chat.getRemotePort())) {
+            if ((user.getIpAddress().equals(chat.getRemoteAddress())) && (user.getChatPort() == chat.getRemotePort())) {
             	return true;
             }
         }

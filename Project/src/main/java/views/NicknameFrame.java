@@ -98,6 +98,7 @@ public class NicknameFrame extends JFrame implements ActionListener {
 				showError("Le pseudonyme ou l'id est en cours d'utilisation.");
 			}
 		} catch (UdpConnectionFailure ex) {
+			showError("Pseudonyme indisponible");
 			ex.printStackTrace();
 		}
 	}
