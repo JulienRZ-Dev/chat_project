@@ -1,6 +1,7 @@
 package controllers;
 
 import communication.ChatManager;
+import communication.FileTransferManager;
 import communication.NotificationsListener;
 import exceptions.ChatAlreadyExists;
 import exceptions.ChatNotFound;
@@ -30,9 +31,10 @@ public class MessageManagement {
     // Update view
     private MainWindow mainWindow;
     
-    // TCP message listener and manager
+    // UDP message listener, Chat manager, and FileTransfer manager
     private NotificationsListener listener;
     private ChatManager chatManager;
+    private FileTransferManager fileTransferManager;
 
     // Database
     private DatabaseMessages db = new DatabaseMessages();
@@ -300,6 +302,20 @@ public class MessageManagement {
      */
     public boolean sendMessage(User user, String message) throws ChatNotFound {
 		return this.getChatManager().getChat(user).sendMessage(message);
+    }
+    
+    public void startFileTransferManager() {
+    	this.fileTransferManager = new FileTransferManager(this.currentUser.getFilePort(), this);
+    	this.fileTransferManager.start();
+    }
+    
+    public void stopTransfer(String otherUser) {
+    	this.fileTransferManager.stopTransfer(otherUser);
+    }
+    
+    public void stopFileTransferManager() throws InterruptedException {
+		this.fileTransferManager.stopTransferManager();
+		this.fileTransferManager.join();
     }
 
     /*

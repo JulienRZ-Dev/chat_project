@@ -13,6 +13,7 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.time.ZonedDateTime;
 
+import controllers.MessageManagement;
 import views.GetFileWindow;
 import views.SendFileWindow;
 
@@ -21,16 +22,15 @@ public class FileTransfer extends Thread {
 	private Socket socket;
 	private boolean awaitconfig;
 	private String otherUser;
+	private MessageManagement messageManager;
 	
 	private SendFileWindow sendFileWindow;
 	private GetFileWindow getFileWindow;
 	
-	public 
-	
-	public FileTransfer(Socket socket, SendFileWindow sendFileWindow, String otherUser) {
-		this.sendFileWindow = sendFileWindow;
+	public FileTransfer(Socket socket, String otherUser, MessageManagement messageManager) {
 		this.socket = socket;
 		this.otherUser = otherUser;
+		this.messageManager = messageManager;
 	}
 	
 	/*
@@ -39,12 +39,13 @@ public class FileTransfer extends Thread {
 	 * @param nickname
 	 * 		  The user wishing to send a file
 	 */
-	public boolean sendNickname(String nickname) {
+	public boolean openSendFileWindow(String nickname) {
 		PrintWriter writer;
 		try {
 			writer = new PrintWriter(this.socket.getOutputStream(), true);
 			writer.write(nickname+"\n");
 	        writer.flush();
+	        this.sendFileWindow = new SendFileWindow(this.otherUser, this, this.messageManager);
 	        return true;
 		} catch (IOException e) {
 			//System.out.println("Could not create a PrintWriter while sending a message");
@@ -86,7 +87,7 @@ public class FileTransfer extends Thread {
 			BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 			String message = reader.readLine();
 			this.otherUser = message;
-			this.getFileWindow = new GetFileWindow(this.otherUser);
+			this.getFileWindow = new GetFileWindow(this.otherUser, this, this.messageManager);
 		} catch (IOException e1) {
 			System.out.println("Could not discover who sent the file");
 		}
@@ -119,5 +120,9 @@ public class FileTransfer extends Thread {
 		} catch (IOException e) {
 			System.out.println("Could not properly stop the communication with " + this.socket.getInetAddress().toString());
 		}
+	}
+	
+	public String getOtherUser() {
+		return this.otherUser;
 	}
 }

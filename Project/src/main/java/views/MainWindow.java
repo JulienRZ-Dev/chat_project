@@ -86,6 +86,13 @@ public class MainWindow {
                 }
                 
                 try {
+                	//We stop the chatManager thread, and every launched chat in the same time
+                	messageManager.stopFileTransferManager();
+                } catch (InterruptedException e1) {
+                	System.out.println("FileTransfer Manager already stopped");
+                }
+                
+                try {
                 	//We send a disconnect message to let every active user know that they can remove us from their active list
                 	messageManager.disconnect();
                 } catch (UdpConnectionFailure e1) {

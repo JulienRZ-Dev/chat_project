@@ -50,8 +50,8 @@ public class FileTransferManager extends Thread {
 	public boolean startTransfer(User user) {
 		try {
 			System.out.println("Starting a file transfer between port " + this.port + " and port " + user.getChatPort());
-			this.transfers.add(new FileTransfer(new Socket(user.getIpAddress(), user.getChatPort()), new SendFileWindow(user), user.getNickname()));
-			this.transfers.get(this.transfers.size() - 1).sendNickname(messageManagement.getCurrentUser().getNickname());
+			this.transfers.add(new FileTransfer(new Socket(user.getIpAddress(), user.getChatPort()), user.getNickname(), this.messageManagement));
+			this.transfers.get(this.transfers.size() - 1).openSendFileWindow(messageManagement.getCurrentUser().getNickname());
 			return true;
 		} catch (IOException e) {
 			return false;
@@ -81,7 +81,7 @@ public class FileTransferManager extends Thread {
 	/*
 	 * Use this method to stop the ChatManager thread and all the chat threads running
 	 */
-	public void stopChatManager() throws InterruptedException {
+	public void stopTransferManager() throws InterruptedException {
 		for (FileTransfer transfer : transfers) {
 			transfer.stopTransfer();
 		}
@@ -91,5 +91,15 @@ public class FileTransferManager extends Thread {
 			System.out.println("Could not properly stop the server socket");
 		}
 		running = false;
+	}
+	
+	public void stopTransfer(String otherUser) {
+		for (int i = 0; i < transfers.size(); i++) {
+			if (transfers.get(i).getOtherUser().equals(otherUser)) {
+				transfers.get(i).stopTransfer();
+				transfers.remove(i);
+				return;
+			}
+		}
 	}
 }
