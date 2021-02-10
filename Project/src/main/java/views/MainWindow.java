@@ -13,6 +13,7 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
@@ -262,4 +263,8 @@ public class MainWindow {
 		}
 		return false;
 	}
+	
+	public void showChangeNicknamePopUp(String oldNickname, String newNickname) {
+   	 JOptionPane.showMessageDialog(frame, oldNickname + " is now " + newNickname);  
+   }
 }

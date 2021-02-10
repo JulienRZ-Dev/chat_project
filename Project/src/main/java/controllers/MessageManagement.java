@@ -216,6 +216,7 @@ public class MessageManagement {
     			user.setNickname(newNickname);
     			mainWindow.removeUser(user);
     			mainWindow.addUser(user);
+    			mainWindow.showChangeNicknamePopUp(oldNickname, newNickname);
     			return;
     		}
     	}
