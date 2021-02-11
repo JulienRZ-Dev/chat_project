@@ -309,6 +309,10 @@ public class MessageManagement {
     	this.fileTransferManager.start();
     }
     
+    public void startTransfer(User user) {
+    	this.fileTransferManager.startTransfer(user);
+    }
+    
     public void stopTransfer(String otherUser) {
     	this.fileTransferManager.stopTransfer(otherUser);
     }

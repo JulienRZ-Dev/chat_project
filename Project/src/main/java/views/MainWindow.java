@@ -41,7 +41,8 @@ public class MainWindow {
     
     // user list graphic
 	JFrame frame= new JFrame();  
-	JButton b=new JButton("Chat"); 
+	JButton chatButton = new JButton("Chat"); 
+	JButton fileButton = new JButton("Send file"); 
 	JList<String> list1 = new JList<>(userList);
     
     public MainWindow(MessageManagement messageManagement) {
@@ -134,7 +135,8 @@ public class MainWindow {
         messageLabel.setBounds(250, 200, 200, 30);
         
 		list1.setBounds(50, 50, 100, 300);  
-		b.setBounds(160, 320, 80, 30); 
+		chatButton.setBounds(160, 280, 80, 30); 
+		fileButton.setBounds(160, 320, 80, 30);
     }
     
     
@@ -143,7 +145,8 @@ public class MainWindow {
      */
     private void addComponentsToContainer() {
 		frame.add(list1);
-		frame.add(b);
+		frame.add(chatButton);
+		frame.add(fileButton);
 		frame.add(pseudonymeLabel);
 		frame.add(pseudonymeField);
 		frame.add(validateButton);
@@ -180,13 +183,12 @@ public class MainWindow {
      * Add the action listener 
      */
     private void addActionEvent() {
-		b.addActionListener(new ActionListener() {  
-			
+		chatButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				if(list1.getSelectedIndex() >= 0) {
 					User user = users.get(list1.getSelectedIndex());
-					System.out.println("let's chat with " + user);
+					System.out.println("let's chat with " + user.getNickname());
 					try {
 						messageManager.startChat(user);
 					} catch (ChatAlreadyExists e1) {
@@ -196,9 +198,18 @@ public class MainWindow {
 			}
 		});
 		
+		fileButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if(list1.getSelectedIndex() >= 0) {
+					User user = users.get(list1.getSelectedIndex());
+					System.out.println("sending file to " + user.getNickname());
+					messageManager.startTransfer(user);
+				}
+			}
+		});
 		
 		validateButton.addActionListener(new ActionListener() {
-
 			@Override
 			public void actionPerformed(ActionEvent e) {
 		        messageLabel.setVisible(false); // reset the error message
