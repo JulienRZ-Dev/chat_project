@@ -84,8 +84,10 @@ public class FileTransfer extends Thread {
 	
 	public void openGetFileWindow() {
 		try {
+			System.out.println("Waiting for nickname (transfer)");
 			BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 			String message = reader.readLine();
+			System.out.println("Nickname received : " + message);
 			this.otherUser = message;
 			this.getFileWindow = new GetFileWindow(this.otherUser, this, this.messageManager);
 		} catch (IOException e1) {

@@ -44,6 +44,8 @@ public class GetFileWindow extends JFrame implements ActionListener {
     	this.setBounds(10, 10, 300, 300);
     	ignoreButton.setBounds(100, 60, 100, 60);
     	downloadButton.setBounds(100, 240, 100, 60);
+    	this.add(ignoreButton);
+    	this.add(downloadButton);
     }	
 
     private void setClosingBehaviour() {
