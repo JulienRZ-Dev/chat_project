@@ -8,7 +8,6 @@ import java.util.ArrayList;
 
 import controllers.MessageManagement;
 import models.User;
-import views.ChatWindow;
 import views.SendFileWindow;
 
 public class FileTransferManager extends Thread {
@@ -35,22 +34,22 @@ public class FileTransferManager extends Thread {
 			this.serverSocket = new ServerSocket(this.port);
 			this.transfers = new ArrayList<FileTransfer>();
 		} catch (IOException e) {
-			System.out.println("Error while creating ChatManager.");
+			System.out.println("Error while creating FileTransferManager.");
 		}
 	}
 	
 	/*
-	 * Use this method to initiate a chat session
+	 * Use this method to initiate a transfer
 	 * 
 	 * @param user
-	 * 		  The user the current user wants to chat with
+	 * 		  The user the current user wants to transfer a file to
 	 * 
-	 * @return false if the Chat could not be properly created and started
+	 * @return false if the file could not be properly created and started
 	 */
 	public boolean startTransfer(User user) {
 		try {
-			System.out.println("Starting a file transfer between port " + this.port + " and port " + user.getChatPort());
-			this.transfers.add(new FileTransfer(new Socket(user.getIpAddress(), user.getChatPort()), user.getNickname(), this.messageManagement));
+			System.out.println("Starting a file transfer between port " + this.port + " and port " + user.getFilePort());
+			this.transfers.add(new FileTransfer(new Socket(user.getIpAddress(), user.getFilePort()), user.getNickname(), this.messageManagement));
 			this.transfers.get(this.transfers.size() - 1).openSendFileWindow(messageManagement.getCurrentUser().getNickname());
 			return true;
 		} catch (IOException e) {
@@ -71,15 +70,15 @@ public class FileTransferManager extends Thread {
 				this.transfers.get(this.transfers.size() - 1).openGetFileWindow();
 				System.out.println("Connection received on port " + this.port);
 			} catch (SocketException se) {
-				System.out.println("Chat stopped on port " + this.port);
+				System.out.println("Transfer stopped on port " + this.port);
 			} catch (IOException e) {
-				System.out.println("Error while accepting a chat connection");
+				System.out.println("Error while accepting a transfer");
 			}
 		}
 	}
 	
 	/*
-	 * Use this method to stop the ChatManager thread and all the chat threads running
+	 * Use this method to stop the FileTransferManager thread and all the transfers running
 	 */
 	public void stopTransferManager() throws InterruptedException {
 		for (FileTransfer transfer : transfers) {
