@@ -61,7 +61,7 @@ public class MessageManagement {
         int id = this.currentUser.getId();
         Random random = new Random();
     	int broadcast_port = random.nextInt(65535 + 1 - 6000) + 6000; //send the message from a random port between 6000 and 65535
-        String message = "login_request:" + nickname + ":" + Integer.toString(id) + ":" + this.currentUser.getChatPort();
+        String message = "login_request:" + nickname + ":" + Integer.toString(id) + ":" + this.currentUser.getChatPort() + ":" + this.currentUser.getFilePort();
 
         try {
         	UdpCommunication communication = new UdpCommunication();
@@ -73,16 +73,16 @@ public class MessageManagement {
         
             ArrayList<String> responses = communication.receiveMessages(TIMEOUT_RECEPTION_REPONSE);
             for (int i = 0; i < responses.size(); i++) {
-            	System.out.println("isNicknameAvailable - message re�u : " + responses.get(i));
-                //Location in "infos"      0                               1                             2       3            4                   5               6
-                //Messages format : login_response:<0 if the sender uses the nickname, 1 otherwise>:<nickname>:<id>:<Sender's tcp_port>:<Sender's IP Address>:<udp_port>
+            	System.out.println("isNicknameAvailable - message recu : " + responses.get(i));
+                //Location in "infos"      0                               1                             2       3           4                   5                       6             7
+                //Messages format : login_response:<0 if the sender uses the nickname, 1 otherwise>:<nickname>:<id>:<Sender's chat port>:<Sender's file port><Sender's IP Address>:<udp_port>
             	String[] infos = responses.get(i).split(":");
                 //If the response doesn't have the right type, we ignore it
                 if (!infos[0].equals("login_response")) {
                     continue;
                 }
                 //If the response is from ourself, we ignore it
-                else if ((infos[5].equals(InetAddress.getLocalHost().toString())) && (this.currentUser.getChatPort() == Integer.parseInt(infos[4]))) {
+                else if ((infos[6].equals(InetAddress.getLocalHost().toString())) && (this.currentUser.getChatPort() == Integer.parseInt(infos[4]))) {
                 	continue;
                 }
                 //If infos[1] != 0 then another user has already chosen the nickname
@@ -92,7 +92,7 @@ public class MessageManagement {
                 }
                 else {
                 	System.out.println("Calling addUser(" + infos[2] + ") from " + this.currentUser.getNickname() +"'s messageManager");
-                	this.addUser(new User(Integer.parseInt(infos[3]), infos[2], InetAddress.getByName(infos[5]), Integer.parseInt(infos[4])));
+                	this.addUser(new User(Integer.parseInt(infos[3]), infos[2], InetAddress.getByName(infos[5]), Integer.parseInt(infos[4]), Integer.parseInt(infos[5])));
                 }
             }
             communication.closeSocket();
@@ -148,10 +148,11 @@ public class MessageManagement {
     public boolean tryToChangeMyNickname(String newNickname) throws UdpConnectionFailure {
     	int id = this.currentUser.getId();
     	String nickname = this.currentUser.getNickname();
-    	int port = this.currentUser.getChatPort();
+    	int chat_port = this.currentUser.getChatPort();
+    	int file_port = this.currentUser.getFilePort();
         Random random = new Random();
     	int broadcast_port = random.nextInt(65535 + 1 - 6000) + 6000; //send the message from a random port between 6000 and 65535
-        String message = "nickname_request:" + nickname + ":" + newNickname + ":" + Integer.toString(id) + ":" + Integer.toString(port);
+        String message = "nickname_request:" + nickname + ":" + newNickname + ":" + Integer.toString(id) + ":" + Integer.toString(chat_port);
 
         try {
         	
@@ -167,7 +168,7 @@ public class MessageManagement {
             ArrayList<String> responses = communication.receiveMessages(TIMEOUT_RECEPTION_REPONSE);
             for (int i = 0; i < responses.size(); i++) {
                 //Location in "infos"      0                                 1                                  2                         3                      4               5
-                //Messages format : nickname_response:<0 if the sender uses the nickname, 1 otherwise>:<other user's nickname>:<other user's tcp port>:<Sender's IP Address>:<udp_port>
+                //Messages format : nickname_response:<0 if the sender uses the nickname, 1 otherwise>:<other user's nickname>:<other user's chat port>:<Sender's IP Address>:<udp_port>
             	String[] infos = responses.get(i).split(":");
                 //If the response doesn't have the right type, we ignore it
                 if (!infos[0].equals("nickname_response")) {
@@ -184,7 +185,7 @@ public class MessageManagement {
                 }
             }
             
-            String confirm_nickname_change_message = "nickname_change:" + nickname + ":" + newNickname + ":" + Integer.toString(id) + ":" + Integer.toString(port);
+            String confirm_nickname_change_message = "nickname_change:" + nickname + ":" + newNickname + ":" + Integer.toString(id) + ":" + Integer.toString(chat_port) + ":" + Integer.toString(file_port);
             if (!communication.broadcastMessage(confirm_nickname_change_message, 5000)) {
             	System.out.println("Could not confirm the nickname change. Aborting.");
             	communication.closeSocket();

@@ -54,22 +54,23 @@ public class NotificationsListener extends Thread {
                 System.out.println("NotificationListener - message reçu : " + message);
                 String[] infos = message.split(":");
                 //Location in "infos"      0           1      2       3                4               5
-                //Messages format : login_request:<nickname>:<id>:<tcp_port>:<Sender's IP Address>:<udp_port>
+                //Messages format : login_request:<nickname>:<id>:<chat_port>:<file_port>:<Sender's IP Address>:<udp_port>
                 if (infos[0].equals("login_request")) {
                 	String nickname = infos[1];
                     int id = Integer.parseInt(infos[2]);
-                    int tcp_port = Integer.parseInt(infos[3]);
-                    InetAddress address = InetAddress.getByName(infos[4]);
-                    int udp_port = Integer.parseInt(infos[5]);
+                    int chat_port = Integer.parseInt(infos[3]);
+                    int file_port = Integer.parseInt(infos[4]);
+                    InetAddress address = InetAddress.getByName(infos[5]);
+                    int udp_port = Integer.parseInt(infos[6]);
 //                    if () {
 //                        continue;
 //                    }
                     if ((id == messageManager.getCurrentUser().getId()) || (nickname.equals(messageManager.getCurrentUser().getNickname()))) {
-                    	response = "login_response:0:" + messageManager.getCurrentUser().getNickname() + ":" + Integer.toString(messageManager.getCurrentUser().getId()) + ":" + Integer.toString(messageManager.getCurrentUser().getChatPort());
+                    	response = "login_response:0:" + messageManager.getCurrentUser().getNickname() + ":" + Integer.toString(messageManager.getCurrentUser().getId()) + ":" + Integer.toString(messageManager.getCurrentUser().getChatPort()) + ":" + Integer.toString(messageManager.getCurrentUser().getFilePort());
                     }
                     else {
-                        response = "login_response:1:" + messageManager.getCurrentUser().getNickname() + ":" + Integer.toString(messageManager.getCurrentUser().getId()) + ":" + Integer.toString(messageManager.getCurrentUser().getChatPort());
-                        messageManager.addUser(new User(id, nickname, address, tcp_port));
+                        response = "login_response:1:" + messageManager.getCurrentUser().getNickname() + ":" + Integer.toString(messageManager.getCurrentUser().getId()) + ":" + Integer.toString(messageManager.getCurrentUser().getChatPort()) + ":" + Integer.toString(messageManager.getCurrentUser().getFilePort());
+                        messageManager.addUser(new User(id, nickname, address, chat_port, file_port));
                     }
                     if (!communication.unicastMessage(response, address, udp_port)) {
                         System.out.println("ConnectionsListener : error while sending connection response");
@@ -99,13 +100,13 @@ public class NotificationsListener extends Thread {
                         System.out.println("ConnectionsListener : error while sending nickname response");
                     }
                 }
-                //Location in "infos"      0              1             2        3        4               5               6
-                //Messages format : nickname_change:<oldNickname>:<newNickname>:<id>:<tcp_port>:<Sender's IP Address>:<udp_port>
+                //Location in "infos"      0              1             2        3        4           5               6                 7
+                //Messages format : nickname_change:<oldNickname>:<newNickname>:<id>:<chat_port>:<file_port>:<Sender's IP Address>:<udp_port>
                 else if (infos[0].equals("nickname_change")) {
                 	try {
 						messageManager.changeOtherUserNickname(infos[1], infos[2]);
 					} catch (UserNotFound e) {
-						messageManager.addUser(new User(Integer.parseInt(infos[3]), infos[2], InetAddress.getByName(infos[5]), Integer.parseInt(infos[4])));
+						messageManager.addUser(new User(Integer.parseInt(infos[3]), infos[2], InetAddress.getByName(infos[6]), Integer.parseInt(infos[4]), Integer.parseInt(infos[5])));
 					}
                 }
                 else {

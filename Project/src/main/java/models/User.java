@@ -36,11 +36,12 @@ public class User {
         this.chat_port = port;
     }
     
-    public User(int id, String nickname, InetAddress ipAddress, int port) {
+    public User(int id, String nickname, InetAddress ipAddress, int chat_port, int file_port) {
         this.id = id;
         this.nickname = nickname;
         this.ipAddress = ipAddress;
-        this.chat_port = port;
+        this.chat_port = chat_port;
+        this.file_port = file_port;
     }
 
 

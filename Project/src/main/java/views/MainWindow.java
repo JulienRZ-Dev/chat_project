@@ -135,8 +135,8 @@ public class MainWindow {
         messageLabel.setBounds(250, 200, 200, 30);
         
 		list1.setBounds(50, 50, 100, 300);  
-		chatButton.setBounds(160, 280, 80, 30); 
-		fileButton.setBounds(160, 320, 80, 30);
+		chatButton.setBounds(160, 280, 120, 30); 
+		fileButton.setBounds(160, 320, 120, 30);
     }
     
     
