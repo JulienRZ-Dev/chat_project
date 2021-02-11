@@ -49,6 +49,7 @@ public class MainWindow {
 		
 		messageManagement.listenForConnections(this);
 		messageManagement.startChatManager();
+		messageManagement.startFileTransferManager();
 
 		ArrayList<User> usersToAdd = messageManagement.getActiveUsers();
 
