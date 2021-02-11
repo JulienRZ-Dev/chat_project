@@ -37,6 +37,7 @@ public class GetFileWindow extends JFrame implements ActionListener {
     	this.fProvider = fProvider;
     	setPosition();
     	setClosingBehaviour();
+    	this.setVisible(true);
     }
     
     private void setPosition() {

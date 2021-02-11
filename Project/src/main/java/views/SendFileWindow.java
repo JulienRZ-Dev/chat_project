@@ -37,6 +37,7 @@ public class SendFileWindow extends JFrame implements ActionListener {
     	this.fSender = fSender;
     	setPosition();
     	setClosingBehaviour();
+    	this.setVisible(true);
     }
     
     
