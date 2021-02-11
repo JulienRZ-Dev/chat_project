@@ -22,6 +22,7 @@ public class User {
     	this.ipAddress = InetAddress.getLocalHost();
     	Random random = new Random();
     	this.chat_port = random.nextInt(65535 + 1 - 6000) + 6000;
+    	random = new Random();
     	this.file_port = random.nextInt(65535 + 1 - 6000) + 6000;
     }
     
@@ -30,10 +31,12 @@ public class User {
     	this.nickname = nickname;
     }
     
-    public User(int id, InetAddress ipAddress, int port) {
+    public User(int id, InetAddress ipAddress, int chat_port) {
         this.id = id;
         this.ipAddress = ipAddress;
-        this.chat_port = port;
+        this.chat_port = chat_port;
+        Random random = new Random();
+        this.file_port = random.nextInt(65535 + 1 - 6000) + 6000;
     }
     
     public User(int id, String nickname, InetAddress ipAddress, int chat_port, int file_port) {
