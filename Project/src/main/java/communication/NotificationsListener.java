@@ -53,7 +53,7 @@ public class NotificationsListener extends Thread {
                 	continue;
                 System.out.println("NotificationListener - message reçu : " + message);
                 String[] infos = message.split(":");
-                //Location in "infos"      0           1      2       3                4               5
+                //Location in "infos"      0           1      2       3            4               5                6
                 //Messages format : login_request:<nickname>:<id>:<chat_port>:<file_port>:<Sender's IP Address>:<udp_port>
                 if (infos[0].equals("login_request")) {
                 	String nickname = infos[1];
@@ -73,25 +73,25 @@ public class NotificationsListener extends Thread {
                         System.out.println("ConnectionsListener : error while sending connection response");
                     }
                 }
-                //Location in "infos"      0               1       2           3                4
-                //Messages format : disconnect_message:<nickname>:<id>:<Sender's IP Address>:<udp_port>
+                //Location in "infos"      0               1       2        3           4                5               6
+                //Messages format : disconnect_message:<nickname>:<id>:<chat_port>:<file_port>:<Sender's IP Address>:<udp_port>
                 else if (infos[0].equals("disconnect_message")) {
                 	try {
-						messageManager.removeUser(new User(Integer.parseInt(infos[2]), infos[1]));
+						messageManager.removeUser(new User(Integer.parseInt(infos[2]), infos[1], InetAddress.getByName(infos[5]), Integer.parseInt(infos[3]), Integer.parseInt(infos[4])));
 					} catch (UserNotFound e) {
 						System.out.println("The user was somehow already removed");
 					}
                 }
-                //Location in "infos"      0              1             2        3        4               5               6
-                //Messages format : nickname_request:<oldNickname>:<newNickname>:<id>:<tcp_port>:<Sender's IP Address>:<udp_port>
+                //Location in "infos"      0              1             2        3         4           5               6                7
+                //Messages format : nickname_request:<oldNickname>:<newNickname>:<id>:<chat_port>:<file_port>:<Sender's IP Address>:<udp_port>
                 else if (infos[0].equals("nickname_request")) {
-                	InetAddress address = InetAddress.getByName(infos[5]);
-                    int udp_port = Integer.parseInt(infos[6]);
+                	InetAddress address = InetAddress.getByName(infos[6]);
+                    int udp_port = Integer.parseInt(infos[7]);
                 	if (this.messageManager.getCurrentUser().getNickname().equals(infos[2])) {
-                		response = "nickname_response:0:" + this.messageManager.getCurrentUser().getNickname() + ":" + this.messageManager.getCurrentUser().getChatPort(); 
+                		response = "nickname_response:0:" + this.messageManager.getCurrentUser().getNickname() + ":" + this.messageManager.getCurrentUser().getChatPort() + ":" + this.messageManager.getCurrentUser().getFilePort(); 
                 	}
                 	else {
-                		response = "nickname_response:1:" + this.messageManager.getCurrentUser().getNickname() + ":" + this.messageManager.getCurrentUser().getChatPort();
+                		response = "nickname_response:1:" + this.messageManager.getCurrentUser().getNickname() + ":" + this.messageManager.getCurrentUser().getChatPort() + ":" + this.messageManager.getCurrentUser().getFilePort(); 
                 	}
                 	if (!communication.unicastMessage(response, address, udp_port)) {
                         System.out.println("ConnectionsListener : error while sending nickname response");
@@ -100,7 +100,7 @@ public class NotificationsListener extends Thread {
                 //Location in "infos"      0              1             2        3        4           5               6                 7
                 //Messages format : nickname_change:<oldNickname>:<newNickname>:<id>:<chat_port>:<file_port>:<Sender's IP Address>:<udp_port>
                 else if (infos[0].equals("nickname_change")) {
-                	if ((this.messageManager.getCurrentUser().getChatPort() == Integer.parseInt(infos[4])) || infos[6].equals(this.messageManager.getCurrentUser().getIpAddress().toString()))
+                	if ((this.messageManager.getCurrentUser().getChatPort() == Integer.parseInt(infos[4])) && infos[6].equals(this.messageManager.getCurrentUser().getIpAddress().toString()))
                 		continue;
                 	else {
 	                	try {

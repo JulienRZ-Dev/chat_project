@@ -42,6 +42,7 @@ public class MessageManagement {
     public MessageManagement(User currentUser) {
         this.currentUser = currentUser;
         this.chatManager = new ChatManager(this.currentUser.getChatPort(), this);
+        this.fileTransferManager = new FileTransferManager(this.currentUser.getFilePort(), this);
     }
 
     /*
@@ -63,6 +64,8 @@ public class MessageManagement {
     	int broadcast_port = random.nextInt(65535 + 1 - 6000) + 6000; //send the message from a random port between 6000 and 65535
         String message = "login_request:" + nickname + ":" + Integer.toString(id) + ":" + this.currentUser.getChatPort() + ":" + this.currentUser.getFilePort();
 
+        System.out.println("isNicknameAvailable - message envoyé : " + message);
+        
         try {
         	UdpCommunication communication = new UdpCommunication();
         	if (!communication.openSocket(broadcast_port))
@@ -92,7 +95,7 @@ public class MessageManagement {
                 }
                 else {
                 	System.out.println("Calling addUser(" + infos[2] + ") from " + this.currentUser.getNickname() +"'s messageManager");
-                	this.addUser(new User(Integer.parseInt(infos[3]), infos[2], InetAddress.getByName(infos[5]), Integer.parseInt(infos[4]), Integer.parseInt(infos[5])));
+                	this.addUser(new User(Integer.parseInt(infos[3]), infos[2], InetAddress.getByName(infos[6]), Integer.parseInt(infos[4]), Integer.parseInt(infos[5])));
                 }
             }
             communication.closeSocket();
@@ -113,9 +116,11 @@ public class MessageManagement {
     public void disconnect() throws UdpConnectionFailure {
     	int id = this.currentUser.getId();
     	String nickname = this.currentUser.getNickname();
+    	int chat_port = this.currentUser.getChatPort();
+    	int file_port = this.currentUser.getFilePort();
     	Random random = new Random();
     	int broadcast_port = random.nextInt(65535 + 1 - 6000) + 6000; //send the message from a random port between 6000 and 65535
-        String message = "disconnect_message:" + nickname + ":" + Integer.toString(id);
+        String message = "disconnect_message:" + nickname + ":" + Integer.toString(id) + ":" + Integer.toString(chat_port) + ":" + Integer.toString(file_port);
         try {
         	
         	UdpCommunication communication = new UdpCommunication();
@@ -152,7 +157,7 @@ public class MessageManagement {
     	int file_port = this.currentUser.getFilePort();
         Random random = new Random();
     	int broadcast_port = random.nextInt(65535 + 1 - 6000) + 6000; //send the message from a random port between 6000 and 65535
-        String message = "nickname_request:" + nickname + ":" + newNickname + ":" + Integer.toString(id) + ":" + Integer.toString(chat_port);
+        String message = "nickname_request:" + nickname + ":" + newNickname + ":" + Integer.toString(id) + ":" + Integer.toString(chat_port) + ":" + Integer.toString(file_port);
 
         try {
         	
@@ -167,15 +172,15 @@ public class MessageManagement {
         
             ArrayList<String> responses = communication.receiveMessages(TIMEOUT_RECEPTION_REPONSE);
             for (int i = 0; i < responses.size(); i++) {
-                //Location in "infos"      0                                 1                                  2                         3                      4               5
-                //Messages format : nickname_response:<0 if the sender uses the nickname, 1 otherwise>:<other user's nickname>:<other user's chat port>:<Sender's IP Address>:<udp_port>
+                //Location in "infos"      0                                 1                                  2                         3                         4                      5               6
+                //Messages format : nickname_response:<0 if the sender uses the nickname, 1 otherwise>:<other user's nickname>:<other user's chat port>:<other user's file_port>:<Sender's IP Address>:<udp_port>
             	String[] infos = responses.get(i).split(":");
                 //If the response doesn't have the right type, we ignore it
                 if (!infos[0].equals("nickname_response")) {
                     continue;
                 }
                 //If the response is from ourself, we ignore it
-                else if ((infos[4].equals(InetAddress.getLocalHost().toString())) && (this.currentUser.getChatPort() == Integer.parseInt(infos[3]))) {
+                else if ((infos[5].equals(InetAddress.getLocalHost().toString())) && (this.currentUser.getChatPort() == Integer.parseInt(infos[3]))) {
                 	continue;
                 }
                 //If infos[1] != 0 then another user has already chosen the nickname
@@ -306,7 +311,6 @@ public class MessageManagement {
     }
     
     public void startFileTransferManager() {
-    	this.fileTransferManager = new FileTransferManager(this.currentUser.getFilePort(), this);
     	this.fileTransferManager.start();
     }
     

@@ -20,7 +20,6 @@ import views.SendFileWindow;
 public class FileTransfer extends Thread {
 
 	private Socket socket;
-	private boolean awaitconfig;
 	private String otherUser;
 	private MessageManagement messageManager;
 	
@@ -77,9 +76,7 @@ public class FileTransfer extends Thread {
 	
 	//Reception
 	public FileTransfer(Socket socket) {
-		this.getFileWindow = getFileWindow;
 		this.socket = socket;
-		this.otherUser = otherUser;
 	}
 	
 	public void openGetFileWindow() {

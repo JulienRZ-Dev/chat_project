@@ -57,12 +57,9 @@ public class ChatManager extends Thread {
 			this.chats.get(this.chats.size() - 1).sendMessage(messageManagement.getCurrentUser().getNickname());
 			return true;
 		} catch (IOException e) {
+			e.printStackTrace();
 			return false;
-		} /*catch (ChatNotFound ce) {
-			//This should not happen
-			System.out.println("Error while trying to start the just created chat");
-			return false;
-		}*/
+		} 
 	}
 	
 	/*
@@ -99,7 +96,7 @@ public class ChatManager extends Thread {
 		this.running = true;
 		while (running) {
 			try {
-				System.out.println("Waiting for connections on port " + this.port);
+				System.out.println("Waiting for chats on port " + this.port);
 				this.chats.add(new ChatCommunication(this.serverSocket.accept(), new ChatWindow(messageManagement)));
 				this.chats.get(this.chats.size() - 1).start();
 				System.out.println("Connection received on port " + this.port);

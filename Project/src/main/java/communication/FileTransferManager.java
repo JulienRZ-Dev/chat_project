@@ -65,7 +65,7 @@ public class FileTransferManager extends Thread {
 		this.running = true;
 		while (running) {
 			try {
-				System.out.println("Waiting for connections on port " + this.port);
+				System.out.println("Waiting for transfers on port " + this.port);
 				this.transfers.add(new FileTransfer(this.serverSocket.accept()));
 				this.transfers.get(this.transfers.size() - 1).openGetFileWindow();
 				System.out.println("Connection received on port " + this.port);

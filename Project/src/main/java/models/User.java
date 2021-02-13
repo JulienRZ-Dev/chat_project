@@ -26,19 +26,6 @@ public class User {
     	this.file_port = random.nextInt(65535 + 1 - 6000) + 6000;
     }
     
-    public User(int id, String nickname) {
-    	this.id = id;
-    	this.nickname = nickname;
-    }
-    
-    public User(int id, InetAddress ipAddress, int chat_port) {
-        this.id = id;
-        this.ipAddress = ipAddress;
-        this.chat_port = chat_port;
-        Random random = new Random();
-        this.file_port = random.nextInt(65535 + 1 - 6000) + 6000;
-    }
-    
     public User(int id, String nickname, InetAddress ipAddress, int chat_port, int file_port) {
         this.id = id;
         this.nickname = nickname;

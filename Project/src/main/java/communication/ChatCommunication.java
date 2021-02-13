@@ -81,6 +81,7 @@ public class ChatCommunication extends Thread {
 						this.awaitconfig = false;
 					}
 					else if (message.equals("#disconnect#")) {
+						System.out.println(otherUser + " disconnected.");
 						this.chatWindow.printDisconnectMessage();
 					}
 					else {
