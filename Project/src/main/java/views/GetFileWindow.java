@@ -15,10 +15,9 @@ import communication.FileTransfer;
 import controllers.MessageManagement;
 import models.User;
 
-public class GetFileWindow extends JFrame implements ActionListener {
+public class GetFileWindow {
 
-	private static final long serialVersionUID = 1L;
-	
+	JFrame frame = new JFrame();
 	JButton ignoreButton;
 	JButton downloadButton;
 	
@@ -28,24 +27,29 @@ public class GetFileWindow extends JFrame implements ActionListener {
 
 	private WindowAdapter windowAdapter;
 	
+	
     public GetFileWindow(String sender, FileTransfer fProvider, MessageManagement messageManager) {
+    	System.out.println("GetFileWindow constructor reached");
     	this.otherUser = sender;
-    	this.setTitle("Fichier en provenance de " + this.otherUser);
+    	frame.setTitle("Fichier en provenance de " + this.otherUser);
     	this.messageManager = messageManager;
-    	ignoreButton = new JButton("Ignore");
-    	downloadButton = new JButton("Download file");
+    	ignoreButton = new JButton("Ignorer");
+    	downloadButton = new JButton("Télécharger le fichier");
     	this.fProvider = fProvider;
+    	frame.setLayout(null);
     	setPosition();
     	setClosingBehaviour();
-    	this.setVisible(true);
+    	addActionEvent();
+    	frame.setVisible(true);
     }
     
     private void setPosition() {
-    	this.setBounds(10, 10, 300, 300);
-    	ignoreButton.setBounds(100, 60, 100, 60);
-    	downloadButton.setBounds(100, 240, 100, 60);
-    	this.add(ignoreButton);
-    	this.add(downloadButton);
+    	
+    	frame.setBounds(10, 10, 500, 300);
+    	ignoreButton.setBounds(100, 70, 300, 30);
+    	downloadButton.setBounds(100, 200, 300, 30);
+    	frame.add(ignoreButton);
+    	frame.add(downloadButton);
     }	
 
     private void setClosingBehaviour() {
@@ -61,17 +65,33 @@ public class GetFileWindow extends JFrame implements ActionListener {
         };
     }
 
-	@Override
-	public void actionPerformed(ActionEvent e) {
-		if(e.getSource() == ignoreButton) {
-			this.dispose();	
-		} else {
-			try {
-				fProvider.receiveFile();
-			} catch (FileNotFoundException e1) {
-				//Peut-être afficher une erreur dans la view ?
-				System.out.println("Could not create the file");
-			}	
-		}
+    
+    /*
+     * Add the action listener 
+     */
+    private void addActionEvent() {
+    	ignoreButton.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				System.out.println("frame should dispose");
+				frame.dispose();	
+			}
+    		
+    	});
+    	
+    	ignoreButton.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				try {
+					System.out.println("Getting file");
+					fProvider.receiveFile();
+				} catch (FileNotFoundException e1) {
+					System.out.println("Could not create the file");
+				}
+			}
+    		
+    	});
 	}
 }

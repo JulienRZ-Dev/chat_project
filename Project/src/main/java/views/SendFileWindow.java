@@ -1,5 +1,6 @@
 package views;
 
+import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
@@ -10,19 +11,22 @@ import java.io.FileNotFoundException;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 
 import communication.FileTransfer;
 import controllers.MessageManagement;
 import models.User;
 
-public class SendFileWindow extends JFrame implements ActionListener {
-	private static final long serialVersionUID = 1L;
+public class SendFileWindow {
 	
+	JFrame frame = new JFrame();
 	JButton selectButton;
 	JButton sendButton;
+	JLabel message = new JLabel();
 	
 	private FileTransfer fSender;
 	private File selected = null;
+	final JFileChooser fc = new JFileChooser();
 	private MessageManagement messageManager;
 	private String otherUser;
 
@@ -30,23 +34,28 @@ public class SendFileWindow extends JFrame implements ActionListener {
     
     public SendFileWindow(String receiver, FileTransfer fSender, MessageManagement messageManager) {
     	this.otherUser = receiver;
-    	this.setTitle("Sending file to " + this.otherUser);
+    	frame.setTitle("Sending file to " + this.otherUser);
     	this.messageManager = messageManager;
     	selectButton = new JButton("Sélectionner un fichier");
     	sendButton = new JButton("Envoyer");
     	this.fSender = fSender;
+    	frame.setLayout(null);
+    	message.setText("Selectionnez un fichier");
     	setPosition();
     	setClosingBehaviour();
-    	this.setVisible(true);
+    	addActionEvent();
+    	frame.setVisible(true);
     }
     
     
     private void setPosition() {
-    	this.setBounds(10, 10, 300, 300);
-    	selectButton.setBounds(100, 60, 100, 60);
-    	sendButton.setBounds(100, 240, 100, 60);
-    	this.add(selectButton);
-    	this.add(sendButton);
+    	frame.setBounds(10, 10, 500, 300);
+    	selectButton.setBounds(100, 70, 300, 30);
+    	message.setBounds(100, 120, 300, 30);
+    	sendButton.setBounds(100, 200, 300, 30);
+    	frame.add(selectButton);
+    	frame.add(message);
+    	frame.add(sendButton);
     }	
     
     private void setClosingBehaviour() {
@@ -62,19 +71,41 @@ public class SendFileWindow extends JFrame implements ActionListener {
         };
     }
 
+    
+    /*
+     * Add the action listener 
+     */
+    private void addActionEvent() {
+    	selectButton.addActionListener(new ActionListener() {
 
-	@Override
-	public void actionPerformed(ActionEvent e) {
-		if(e.getSource() == selectButton) {
-			JFileChooser jFile = new JFileChooser();	
-			selected = jFile.getSelectedFile();		
-		} else if(selected != null) {
-			try {
-				fSender.sendFile(selected);
-			} catch (FileNotFoundException e1) {
-				//Peut-être afficher une erreur dans la view ?
-				System.out.println("Could not find the selected file");
-			}	
-		}
-	}
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				
+				System.out.println("should display file selection");
+				int val = fc.showOpenDialog(frame);
+				if(val == JFileChooser.APPROVE_OPTION) {
+					selected = fc.getSelectedFile();
+					System.out.println("File approuved");				
+				} else {
+					System.out.println("Selection cancelled");
+					message.setBackground(Color.red);
+					message.setText("Selection échouée");
+				}
+			}
+    	});
+    	
+    	sendButton.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				try {
+					System.out.println("Should send file");
+					fSender.sendFile(selected);
+					frame.dispose();
+				} catch (FileNotFoundException e1) {
+					System.out.println("file is null");
+				}
+			}
+    	});
+    }
 }
