@@ -221,6 +221,7 @@ public class MessageManagement {
     public void changeOtherUserNickname(String oldNickname, String newNickname) throws UserNotFound {
     	for (User user : this.activeUsers) {
     		if (user.getNickname().equals(oldNickname)) {
+    			chatManager.changeChatNickname(oldNickname, newNickname);
     			user.setNickname(newNickname);
     			mainWindow.removeUser(user);
     			mainWindow.addUser(user);

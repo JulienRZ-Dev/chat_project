@@ -48,7 +48,6 @@ public class ChatCommunication extends Thread {
 	 * 		  The message you want to send (with no \n, we will add it in this method)
 	 */
 	public boolean sendMessage(String message) {
-		//System.out.println(this.socket.getLocalAddress().toString() + " has sent a message on port " + this.socket.getLocalPort() + " :\n" + message + "\nThis message was sent to " + this.socket.getInetAddress().toString() + " on port " + this.socket.getPort() + "\n");
 		PrintWriter writer;
 		try {
 			writer = new PrintWriter(this.socket.getOutputStream(), true);
@@ -57,7 +56,7 @@ public class ChatCommunication extends Thread {
 	        System.out.println("Sending the message " + message + " to " + this.otherUser);
 	        return true;
 		} catch (IOException e) {
-			//System.out.println("Could not create a PrintWriter while sending a message");
+			System.out.println("Error while getting socket's outputstream");
 			return false;
 		}
 	}
@@ -70,10 +69,8 @@ public class ChatCommunication extends Thread {
 		
 		while (this.running) {
 			try {
-				//System.out.println("Waiting for messages on port " + this.socket.getLocalPort());
 				BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 				String message = reader.readLine();
-				//Give the message to the correct class
 				if (message != null) {
 					System.out.println("Received the message " + message + " from " + this.otherUser);
 					if(this.awaitconfig) {
@@ -95,7 +92,7 @@ public class ChatCommunication extends Thread {
 			} catch (IOException e) {
 				System.out.println("Error while receiving a message");
 			} catch (UserNotFound e) {
-				System.out.println("No user active for this nickname");
+				System.out.println("No active user for this nickname");
 			}
 		}
 	}
@@ -146,6 +143,10 @@ public class ChatCommunication extends Thread {
 	 */
 	public ChatWindow getChatWindow() {
 		return this.chatWindow;
+	}
+
+	public void setNickname(String newNickname) {
+		this.otherUser = newNickname;
 	}
 	
 }

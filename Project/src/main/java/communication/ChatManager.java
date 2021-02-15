@@ -79,6 +79,14 @@ public class ChatManager extends Thread {
 		return false;
 	}
 	
+	public void changeChatNickname(String oldNickname, String newNickname) {
+		for(ChatCommunication chat : chats) {
+            if (oldNickname.equals(chat.getOtherUser())) {
+            	chat.setNickname(newNickname);
+            }
+        }
+	}
+	
 	public ChatCommunication getChat(User user) throws ChatNotFound {
 		for(ChatCommunication chat : chats) {
             if (user.getNickname().equals(chat.getOtherUser())) {
