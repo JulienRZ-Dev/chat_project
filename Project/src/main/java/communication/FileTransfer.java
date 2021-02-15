@@ -12,6 +12,7 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.time.ZonedDateTime;
+import java.util.UUID;
 
 import controllers.MessageManagement;
 import views.GetFileWindow;
@@ -98,7 +99,8 @@ public class FileTransfer extends Thread {
 		int bytes = 0;
         FileOutputStream fileOutputStream;
         
-        File new_file = new File("./fichiers_recus/in_file.txt");
+        String uuid = UUID.randomUUID().toString();
+        File new_file = new File("./" + uuid + ".txt");
         
 		try {
 			System.out.println("Trying to create the file " + new_file.getName());
@@ -111,7 +113,7 @@ public class FileTransfer extends Thread {
 	        
 	        long size = dataInputStream.readLong();     // read file size
 	        System.out.println("Le fichier reçu est de taille : " + size);
-	        byte[] buffer = new byte[4*1024];
+	        byte[] buffer = new byte[100*1024];
 	        while (size > 0 && (bytes = dataInputStream.read(buffer, 0, (int)Math.min(buffer.length, size))) != -1) {
 	            fileOutputStream.write(buffer,0,bytes);
 	            size -= bytes;      // read upto file size

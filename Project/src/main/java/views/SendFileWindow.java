@@ -12,6 +12,7 @@ import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 import communication.FileTransfer;
 import controllers.MessageManagement;
@@ -26,7 +27,7 @@ public class SendFileWindow {
 	
 	private FileTransfer fSender;
 	private File selected = null;
-	final JFileChooser fc = new JFileChooser();
+	
 	private MessageManagement messageManager;
 	private String otherUser;
 
@@ -80,16 +81,17 @@ public class SendFileWindow {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
+
+		        JFileChooser fc = new JFileChooser();
+		        fc.setAcceptAllFileFilterUsed(false);
+		        FileNameExtensionFilter filter = new FileNameExtensionFilter("TXT files", "txt");
+		        fc.addChoosableFileFilter(filter);
 				
-				System.out.println("should display file selection");
 				int val = fc.showOpenDialog(frame);
 				if(val == JFileChooser.APPROVE_OPTION) {
 					selected = fc.getSelectedFile();
-					System.out.println("File approuved");
 					message.setText(selected.getName());
 				} else {
-					System.out.println("Selection cancelled");
-					message.setBackground(Color.red);
 					message.setText("Ce type de fichier n'est pas supporté");
 				}
 			}
@@ -100,7 +102,6 @@ public class SendFileWindow {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				try {
-					System.out.println("Should send file");
 					fSender.sendFile(selected);
 					frame.dispose();
 				} catch (FileNotFoundException e1) {

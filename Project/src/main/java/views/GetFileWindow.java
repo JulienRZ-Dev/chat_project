@@ -10,6 +10,7 @@ import java.io.FileNotFoundException;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 
 import communication.FileTransfer;
 import controllers.MessageManagement;
@@ -20,6 +21,7 @@ public class GetFileWindow {
 	JFrame frame = new JFrame();
 	JButton ignoreButton;
 	JButton downloadButton;
+	JLabel message;
 	
 	private FileTransfer fProvider;
 	private MessageManagement messageManager;
@@ -29,12 +31,14 @@ public class GetFileWindow {
 	
 	
     public GetFileWindow(String sender, FileTransfer fProvider, MessageManagement messageManager) {
-    	System.out.println("GetFileWindow constructor reached");
     	this.otherUser = sender;
     	frame.setTitle("Fichier en provenance de " + this.otherUser);
     	this.messageManager = messageManager;
-    	ignoreButton = new JButton("Ignorer");
+    	
+    	ignoreButton = new JButton("Fermer");
     	downloadButton = new JButton("Télécharger le fichier");
+    	message = new JLabel("");
+    	
     	this.fProvider = fProvider;
     	frame.setLayout(null);
     	setPosition();
@@ -46,10 +50,12 @@ public class GetFileWindow {
     private void setPosition() {
     	
     	frame.setBounds(10, 10, 500, 300);
-    	ignoreButton.setBounds(100, 70, 300, 30);
-    	downloadButton.setBounds(100, 200, 300, 30);
+    	ignoreButton.setBounds(100, 180, 300, 30);
+    	downloadButton.setBounds(100, 70, 300, 30);
+    	message.setBounds(100, 110, 300, 30);
     	frame.add(ignoreButton);
     	frame.add(downloadButton);
+    	frame.add(message);
     }	
 
     private void setClosingBehaviour() {
@@ -87,9 +93,10 @@ public class GetFileWindow {
 				try {
 					System.out.println("Getting file");
 					fProvider.receiveFile();
-					
+					message.setText("Le fichier à bien été téléchargé");
 				} catch (FileNotFoundException e1) {
 					System.out.println("Could not create the file");
+					message.setText("Echec du chargement du fichier...");
 				}
 			}
     		

@@ -2,6 +2,7 @@ D:\Julien\Documents\4A\POO\chat_project\Project\src\main\java\exceptions\ChatAlr
 D:\Julien\Documents\4A\POO\chat_project\Project\src\main\java\utils\Utils.java
 D:\Julien\Documents\4A\POO\chat_project\Project\src\main\java\views\LoadingView.java
 D:\Julien\Documents\4A\POO\chat_project\Project\src\main\java\database\DatabaseUserInterface.java
+D:\Julien\Documents\4A\POO\chat_project\Project\src\main\java\views\SendFileWindow.java
 D:\Julien\Documents\4A\POO\chat_project\Project\src\main\java\database\DatabaseConfig.java
 D:\Julien\Documents\4A\POO\chat_project\Project\src\main\java\exceptions\ChatNotFound.java
 D:\Julien\Documents\4A\POO\chat_project\Project\src\main\java\exceptions\UserCreationFailure.java
@@ -14,7 +15,9 @@ D:\Julien\Documents\4A\POO\chat_project\Project\src\main\java\controllers\Messag
 D:\Julien\Documents\4A\POO\chat_project\Project\src\main\java\communication\UdpCommunication.java
 D:\Julien\Documents\4A\POO\chat_project\Project\src\main\java\exceptions\UserAuthentificationFailure.java
 D:\Julien\Documents\4A\POO\chat_project\Project\src\main\java\views\ConnectionWindow.java
+D:\Julien\Documents\4A\POO\chat_project\Project\src\main\java\communication\FileTransfer.java
 D:\Julien\Documents\4A\POO\chat_project\Project\src\main\java\views\ConnectionWindowFrame.java
+D:\Julien\Documents\4A\POO\chat_project\Project\src\main\java\views\GetFileWindow.java
 D:\Julien\Documents\4A\POO\chat_project\Project\src\main\java\communication\ChatCommunication.java
 D:\Julien\Documents\4A\POO\chat_project\Project\src\main\java\main\Main.java
 D:\Julien\Documents\4A\POO\chat_project\Project\src\main\java\exceptions\UserNotFound.java
@@ -23,4 +26,5 @@ D:\Julien\Documents\4A\POO\chat_project\Project\src\main\java\exceptions\Nicknam
 D:\Julien\Documents\4A\POO\chat_project\Project\src\main\java\models\Message.java
 D:\Julien\Documents\4A\POO\chat_project\Project\src\main\java\communication\ChatManager.java
 D:\Julien\Documents\4A\POO\chat_project\Project\src\main\java\database\DatabaseMessages.java
+D:\Julien\Documents\4A\POO\chat_project\Project\src\main\java\communication\FileTransferManager.java
 D:\Julien\Documents\4A\POO\chat_project\Project\src\main\java\views\MainWindow.java
