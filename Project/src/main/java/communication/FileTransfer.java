@@ -23,6 +23,8 @@ public class FileTransfer extends Thread {
 	private String otherUser;
 	private MessageManagement messageManager;
 	
+	private String myName;
+	
 	private SendFileWindow sendFileWindow;
 	private GetFileWindow getFileWindow;
 	
@@ -38,23 +40,23 @@ public class FileTransfer extends Thread {
 	 * @param nickname
 	 * 		  The user wishing to send a file
 	 */
-	public boolean openSendFileWindow(String nickname) {
-		PrintWriter writer;
-		try {
-			writer = new PrintWriter(this.socket.getOutputStream(), true);
-			writer.write(nickname+"\n");
-	        writer.flush();
-	        this.sendFileWindow = new SendFileWindow(this.otherUser, this, this.messageManager);
-	        return true;
-		} catch (IOException e) {
-			//System.out.println("Could not create a PrintWriter while sending a message");
-			return false;
-		}
+	public void openSendFileWindow(String nickname) {
+		this.myName = nickname;
+	    this.sendFileWindow = new SendFileWindow(this.otherUser, this, this.messageManager);
 	}
 	
 	public void sendFile(File file) throws FileNotFoundException {
 		int bytes = 0;
 		FileInputStream input = new FileInputStream(file);
+		
+		PrintWriter writer;
+		try {
+			writer = new PrintWriter(this.socket.getOutputStream(), true);
+			writer.write(this.myName +"\n");
+	        writer.flush();
+		} catch (IOException e1) {
+			System.out.println("Could not connect to the other user");
+		}
 		
 		try {
 			DataOutputStream dataOutputStream = new DataOutputStream(this.socket.getOutputStream());
@@ -96,12 +98,19 @@ public class FileTransfer extends Thread {
 		int bytes = 0;
         FileOutputStream fileOutputStream;
         
-        fileOutputStream = new FileOutputStream(new File("./in_file" + ZonedDateTime.now()));
+        File new_file = new File("./fichiers_recus/in_file.txt");
         
 		try {
+			System.out.println("Trying to create the file " + new_file.getName());
+			new_file.createNewFile();
+			System.out.println("The file " + new_file.getName() + " was created");
+	        
+	        fileOutputStream = new FileOutputStream(new_file);
+			
 	        DataInputStream dataInputStream = new DataInputStream(this.socket.getInputStream());
 	        
 	        long size = dataInputStream.readLong();     // read file size
+	        System.out.println("Le fichier reçu est de taille : " + size);
 	        byte[] buffer = new byte[4*1024];
 	        while (size > 0 && (bytes = dataInputStream.read(buffer, 0, (int)Math.min(buffer.length, size))) != -1) {
 	            fileOutputStream.write(buffer,0,bytes);

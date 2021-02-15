@@ -153,7 +153,7 @@ public class ChatWindow {
         messageBox = new JTextField(30);
         messageBox.requestFocusInWindow();
 
-        sendButton = new JButton("Send Message");
+        sendButton = new JButton("Envoyer");
         sendButton.addActionListener(new sendMessageButtonListener());
 
         chatBox = new TextArea();

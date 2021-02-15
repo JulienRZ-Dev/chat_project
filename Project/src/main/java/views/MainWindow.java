@@ -41,8 +41,8 @@ public class MainWindow {
     
     // user list graphic
 	JFrame frame= new JFrame();  
-	JButton chatButton = new JButton("Chat"); 
-	JButton fileButton = new JButton("Send file"); 
+	JButton chatButton = new JButton("Clavarder"); 
+	JButton fileButton = new JButton("Envoyer fichier"); 
 	JList<String> list1 = new JList<>(userList);
     
     public MainWindow(MessageManagement messageManagement) {

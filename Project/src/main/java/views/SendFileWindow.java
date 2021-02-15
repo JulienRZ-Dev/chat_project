@@ -40,7 +40,7 @@ public class SendFileWindow {
     	sendButton = new JButton("Envoyer");
     	this.fSender = fSender;
     	frame.setLayout(null);
-    	message.setText("Selectionnez un fichier");
+    	message.setText("Sélectionnez un fichier");
     	setPosition();
     	setClosingBehaviour();
     	addActionEvent();
@@ -85,11 +85,12 @@ public class SendFileWindow {
 				int val = fc.showOpenDialog(frame);
 				if(val == JFileChooser.APPROVE_OPTION) {
 					selected = fc.getSelectedFile();
-					System.out.println("File approuved");				
+					System.out.println("File approuved");
+					message.setText(selected.getName());
 				} else {
 					System.out.println("Selection cancelled");
 					message.setBackground(Color.red);
-					message.setText("Selection échouée");
+					message.setText("Ce type de fichier n'est pas supporté");
 				}
 			}
     	});

@@ -80,13 +80,14 @@ public class GetFileWindow {
     		
     	});
     	
-    	ignoreButton.addActionListener(new ActionListener() {
+    	downloadButton.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				try {
 					System.out.println("Getting file");
 					fProvider.receiveFile();
+					
 				} catch (FileNotFoundException e1) {
 					System.out.println("Could not create the file");
 				}
