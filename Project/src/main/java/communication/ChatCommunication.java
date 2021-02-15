@@ -54,6 +54,7 @@ public class ChatCommunication extends Thread {
 			writer = new PrintWriter(this.socket.getOutputStream(), true);
 			writer.write(message+"\n");
 	        writer.flush();
+	        System.out.println("Sending the message " + message + " to " + this.otherUser);
 	        return true;
 		} catch (IOException e) {
 			//System.out.println("Could not create a PrintWriter while sending a message");
@@ -74,7 +75,7 @@ public class ChatCommunication extends Thread {
 				String message = reader.readLine();
 				//Give the message to the correct class
 				if (message != null) {
-					System.out.println(this.socket.getLocalAddress().toString() + " has received a message on port " + this.socket.getLocalPort() + " :\n" + message + "\n");
+					System.out.println("Received the message " + message + " from " + this.otherUser);
 					if(this.awaitconfig) {
 						chatWindow.setUser(message);
 						this.otherUser = message;

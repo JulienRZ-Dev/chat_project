@@ -188,7 +188,6 @@ public class MainWindow {
 			public void actionPerformed(ActionEvent e) {
 				if(list1.getSelectedIndex() >= 0) {
 					User user = users.get(list1.getSelectedIndex());
-					System.out.println("let's chat with " + user.getNickname());
 					try {
 						messageManager.startChat(user);
 					} catch (ChatAlreadyExists e1) {
@@ -235,7 +234,7 @@ public class MainWindow {
 	 */
 	public void addUser(User user) {
 		if(!isUserInList(user)) {
-			System.out.println("adding the user " + user.getNickname() + " to the graphic user list");
+			//System.out.println("adding the user " + user.getNickname() + " to the graphic user list");
 			userList.addElement(user.getNickname());
 			users.add(user);
 		}

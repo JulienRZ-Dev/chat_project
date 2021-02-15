@@ -157,6 +157,7 @@ public class ChatWindow {
         sendButton.addActionListener(new sendMessageButtonListener());
 
         chatBox = new TextArea();
+        chatBox.setEditable(false);
         
         mainPanel.add(new JScrollPane(chatBox));
 
@@ -194,7 +195,6 @@ public class ChatWindow {
                 super.windowClosing(e);
                 try {
                 	messageManager.stopChat(otherUser);
-                	disconnect();
                 } catch (InterruptedException e1) {
                 	System.out.println("Chat already stopped");
                 }

@@ -51,7 +51,7 @@ public class ChatManager extends Thread {
 	 */
 	public boolean startChat(User user) {
 		try {
-			System.out.println("Starting a chat between port " + this.port + " and port " + user.getChatPort());
+			System.out.println("Starting a chat connection between port " + this.port + " and port " + user.getChatPort() + " (" + user.getNickname() + ")");
 			this.chats.add(new ChatCommunication(new Socket(user.getIpAddress(), user.getChatPort()), new ChatWindow(messageManagement, user), user.getNickname()));
 			this.chats.get(this.chats.size() - 1).start();
 			this.chats.get(this.chats.size() - 1).sendMessage(messageManagement.getCurrentUser().getNickname());
@@ -81,7 +81,7 @@ public class ChatManager extends Thread {
 	
 	public ChatCommunication getChat(User user) throws ChatNotFound {
 		for(ChatCommunication chat : chats) {
-            if (user.getIpAddress().equals(chat.getRemoteAddress())) {
+            if (user.getNickname().equals(chat.getOtherUser())) {
             	return chat;
             }
         }
@@ -94,12 +94,12 @@ public class ChatManager extends Thread {
 	public void run() {
 		//Wait for TCP connections and launch a thread for each one of these
 		this.running = true;
+		System.out.println("Waiting for chats on port " + this.port);
 		while (running) {
 			try {
-				System.out.println("Waiting for chats on port " + this.port);
 				this.chats.add(new ChatCommunication(this.serverSocket.accept(), new ChatWindow(messageManagement)));
 				this.chats.get(this.chats.size() - 1).start();
-				System.out.println("Connection received on port " + this.port);
+				System.out.println("Chat connection received on port " + this.port);
 			} catch (SocketException se) {
 				System.out.println("Chat stopped on port " + this.port);
 			} catch (IOException e) {

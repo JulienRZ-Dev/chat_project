@@ -43,8 +43,7 @@ public class DatabaseMessages {
         		"or (recipient = " + Integer.toString(idDistant) + " and transmitter = " + Integer.toString(idLocal) + ")");
 
         while(rs.next()) {
-        	message = new Message(rs.getInt("recipient"), rs.getInt("transmitter"), rs.getString("content"), rs.getTimestamp("message_date")); 
-        	System.out.println(message);
+        	message = new Message(rs.getInt("recipient"), rs.getInt("transmitter"), rs.getString("content"), rs.getTimestamp("message_date"));
         	history.add(message);
         }
     	

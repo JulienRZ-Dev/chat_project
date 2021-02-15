@@ -63,10 +63,12 @@ public class NotificationsListener extends Thread {
                     InetAddress address = InetAddress.getByName(infos[5]);
                     int udp_port = Integer.parseInt(infos[6]);
                     if ((id == messageManager.getCurrentUser().getId()) || (nickname.equals(messageManager.getCurrentUser().getNickname()))) {
+                    	System.out.println("Notification listener : refusinf " + nickname + "'s login request");
                     	response = "login_response:0:" + messageManager.getCurrentUser().getNickname() + ":" + Integer.toString(messageManager.getCurrentUser().getId()) + ":" + Integer.toString(messageManager.getCurrentUser().getChatPort()) + ":" + Integer.toString(messageManager.getCurrentUser().getFilePort());
                     }
                     else {
-                        response = "login_response:1:" + messageManager.getCurrentUser().getNickname() + ":" + Integer.toString(messageManager.getCurrentUser().getId()) + ":" + Integer.toString(messageManager.getCurrentUser().getChatPort()) + ":" + Integer.toString(messageManager.getCurrentUser().getFilePort());
+                        System.out.println("Notification listener : adding user " + nickname + " to the active user list");
+                    	response = "login_response:1:" + messageManager.getCurrentUser().getNickname() + ":" + Integer.toString(messageManager.getCurrentUser().getId()) + ":" + Integer.toString(messageManager.getCurrentUser().getChatPort()) + ":" + Integer.toString(messageManager.getCurrentUser().getFilePort());
                         messageManager.addUser(new User(id, nickname, address, chat_port, file_port));
                     }
                     if (!communication.unicastMessage(response, address, udp_port)) {

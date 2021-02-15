@@ -432,7 +432,7 @@ public class MessageManagement {
     public void addUser(User user) {
         if (!activeUsers.contains(user)) {
         	if(mainWindow != null) {
-            	System.out.println("refresh de la graphic user list de " + this.currentUser.getNickname() + " depuis add users");
+            	//System.out.println("refresh de la graphic user list de " + this.currentUser.getNickname() + " depuis add users");
             	mainWindow.addUser(user);        		
             }
             activeUsers.add(user);
